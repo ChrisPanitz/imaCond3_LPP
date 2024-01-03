@@ -1,9 +1,9 @@
 # --- author: Christian Panitz
 # --- encoding: en_US.UTF-8
-# --- R version: 4.0.3 (2020-10-10) -- "Bunny-Wunnies Freak Out"
-# --- RStudio version: 1.3.1093
-# --- script version: Feb 2022
-# --- content: rating analyses of imagery-based conditioning data in Panitz & Mueller (2022)
+# --- R version: 4.2.2 (2022-10-31) -- "Innocent and Trusting"
+# --- RStudio version: 2022.12.0
+# --- script version: Mar 2022
+# --- content: rating analyses of imagery-based conditioning data in Panitz & Mueller (2023)
 
 ###################
 ### preparing R ###
@@ -1584,8 +1584,10 @@ plotDataDisgust <- data.frame(
 )
 
 # some general settings
-plotFS <- 8
+plotFS <- 9
 showSig <- TRUE
+csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-",
+             expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
 
 # bar graphs of group x CS effects on fear ratings
 graphFear <- ggplot(data = plotDataFear, aes(x = usGroup, y = mean, fill = CS)) +
@@ -1595,12 +1597,12 @@ graphFear <- ggplot(data = plotDataFear, aes(x = usGroup, y = mean, fill = CS)) 
   geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
   scale_x_discrete(aes(breaks = usGroup), name = "", labels = NULL) +
   scale_y_continuous(name = "Fear rating (1-5)", limits = c(0.5,5.2), oob = rescale_none, expand = c(0,0)) +
-  labs(title = "Fear") +
+  #labs(title = "Fear") +
   geom_vline(xintercept = 0.41) +
   geom_rect(aes(xmin = 0.4, xmax = 2.6, ymin = 0.45, ymax = 1), fill = "white") +
   geom_hline(yintercept = 1) +
-  #geom_text(aes(label = CS, y = 0.7), position = position_dodge(.9), colour = "black", size = plotFS/.pt) + 
-  geom_text(aes(label = usGroup, y = 0.9), colour = "black", size = plotFS/.pt, fontface = "bold") +
+  geom_text(aes(y = 0.8), label = csLabels, position = position_dodge(.9), colour = "black", size = plotFS/.pt) + 
+  geom_text(aes(label = usGroup, y = 5), colour = "black", size = plotFS/.pt, fontface = "bold") +
   theme(legend.position = "none",
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.line.x = element_blank(),
@@ -1777,32 +1779,47 @@ dummyGraph <- ggplot(data = plotDataDisgust, aes(x = usGroup, y = mean, fill = C
   theme(legend.title = element_blank())
 graphLegend <- get_legend(dummyGraph)
 
-graphRatings <- ggarrange(graphFear, graphUnpleas, graphArousal,
-                          graphAnger, graphDisgust, graphLegend,
-                          labels = c("A", "B", "C", "D", "E"),
-                          ncol = 3, nrow = 2) #, common.legend = TRUE, legend = "right")
+graphRatingsAll <- ggarrange(graphFear, graphUnpleas, graphArousal,
+                             graphAnger, graphDisgust, graphLegend,
+                             labels = c("A", "B", "C", "D", "E"),
+                             ncol = 3, nrow = 2)
 
+graphRatingsNoFear <- ggarrange(graphUnpleas, graphArousal,
+                                graphAnger, graphDisgust,
+                                labels = c("A", "B", "C", "D"),
+                                ncol = 2, nrow = 2)
 
-# graphRatings <- ggarrange(graphFear, 
-#                           ggarrange(graphUnpleas, graphArousal,
-#                                     graphAnger, graphDisgust,
-#                                     labels = c("B", "C", "D", "E"),
-#                                     ncol = 2, nrow = 2),
-#                           labels = "A",
-#                           ncol = 1, nrow = 2, heights = c(1,2))
-graphRatings
 
 # saving it
-ggsave(filename = paste0(pathname, "/Figures/Figure2_barplotRatings.eps"),
-       plot = graphRatings,
+graphFear <- graphFear + theme(plot.title = element_blank(),
+                               plot.margin = margin(0,0,0,0))
+ggsave(filename = paste0(pathname, "/figures/Figure2_barplotFear.eps"),
+       plot = graphFear,
+       width = 100,
+       height = 70,
+       units = "mm",
+       dpi = 300
+)
+
+ggsave(filename = paste0(pathname, "/figures/Figure2_barplotFear.pdf"),
+       plot = graphFear,
+       width = 100,
+       height = 70,
+       units = "mm",
+       dpi = 300
+)
+
+ggsave(filename = paste0(pathname, "/figures/FigureSupp_barplotRatingsNoFear.eps"),
+       plot = graphRatingsNoFear,
        width = 200,
        height = 200,
        units = "mm",
        dpi = 300
 )
 
-ggsave(filename = paste0(pathname, "/Figures/Figure2_barplotRatings.pdf"),
-       plot = graphRatings,
+ggsave(filename = paste0(pathname, "/figures/FigureSupp_barplotRatingsNoFear.pdf"),
+       plot = graphRatingsNoFear,
+       device = "pdf",
        width = 200,
        height = 200,
        units = "mm",
