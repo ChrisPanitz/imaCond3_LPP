@@ -1,0 +1,135 @@
+Bayes factor analysis
+--------------
+[1] usGroup + partInd                                                                       : 0.9514739    ±0.51%
+[2] CS + partInd                                                                            : 2.050191e+18 ±0.29%
+[3] time + partInd                                                                          : 0.2484959    ±0.36%
+[4] usGroup:CS + partInd                                                                    : 63.96782     ±0.32%
+[5] usGroup:time + partInd                                                                  : 0.05264223   ±0.49%
+[6] CS:time + partInd                                                                       : 7886.74      ±0.21%
+[7] usGroup:CS:time + partInd                                                               : 1.294286     ±0.13%
+[8] usGroup + CS + partInd                                                                  : 2.169007e+18 ±0.62%
+[9] usGroup + time + partInd                                                                : 0.2382582    ±0.52%
+[10] usGroup + usGroup:CS + partInd                                                         : 62.55185     ±0.65%
+[11] usGroup + usGroup:time + partInd                                                       : 0.05012967   ±0.67%
+[12] usGroup + CS:time + partInd                                                            : 7837.854     ±0.8%
+[13] usGroup + usGroup:CS:time + partInd                                                    : 1.259571     ±0.76%
+[14] CS + time + partInd                                                                    : 9.562763e+17 ±1.39%
+[15] CS + usGroup:CS + partInd                                                              : 1.023408e+21 ±0.73%
+[16] CS + usGroup:time + partInd                                                            : 1.103479e+17 ±0.95%
+[17] CS + CS:time + partInd                                                                 : 9.87446e+23  ±0.63%
+[18] CS + usGroup:CS:time + partInd                                                         : 8.098714e+18 ±0.34%
+[19] time + usGroup:CS + partInd                                                            : 17.30229     ±0.53%
+[20] time + usGroup:time + partInd                                                          : 0.01318251   ±0.78%
+[21] time + CS:time + partInd                                                               : 2333.521     ±0.63%
+[22] time + usGroup:CS:time + partInd                                                       : 0.3392266    ±0.5%
+[23] usGroup:CS + usGroup:time + partInd                                                    : 3.392144     ±0.56%
+[24] usGroup:CS + CS:time + partInd                                                         : 893286.2     ±0.47%
+[25] usGroup:CS + usGroup:CS:time + partInd                                                 : 96.67935     ±0.32%
+[26] usGroup:time + CS:time + partInd                                                       : 412.5911     ±0.4%
+[27] usGroup:time + usGroup:CS:time + partInd                                               : 0.06769229   ±0.3%
+[28] CS:time + usGroup:CS:time + partInd                                                    : 13912.08     ±0.32%
+[29] usGroup + CS + time + partInd                                                          : 1.005023e+18 ±0.68%
+[30] usGroup + CS + usGroup:CS + partInd                                                    : 1.110862e+21 ±1.02%
+[31] usGroup + CS + usGroup:time + partInd                                                  : 1.195706e+17 ±1.16%
+[32] usGroup + CS + CS:time + partInd                                                       : 1.079096e+24 ±0.5%
+[33] usGroup + CS + usGroup:CS:time + partInd                                               : 9.037931e+18 ±2.54%
+[34] usGroup + time + usGroup:CS + partInd                                                  : 16.83826     ±0.76%
+[35] usGroup + time + usGroup:time + partInd                                                : 0.01264719   ±1.22%
+[36] usGroup + time + CS:time + partInd                                                     : 2293.544     ±0.81%
+[37] usGroup + time + usGroup:CS:time + partInd                                             : 0.3295186    ±1.15%
+[38] usGroup + usGroup:CS + usGroup:time + partInd                                          : 3.244818     ±0.67%
+[39] usGroup + usGroup:CS + CS:time + partInd                                               : 899897.4     ±0.65%
+[40] usGroup + usGroup:CS + usGroup:CS:time + partInd                                       : 95.01346     ±0.7%
+[41] usGroup + usGroup:time + CS:time + partInd                                             : 408.0021     ±0.77%
+[42] usGroup + usGroup:time + usGroup:CS:time + partInd                                     : 0.06676661   ±1.61%
+[43] usGroup + CS:time + usGroup:CS:time + partInd                                          : 13853.89     ±0.63%
+[44] CS + time + usGroup:CS + partInd                                                       : 5.530512e+20 ±1.05%
+[45] CS + time + usGroup:time + partInd                                                     : 5.186509e+16 ±1.15%
+[46] CS + time + CS:time + partInd                                                          : 6.127665e+23 ±0.76%
+[47] CS + time + usGroup:CS:time + partInd                                                  : 4.105978e+18 ±1.02%
+[48] CS + usGroup:CS + usGroup:time + partInd                                               : 5.48932e+19  ±0.63%
+[49] CS + usGroup:CS + CS:time + partInd                                                    : 1.329568e+27 ±0.56%
+[50] CS + usGroup:CS + usGroup:CS:time + partInd                                            : 5.442036e+21 ±3.22%
+[51] CS + usGroup:time + CS:time + partInd                                                  : 5.420654e+22 ±0.77%
+[52] CS + usGroup:time + usGroup:CS:time + partInd                                          : 4.388853e+17 ±0.55%
+[53] CS + CS:time + usGroup:CS:time + partInd                                               : 6.740047e+24 ±0.45%
+[54] time + usGroup:CS + usGroup:time + partInd                                             : 0.9002026    ±0.56%
+[55] time + usGroup:CS + CS:time + partInd                                                  : 292066       ±0.67%
+[56] time + usGroup:CS + usGroup:CS:time + partInd                                          : 28.19043     ±1.34%
+[57] time + usGroup:time + CS:time + partInd                                                : 123.6344     ±0.89%
+[58] time + usGroup:time + usGroup:CS:time + partInd                                        : 0.01798103   ±0.78%
+[59] time + CS:time + usGroup:CS:time + partInd                                             : 4371.982     ±0.78%
+[60] usGroup:CS + usGroup:time + CS:time + partInd                                          : 47468.4      ±0.97%
+[61] usGroup:CS + usGroup:time + usGroup:CS:time + partInd                                  : 5.319928     ±2.3%
+[62] usGroup:CS + CS:time + usGroup:CS:time + partInd                                       : 1901859      ±0.46%
+[63] usGroup:time + CS:time + usGroup:CS:time + partInd                                     : 737.4989     ±0.45%
+[64] usGroup + CS + time + usGroup:CS + partInd                                             : 5.974999e+20 ±1.08%
+[65] usGroup + CS + time + usGroup:time + partInd                                           : 4.685648e+17 ±88.08%
+[66] usGroup + CS + time + CS:time + partInd                                                : 6.855072e+23 ±0.95%
+[67] usGroup + CS + time + usGroup:CS:time + partInd                                        : 4.480026e+18 ±1.96%
+[68] usGroup + CS + usGroup:CS + usGroup:time + partInd                                     : 6.002244e+19 ±1.15%
+[69] usGroup + CS + usGroup:CS + CS:time + partInd                                          : 1.52455e+27  ±1.56%
+[70] usGroup + CS + usGroup:CS + usGroup:CS:time + partInd                                  : 5.83713e+21  ±1.19%
+[71] usGroup + CS + usGroup:time + CS:time + partInd                                        : 5.880092e+22 ±0.73%
+[72] usGroup + CS + usGroup:time + usGroup:CS:time + partInd                                : 4.756248e+17 ±1.17%
+[73] usGroup + CS + CS:time + usGroup:CS:time + partInd                                     : 7.565127e+24 ±1.07%
+[74] usGroup + time + usGroup:CS + usGroup:time + partInd                                   : 0.8906585    ±0.93%
+[75] usGroup + time + usGroup:CS + CS:time + partInd                                        : 301774.7     ±1.19%
+[76] usGroup + time + usGroup:CS + usGroup:CS:time + partInd                                : 27.29341     ±0.75%
+[77] usGroup + time + usGroup:time + CS:time + partInd                                      : 123.076      ±1.07%
+[78] usGroup + time + usGroup:time + usGroup:CS:time + partInd                              : 0.01702336   ±0.77%
+[79] usGroup + time + CS:time + usGroup:CS:time + partInd                                   : 4362.875     ±0.9%
+[80] usGroup + usGroup:CS + usGroup:time + CS:time + partInd                                : 49520.28     ±1.99%
+[81] usGroup + usGroup:CS + usGroup:time + usGroup:CS:time + partInd                        : 5.431359     ±7.82%
+[82] usGroup + usGroup:CS + CS:time + usGroup:CS:time + partInd                             : 1920182      ±0.59%
+[83] usGroup + usGroup:time + CS:time + usGroup:CS:time + partInd                           : 737.9618     ±0.97%
+[84] CS + time + usGroup:CS + usGroup:time + partInd                                        : 2.933759e+19 ±0.72%
+[85] CS + time + usGroup:CS + CS:time + partInd                                             : 9.95549e+26  ±0.77%
+[86] CS + time + usGroup:CS + usGroup:CS:time + partInd                                     : 3.188566e+21 ±3.88%
+[87] CS + time + usGroup:time + CS:time + partInd                                           : 3.413148e+22 ±1.56%
+[88] CS + time + usGroup:time + usGroup:CS:time + partInd                                   : 2.179294e+17 ±0.64%
+[89] CS + time + CS:time + usGroup:CS:time + partInd                                        : 4.741136e+24 ±1.38%
+[90] CS + usGroup:CS + usGroup:time + CS:time + partInd                                     : 7.266298e+25 ±0.99%
+[91] CS + usGroup:CS + usGroup:time + usGroup:CS:time + partInd                             : 2.873532e+20 ±0.72%
+[92] CS + usGroup:CS + CS:time + usGroup:CS:time + partInd                                  : 1.26025e+28  ±0.48%
+[93] CS + usGroup:time + CS:time + usGroup:CS:time + partInd                                : 3.731542e+23 ±1.44%
+[94] time + usGroup:CS + usGroup:time + CS:time + partInd                                   : 17288.64     ±9.46%
+[95] time + usGroup:CS + usGroup:time + usGroup:CS:time + partInd                           : 1.463004     ±0.81%
+[96] time + usGroup:CS + CS:time + usGroup:CS:time + partInd                                : 655929.3     ±0.57%
+[97] time + usGroup:time + CS:time + usGroup:CS:time + partInd                              : 235.7609     ±2.12%
+[98] usGroup:CS + usGroup:time + CS:time + usGroup:CS:time + partInd                        : 101422.8     ±0.73%
+[99] usGroup + CS + time + usGroup:CS + usGroup:time + partInd                              : 3.878613e+19 ±15.47%
+[100] usGroup + CS + time + usGroup:CS + CS:time + partInd                                  : 1.114421e+27 ±1.45%
+[101] usGroup + CS + time + usGroup:CS + usGroup:CS:time + partInd                          : 3.395495e+21 ±1.25%
+[102] usGroup + CS + time + usGroup:time + CS:time + partInd                                : 3.755373e+22 ±1.29%
+[103] usGroup + CS + time + usGroup:time + usGroup:CS:time + partInd                        : 2.417065e+17 ±2.08%
+[104] usGroup + CS + time + CS:time + usGroup:CS:time + partInd                             : 5.247611e+24 ±1.48%
+[105] usGroup + CS + usGroup:CS + usGroup:time + CS:time + partInd                          : 8.39946e+25  ±1.48%
+[106] usGroup + CS + usGroup:CS + usGroup:time + usGroup:CS:time + partInd                  : 3.172503e+20 ±2.24%
+[107] usGroup + CS + usGroup:CS + CS:time + usGroup:CS:time + partInd                       : 1.49717e+28  ±1.95%
+[108] usGroup + CS + usGroup:time + CS:time + usGroup:CS:time + partInd                     : 4.133605e+23 ±1.07%
+[109] usGroup + time + usGroup:CS + usGroup:time + CS:time + partInd                        : 15873.17     ±1.19%
+[110] usGroup + time + usGroup:CS + usGroup:time + usGroup:CS:time + partInd                : 1.419107     ±0.82%
+[111] usGroup + time + usGroup:CS + CS:time + usGroup:CS:time + partInd                     : 677096.6     ±1.1%
+[112] usGroup + time + usGroup:time + CS:time + usGroup:CS:time + partInd                   : 228.5672     ±0.73%
+[113] usGroup + usGroup:CS + usGroup:time + CS:time + usGroup:CS:time + partInd             : 103528.6     ±1.19%
+[114] CS + time + usGroup:CS + usGroup:time + CS:time + partInd                             : 5.500159e+25 ±1.38%
+[115] CS + time + usGroup:CS + usGroup:time + usGroup:CS:time + partInd                     : 1.655839e+20 ±0.78%
+[116] CS + time + usGroup:CS + CS:time + usGroup:CS:time + partInd                          : 1.062052e+28 ±1.01%
+[117] CS + time + usGroup:time + CS:time + usGroup:CS:time + partInd                        : 2.543875e+23 ±0.96%
+[118] CS + usGroup:CS + usGroup:time + CS:time + usGroup:CS:time + partInd                  : 6.959411e+26 ±0.73%
+[119] time + usGroup:CS + usGroup:time + CS:time + usGroup:CS:time + partInd                : 35420.13     ±1.05%
+[120] usGroup + CS + time + usGroup:CS + usGroup:time + CS:time + partInd                   : 6.382364e+25 ±2.31%
+[121] usGroup + CS + time + usGroup:CS + usGroup:time + usGroup:CS:time + partInd           : 2.082269e+20 ±10.24%
+[122] usGroup + CS + time + usGroup:CS + CS:time + usGroup:CS:time + partInd                : 1.200721e+28 ±0.98%
+[123] usGroup + CS + time + usGroup:time + CS:time + usGroup:CS:time + partInd              : 2.858137e+23 ±1.53%
+[124] usGroup + CS + usGroup:CS + usGroup:time + CS:time + usGroup:CS:time + partInd        : 7.945386e+26 ±0.89%
+[125] usGroup + time + usGroup:CS + usGroup:time + CS:time + usGroup:CS:time + partInd      : 36033.98     ±1.24%
+[126] CS + time + usGroup:CS + usGroup:time + CS:time + usGroup:CS:time + partInd           : 5.897054e+26 ±1.4%
+[127] usGroup + CS + time + usGroup:CS + usGroup:time + CS:time + usGroup:CS:time + partInd : 8.831239e+26 ±26.12%
+
+Against denominator:
+  arousal ~ partInd 
+---
+Bayes factor type: BFlinearModel, JZS
+

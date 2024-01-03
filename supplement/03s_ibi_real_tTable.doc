@@ -1,0 +1,7 @@
+   time      comparison          t df          p           d        BF   testDir
+1 1stBl CS+av vs CS+neu  0.8946550 23 0.19011942  0.18262069 0.4920283 one.sided
+2 1stBl    CS+av vs CS-  2.4813333 23 0.01041664  0.50650005 5.1937024 one.sided
+3 1stBl    CSneu vs CS-  1.8392763 23 0.07881990  0.37544071 0.9133866 two.sided
+4 2ndBl CS+av vs CS+neu -0.0703395 23 0.52773427 -0.01435799 0.2037063 one.sided
+5 2ndBl    CS+av vs CS-  0.8198923 23 0.21034670  0.16735981 0.4531961 one.sided
+6 2ndBl    CSneu vs CS-  0.6708162 23 0.50901863  0.13692977 0.2632458 two.sided
