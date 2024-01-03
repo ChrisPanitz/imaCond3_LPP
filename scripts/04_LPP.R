@@ -43,7 +43,8 @@ if(!is.element("eegUtils",installed.packages()[,1])) {install.packages("eegUtils
 library(eegUtils) # 
 if(!is.element("OneR",installed.packages()[,1])) {install.packages("OneR")}
 library(OneR) # 
-
+if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
+library(here) # 
 
 ###################################
 ### Setting time window for LPP ###
@@ -53,7 +54,8 @@ library(OneR) #
 sRate <- 1024 # sampling rate of EEG data
 startSeg <- -200 # time of first data point relative to CS
 TWOI <- c(300,700) # Time Window Of Interest (in ms)
-chanInd <- 31 # 31 = index of Pz in EEG array
+chanNames <- c("Pz")
+#chanInd <- 20 #31 # 31 = index of Pz in EEG array
 
 # computed
 # Sample Window Of Interest
@@ -70,25 +72,41 @@ SWOI <- c(round(TWOI[1]-startSeg*sRate/1000),round(TWOI[2]-startSeg*sRate/1000))
 pathname <- here()
 importRatings <- read.csv(paste0(pathname, "/experimentData/imaCond3_demographicsAndRatings.txt"), sep=",")
 
+# Load channel locations and transform from 3D theta + radius into 2D x & y
+# for plotting purposes
+loadname <- paste0(pathname,"/channelLocations/chanLocs_biosemi64.txt")
+chanLocs <- read.csv(loadname, sep = ";")
+chanLocs$thetaRadian <- pi/180*chanLocs$theta
+chanLocs$x <- chanLocs$radius*sin(chanLocs$thetaRadian)*200
+chanLocs$y <- chanLocs$radius*cos(chanLocs$thetaRadian)*200
+
+chanInd <- match(chanNames, chanLocs$name)
+
 # read LPP data
 # create emtpy matrices, rows = participants, columns = sample points (entire ERP)
 tempData <- read.csv(paste0(pathname, "/experimentData/erpData/", importRatings$partCode[1], "_IMAKON03_Average_Akquges_EKP_P9P10_S51.dat"), 
                      header = FALSE, sep = " ")
-lppMatAV <- matrix(data = NA, nrow = dim(importRatings)[1], ncol = dim(tempData)[1])
-lppMatNEU <- matrix(data = NA, nrow = dim(importRatings)[1], ncol = dim(tempData)[1])
-lppMatMIN <- matrix(data = NA, nrow = dim(importRatings)[1], ncol = dim(tempData)[1])
+erpMatAV <- matrix(data = NA, nrow = dim(importRatings)[1], ncol = dim(tempData)[1])
+erpMatNEU <- matrix(data = NA, nrow = dim(importRatings)[1], ncol = dim(tempData)[1])
+erpMatMIN <- matrix(data = NA, nrow = dim(importRatings)[1], ncol = dim(tempData)[1])
+topoMatAV <- matrix(data = NA, nrow = dim(importRatings)[1], ncol = dim(tempData)[2])
+topoMatNEU <- matrix(data = NA, nrow = dim(importRatings)[1], ncol = dim(tempData)[2])
+topoMatMIN <- matrix(data = NA, nrow = dim(importRatings)[1], ncol = dim(tempData)[2])
 
 # read single-subject data and extract Pz
 for (partI in 1:length(importRatings$partCode)) {
   tempData <- read.csv(paste0(pathname, "/experimentData/erpData/", importRatings$partCode[partI], "_IMAKON03_Average_Akquges_EKP_P9P10_S51.dat"), 
                        header = FALSE, sep = " ")
-  lppMatAV[partI,] <- tempData[,chanInd]
+  erpMatAV[partI,] <- colMeans(t(tempData[,chanInd]))
+  topoMatAV[partI,] <- colMeans(tempData[SWOI[1]:SWOI[2],])
   tempData <- read.csv(paste0(pathname, "/experimentData/erpData/", importRatings$partCode[partI], "_IMAKON03_Average_Akquges_EKP_P9P10_S52.dat"), 
                        header = FALSE, sep = " ")
-  lppMatNEU[partI,] <- tempData[,chanInd]
+  erpMatNEU[partI,] <- colMeans(t(tempData[,chanInd]))
+  topoMatNEU[partI,] <- colMeans(tempData[SWOI[1]:SWOI[2],])
   tempData <- read.csv(paste0(pathname, "/experimentData/erpData/", importRatings$partCode[partI], "_IMAKON03_Average_Akquges_EKP_P9P10_S53.dat"), 
                        header = FALSE, sep = " ")
-  lppMatMIN[partI,] <- tempData[,chanInd]
+  erpMatMIN[partI,] <- colMeans(t(tempData[,chanInd]))
+  topoMatMIN[partI,] <- colMeans(tempData[SWOI[1]:SWOI[2],])
 }
 
 # create LPP data frame; LPP values are means from 300 to 700 s post-CS
@@ -96,9 +114,9 @@ dataLPP <- data.frame(
   partCode = factor(importRatings$partCode),
   partInd = factor(1:dim(importRatings)[1]),
   usGroup = factor(importRatings$group, levels = c("ima", "real")),
-  Av_allTr = rowMeans(lppMatAV[,SWOI[1]:SWOI[2]]),
-  Neu_allTr = rowMeans(lppMatNEU[,SWOI[1]:SWOI[2]]),
-  Min_allTr = rowMeans(lppMatMIN[,SWOI[1]:SWOI[2]])
+  Av_allTr = rowMeans(erpMatAV[,SWOI[1]:SWOI[2]]),
+  Neu_allTr = rowMeans(erpMatNEU[,SWOI[1]:SWOI[2]]),
+  Min_allTr = rowMeans(erpMatMIN[,SWOI[1]:SWOI[2]])
 )  
 
 # transform into long format
@@ -417,16 +435,16 @@ save_as_docx(tableLPP, path = paste0(pathname, "/Tables/tableLPP_raw.docx"))
 ### Plotting LPP ###
 ####################
 
-csLabels = c("CS+av", "CS+neu", "CS-")
-lppAv4GA <- lppMatAV
-  lppAv4GAima <- lppMatAV[importRatings$group == "ima",]
-  lppAv4GAreal <- lppMatAV[importRatings$group == "real",]
-lppNeu4GA <- lppMatNEU
-  lppNeu4GAima <- lppMatNEU[importRatings$group == "ima",]
-  lppNeu4GAreal <- lppMatNEU[importRatings$group == "real",]
-lppMin4GA <- lppMatMIN
-  lppMin4GAima <- lppMatMIN[importRatings$group == "ima",]
-  lppMin4GAreal <- lppMatMIN[importRatings$group == "real",]
+csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
+lppAv4GA <- erpMatAV
+  lppAv4GAima <- erpMatAV[importRatings$group == "ima",]
+  lppAv4GAreal <- erpMatAV[importRatings$group == "real",]
+lppNeu4GA <- erpMatNEU
+  lppNeu4GAima <- erpMatNEU[importRatings$group == "ima",]
+  lppNeu4GAreal <- erpMatNEU[importRatings$group == "real",]
+lppMin4GA <- erpMatMIN
+  lppMin4GAima <- erpMatMIN[importRatings$group == "ima",]
+  lppMin4GAreal <- erpMatMIN[importRatings$group == "real",]
   
 lppGA <- data.frame(
   csType = factor(c(rep(1,dim(lppAv4GA)[2]), rep(2,dim(lppAv4GA)[2]), rep(3,dim(lppAv4GA)[2])), labels = csLabels),
@@ -479,6 +497,7 @@ yMax = 12
 plotFS <- 9
 showSig <- TRUE
 
+
 graphLPPima <- ggplot(data = lppGAima, aes(x = time, y = LPP, colour = csType)) + 
   theme_classic() +
   geom_rect(xmin = TWOI[1], xmax = TWOI[2], ymin = yMin, ymax = yMax, fill = "gray90", colour = NA) +
@@ -486,7 +505,7 @@ graphLPPima <- ggplot(data = lppGAima, aes(x = time, y = LPP, colour = csType)) 
   scale_x_continuous(breaks = seq(-200,1000,200)) +
   scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   lims(y = c(yMin, yMax)) +
-  labs(title = "Imagery-Based Conditioning", x = "Time (ms)", y = "ERP amplitude at Pz (µV)", fill = "", colour = "") +
+  labs(title = "Imagery-Based Conditioning", x = "Time (ms)", y = expression(paste("ERP amplitude at Pz ", (µV))), fill = "", colour = "") +
   guides(colour = guide_legend(order = 1), fill = FALSE) +
   theme(
     legend.position = "none",
@@ -503,7 +522,7 @@ graphLPPreal <- ggplot(data = lppGAreal, aes(x = time, y = LPP, colour = csType)
   scale_x_continuous(breaks = seq(-200,1000,200)) +
   scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   lims(y = c(yMin, yMax)) +
-  labs(title = "Classical Conditioning", x = "Time (ms)", y = "ERP amplitude at Pz (µV)", fill = "", colour = "") +
+  labs(title = "Classical Conditioning", x = "Time (ms)", y = expression(paste("ERP amplitude at Pz ", (µV))), fill = "", colour = "") +
   guides(colour = guide_legend(order = 1), fill = FALSE) +
   theme(
     legend.position = "none",
@@ -548,7 +567,7 @@ graphLPPmeansReal <- ggplot(data = meanLPP[meanLPP$usGroup == "Classical",], aes
 if (showSig == TRUE){
   graphLPPmeansIma <- graphLPPmeansIma +
     geom_segment(aes(x = 1, y = mean+se+.5, xend = 2, yend = mean+se+.5), data = meanLPP[1,]) +
-    geom_text(aes(label = "†", x = 1.5, y = mean+se+1), size = plotFS/4, data = meanLPP[1,]) +
+    geom_text(aes(label = "†", x = 1.5, y = mean+se+1), size = plotFS/4, data = meanLPP[1,], family = "Helvetica") +
     geom_segment(aes(x = 1, y = mean+se+1.5, xend = 3, yend = mean+se+1.5), data = meanLPP[1,]) +
     geom_text(aes(label = "*", x = 2, y = mean+se+1.6), size = plotFS/2, data = meanLPP[1,])
   graphLPPmeansReal <- graphLPPmeansReal +  
@@ -556,39 +575,165 @@ if (showSig == TRUE){
     geom_text(aes(label = "*", x = 1.5, y = mean+se+.6), size = plotFS/2, data = meanLPP[4,])
 }
 
+
+
+
+
+# Averaging Amplitudes for All Channels for Plotting Topographies
+
+# Average individual amplitudes across whole sample
+topoAvgAV <- colMeans(topoMatAV)
+topoAvgNEU <- colMeans(topoMatNEU)
+topoAvgMIN <- colMeans(topoMatMIN)
+
+topoAvgAVima <- colMeans(topoMatAV[importRatings$group == "ima",])
+topoAvgNEUima <- colMeans(topoMatNEU[importRatings$group == "ima",])
+topoAvgMINima <- colMeans(topoMatMIN[importRatings$group == "ima",])
+
+topoAvgAVreal <- colMeans(topoMatAV[importRatings$group == "real",])
+topoAvgNEUreal <- colMeans(topoMatNEU[importRatings$group == "real",])
+topoAvgMINreal <- colMeans(topoMatMIN[importRatings$group == "real",])
+
+# number of electrodes
+nrChans = length(topoAvgAV)
+
+# Create data frame with factors lab, driving frequency & modulation function, 
+# electrode name, x & y coordinates for plot & ssVEP amplitude
+dfTopos <- data.frame(
+  electrode = chanLocs$name,
+  x = chanLocs$x,
+  y = chanLocs$y,
+  csp_av = topoAvgAV,
+  csp_neu = topoAvgNEU,
+  csm = topoAvgMIN
+)
+
+dfToposIma <- data.frame(
+  electrode = chanLocs$name,
+  x = chanLocs$x,
+  y = chanLocs$y,
+  csp_av = topoAvgAVima,
+  csp_neu = topoAvgNEUima,
+  csm = topoAvgMINima
+)
+
+dfToposReal <- data.frame(
+  electrode = chanLocs$name,
+  x = chanLocs$x,
+  y = chanLocs$y,
+  csp_av = topoAvgAVreal,
+  csp_neu = topoAvgNEUreal,
+  csm = topoAvgMINreal
+)
+
+dfTopos$contrast <- 1*dfTopos$csp_av - 0.5*dfTopos$csp_neu - 0.5*dfTopos$csm
+dfToposIma$contrast <- 1*dfToposIma$csp_av - 0.5*dfToposIma$csp_neu - 0.5*dfToposIma$csm
+dfToposReal$contrast <- 1*dfToposReal$csp_av - 0.5*dfToposReal$csp_neu - 0.5*dfToposReal$csm
+
+
+
+topoRes <- 400
+chanCol <- "black"
+nrColors <- 8
+
+minLim <- min(dfTopos$contrast)
+maxLim <- max(dfTopos$contrast)
+absLim <- max(abs(c(minLim, maxLim)))
+
+topoAll <- topoplot(data = dfTopos,
+                    contour = FALSE, interp_limit = "head", highlights = chanNames,
+                    grid_res = topoRes, quantity = "contrast", scaling = .5)
+topoAll$data$fill <- as.numeric(bin(data = topoAll$data$fill, nbins = nrColors))
+  
+topoIma <- topoplot(data = dfToposIma,
+                    contour = FALSE, interp_limit = "head", highlights = chanNames,
+                    grid_res = topoRes, quantity = "contrast", scaling = .33, 
+                    limits = c(-absLim, absLim)) +
+  labs(title = expression(paste("CS+"[av], " vs [CS+"[neu], " & CS-]"))) +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = plotFS),
+        plot.title = element_text(hjust = 0.5, size = plotFS))
+topoIma$guides$fill$barwidth <- unit(6, "lines")
+topoIma$guides$fill$barheight <- unit(.5, "lines")
+topoIma$guides$fill$title <- expression(paste(Delta, " amplitude ", (µV)))
+topoIma$guides$fill$title.theme$size <- plotFS
+topoIma$guides$fill$title.theme$angle <- 0
+topoIma$guides$fill$title.position <- "bottom"
+topoIma$guides$fill$title.hjust <- 0.5
+topoIma$guides$fill$nbin <- nrColors
+
+topoReal <- topoplot(data = dfToposReal,
+                     contour = FALSE, interp_limit = "head", highlights = chanNames,
+                     grid_res = topoRes, quantity = "contrast", scaling = .33,
+                     limits = c(-absLim, absLim)) +
+  labs(title = expression(paste("CS+"[av], " vs [CS+"[neu], " & CS-]"))) +
+  theme(legend.position = "bottom",
+        legend.text = element_text(size = plotFS),
+        plot.title = element_text(hjust = 0.5, size = plotFS))
+topoReal$guides$fill$barwidth <- unit(6, "lines")
+topoReal$guides$fill$barheight <- unit(.5, "lines")
+topoReal$guides$fill$title <- expression(paste(Delta, " amplitude ", (µV)))
+topoReal$guides$fill$title.theme$size <- plotFS
+topoReal$guides$fill$title.theme$angle <- 0
+topoReal$guides$fill$title.position <- "bottom"
+topoReal$guides$fill$title.hjust <- 0.5
+topoReal$guides$fill$nbin <- nrColors
+
+
+topoFillVec <- c(topoIma$data$fill, topoReal$data$fill)
+totMin <- min(topoFillVec)
+totMax <- max(topoFillVec)
+
+topoFillVec <- as.numeric(bin(data = topoFillVec, nbins = nrColors))
+
+topoFillVec <- (topoFillVec-1) / (nrColors-1)
+topoFillVec <- topoFillVec*(totMax-totMin) + totMin
+
+topoIma$data$fill <- topoFillVec[1 : (length(topoFillVec)/2)]
+topoReal$data$fill <- topoFillVec[(length(topoFillVec)/2+1) : length(topoFillVec)]
+
+
 # combining graphs into one figure
 graphLPPima <- graphLPPima + theme(plot.margin = unit(c(10,5,5,5), "mm"))
 graphLPPreal <- graphLPPreal + theme(plot.margin = unit(c(10,5,5,5), "mm"))
-graphLPPmeansIma <- graphLPPmeansIma + theme(plot.margin = unit(c(10,5,5,5), "mm"))
-graphLPPmeansReal <- graphLPPmeansReal + theme(plot.margin = unit(c(10,5,5,5), "mm"))
+graphLPPmeansIma <- graphLPPmeansIma + theme(plot.margin = unit(c(10,2.5,5,7.5), "mm"))
+graphLPPmeansReal <- graphLPPmeansReal + theme(plot.margin = unit(c(10,2.5,5,7.5), "mm"))
+topoIma <- topoIma + theme(plot.margin = unit(c(10,5,2.6,5), "mm"))
+topoReal <- topoReal + theme(plot.margin = unit(c(10,5,2.6,5), "mm"))
 
-graphLPProw1 <- ggarrange(graphLPPima, graphLPPmeansIma,
-                          ncol = 2, nrow = 1, 
-                          widths = c(3,2))
-graphLPProw2 <- ggarrange(graphLPPreal, graphLPPmeansReal,
-                          ncol = 2, nrow = 1, 
-                          widths = c(3,2))
+graphLPProw1 <- ggarrange(graphLPPima, graphLPPmeansIma, topoIma,
+                          ncol = 3, nrow = 1, 
+                          widths = c(3,2,2))
+graphLPProw2 <- ggarrange(graphLPPreal, graphLPPmeansReal, topoReal,
+                          ncol = 3, nrow = 1, 
+                          widths = c(3,2,2))
 graphLPP <- ggarrange(graphLPProw1,graphLPProw2,
                       ncol = 1, nrow = 2,
-                      labels = c("Imagery-Based Conditioning", "Classical Conditioning"),
-                      label.x = c(0.09,0.18)
+                      labels = c("A) Imagery-Based Conditioning", "B) Classical Conditioning"),
+                      hjust = -.05
                       )
 graphLPP
 
 # saving it
 ggsave(filename = paste0(pathname, "/Figures/Figure5_timeCourses_barPlot_LPP.eps"),
        plot = graphLPP,
-       width = 150,
+       width = 200,
        height = 150,
        units = "mm",
        dpi = 300
 )
 
-ggsave(filename = paste0(pathname, "/Figures/Figure5_timeCourses_barPlot_LPP.pdf"),
-       plot = graphLPP,
-       width = 150,
-       height = 150,
-       units = "mm",
-       dpi = 300
-)
+# ggsave(filename = paste0(pathname, "/Figures/Figure5_timeCourses_barPlot_LPP.pdf"),
+#        plot = graphLPP,
+#        width = 200,
+#        height = 150,
+#        units = "mm",
+#        dpi = 300
+# )
+
+cairo_pdf("example_apriori.pdf",
+          width = 200/25.4, height = 150/25.4,
+          family="Helvetica")
+graphLPP
+dev.off()
 
