@@ -52,12 +52,13 @@ importRatings <- read.csv(paste0(pathname, "/experimentData/imaCond3_demographic
 # load SCR data from text file
 # (see imaCond3_scr_readme.txt for more details)
 importSCR <- read.csv(paste0(pathname, "/experimentData/imaCond3_scrmatrix_cs.txt"), sep = "")
-importSCR <- merge(importRatings[,c("vpcode","partInd","group")], importSCR, by = "vpcode")
-importSCR <- importSCR[order(importSCR$vpcode),]
+#importSCR <- merge(importRatings[,c("vpcode","partInd","group")], importSCR, by = "vpcode")
+importSCR <- merge(importRatings[,c("partCode","group")], importSCR, by = "partCode")
+importSCR <- importSCR[order(importSCR$partCode),]
 
 # create data frames in wide & long format for unpleasantness ratings
 dataSCR <- data.frame(
-  partInd = factor(importSCR$partInd),
+  partInd = factor(1:dim(importSCR)[1]),
   usGroup = factor(importSCR$group, labels = c("ima", "real")),
   Av_allTr = importSCR$scr_Akqall_51_norm,
   Av_1stBl = importSCR$scr_Akq1_51_norm,
@@ -98,7 +99,7 @@ anovaSCRIma <- ezANOVA(
     anovaSCRIma$ANOVA$SSn[2] / (anovaSCRIma$ANOVA$SSd[2]+anovaSCRIma$ANOVA$SSn[2])
   ); print(anovaSCRIma)
 
-# bayesian ANOVA on SCR in imagery-based conditioning group
+#  bayesian ANOVA on SCR in imagery-based conditioning group
 set.seed(rngSeed); anovaBFSCRIma <- anovaBF(
   formula = SCR ~ CS + partInd,
   data = dataSCRLong[dataSCRLong$usGroup == "ima" & dataSCRLong$time == "allTr",],
@@ -154,7 +155,8 @@ dataSCRLong_noNA <- dataSCRLong[!is.na(dataSCRLong$SCR),]
 # frequentist ANOVA on SCR in classical conditioning group, including p. eta^2
 # IV = CS; DV = SCR
 anovaSCRReal <- ezANOVA(
-  data = dataSCRLong_noNA[dataSCRLong_noNA$usGroup == "real" & dataSCRLong_noNA$time == "allTr",],
+  #data = dataSCRLong_noNA[dataSCRLong_noNA$usGroup == "real" & dataSCRLong_noNA$time == "allTr",],
+  data = dataSCRLong[dataSCRLong$usGroup == "real" & dataSCRLong$time == "allTr",],
   dv = SCR,
   wid = partInd,
   within = .(CS),
@@ -216,7 +218,8 @@ describe(dataSCR)
 
 # frequentist ANOVA on SCR across conditioning groups
 anovaSCR <- ezANOVA(
-  data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
+  #data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
+  data = dataSCRLong[dataSCRLong$time == "allTr",],
   dv = SCR,
   wid = partInd,
   within = .(CS),
@@ -236,7 +239,8 @@ anovaSCR <- ezANOVA(
 # bayesian ANOVA on SCR across conditioning groups
 set.seed(rngSeed); anovaBFSCR <- anovaBF(
   formula = SCR ~ usGroup*CS + partInd,
-  data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
+  #data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
+  data = dataSCRLong[dataSCRLong$time == "allTr",],
   whichRandom = "partInd",
   whichModels = "all",
   iterations = 100000
@@ -386,7 +390,8 @@ save_as_docx(tableSCR, path = "Tables/tableSCR_raw.docx")
 ### Plotting SCR ###
 ####################
 
-csLabels = c("CS+av", "CS+neu", "CS-")
+csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-",
+             expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
 
 dataSCRWithin <- dataSCR_noNA[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
 # remove each participant's average from each single value
@@ -398,7 +403,7 @@ meanSCR <- data.frame(
   usGroup = factor(c(rep(1,3),rep(2,3)),
                    labels = c("Imagery-Based","Classical")),
   CS = factor(c(1,2,3,1,2,3),
-              labels = csLabels),
+              labels = csLabels[1:3]),
   mean = c(describe(dataSCR[dataSCR$usGroup == "ima", c(3,6,9)])$mean,
            describe(dataSCR[dataSCR$usGroup == "real", c(3,6,9)])$mean),
   se = c(describe(dataSCRWithin[dataSCRWithin$usGroup == "ima", 3:5])$se,
@@ -407,7 +412,7 @@ meanSCR <- data.frame(
 
 
 
-plotFS <- 8
+plotFS <- 9
 showSig <- TRUE
 
 graphSCR <- ggplot(data = meanSCR, aes(x = usGroup, y = mean, fill = CS)) +
@@ -419,6 +424,7 @@ graphSCR <- ggplot(data = meanSCR, aes(x = usGroup, y = mean, fill = CS)) +
   scale_y_continuous(name = "Mean SCR (normalized)") +
   geom_hline(yintercept = 0) +
   geom_text(aes(label = usGroup, y = .2), colour = "black", size = (plotFS/.pt)-.5, fontface = "bold") +
+  geom_text(aes(y = -0.01), label = csLabels, position = position_dodge(width = .9), colour = "black", size = (plotFS/.pt)-.5, fontface = "bold") + 
   theme(legend.position = "none",
         axis.line.x = element_blank(),
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
@@ -443,3 +449,12 @@ ggsave(filename = "Figures/Figure3_barPlot_SCR.eps",
        units = "mm",
        dpi = 300
 )
+
+ggsave(filename = "Figures/Figure3_barPlot_SCR.pdf",
+       plot = graphSCR,
+       width = 100,
+       height = 70,
+       units = "mm",
+       dpi = 300
+)
+

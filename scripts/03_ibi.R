@@ -384,10 +384,10 @@ save_as_docx(tableIBI, path = "Tables/tableIBI_raw.docx")
 ### Plotting IBI ###
 ####################
 
-csLabels = c("CS+av", "CS+neu", "CS-")
+csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
 ibi4GA <- importIBI
-ibi4GAima <- importIBI[importIBI$group == 0,]
-ibi4GAreal <- importIBI[importIBI$group == 1,]
+ibi4GAima <- importIBI[importIBI$group == "ima",]
+ibi4GAreal <- importIBI[importIBI$group == "real",]
 
 ibiGAacq <- data.frame(
               csType = factor(c(rep(1,16), rep(2,16), rep(3,16)), labels = csLabels),
@@ -435,18 +435,19 @@ meanIBI <- data.frame(
 lineSize = 1
 yMin = -20
 yMax = 42
-plotFS <- 8
+plotFS <- 9
 showSig <- TRUE
 
 graphIBIima <- ggplot(data = ibiGAacqIma, aes(x = time, y = IBI, colour = csType)) + 
   theme_classic() +
   geom_rect(xmin = 2, xmax = 5, ymin = yMin, ymax = yMax, fill = "gray90", colour = NA) +
-  geom_line(aes(colour = csType), size = lineSize) + 
+  geom_line(aes(colour = csType), linewidth = lineSize) + 
   scale_x_continuous(breaks = seq(-1,7,1)) +
   scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   lims(y = c(yMin, yMax)) +
-  labs(title = "Imagery-Based Conditioning", x = "Time (s)", y = "IBI change (ms)", fill = "", colour = "") +
-  guides(colour = guide_legend(order = 1), fill = FALSE) +
+  #labs(title = "Imagery-Based Conditioning", x = "Time (s)", y = "IBI change (ms)", fill = "", colour = "") +
+  labs(x = "Time (s)", y = "IBI change (ms)", fill = "", colour = "") +
+  guides(colour = guide_legend(order = 1), fill = "none") +
   theme(#legend.box = "horizontal",
         legend.position = "none",
         #legend.text = element_text(size = plotFS, color = "black"),
@@ -459,12 +460,13 @@ graphIBIima <- ggplot(data = ibiGAacqIma, aes(x = time, y = IBI, colour = csType
 graphIBIreal <- ggplot(data = ibiGAacqReal, aes(x = time, y = IBI, colour = csType)) + 
   theme_classic() +
   geom_rect(xmin = 2, xmax = 5, ymin = yMin, ymax = yMax, fill = "gray90", colour = NA) +
-  geom_line(aes(colour = csType), size = lineSize) + 
+  geom_line(aes(colour = csType), linewidth = lineSize) + 
   scale_x_continuous(breaks = seq(-1,7,1)) +
   scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   lims(y = c(yMin, yMax)) +
-  labs(title = "Classical Conditioning", x = "Time (s)", y = "IBI change (ms)", fill = "", colour = "") +
-  guides(colour = guide_legend(order = 1), fill = FALSE) +
+  #labs(title = "Classical Conditioning", x = "Time (s)", y = "IBI change (ms)", fill = "", colour = "") +
+  labs(x = "Time (s)", y = "IBI change (ms)", fill = "", colour = "") +
+  guides(colour = guide_legend(order = 1), fill = "none") +
   theme(#legend.box = "horizontal",
         legend.position = "none",
         #legend.text = element_text(size = plotFS, color = "black"),
@@ -474,46 +476,105 @@ graphIBIreal <- ggplot(data = ibiGAacqReal, aes(x = time, y = IBI, colour = csTy
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"))
 
-graphIBImeans <- ggplot(data = meanIBI, aes(x = usGroup, y = mean, fill = factor(CS))) +
+# graphIBImeans <- ggplot(data = meanIBI, aes(x = usGroup, y = mean, fill = factor(CS))) +
+#   theme_classic() +
+#   geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+#   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+#   geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
+#   scale_x_discrete(aes(breaks = usGroup), name = "") +
+#   scale_y_continuous(name = "Mean IBI change (2-5 s)") +
+#   geom_hline(yintercept = 0) +
+#   #geom_text(aes(label = CS, y = 11.5), position = position_dodge(.9), colour = "black", size = plotFS/.pt) + 
+#   #geom_text(aes(label = usGroup, y = 12.5), colour = "black", size = (plotFS/.pt)-.5, fontface = "bold") +
+#   geom_text(aes(label = usGroup, y = 30.5), colour = "black", size = (plotFS/.pt)-.5, fontface = "bold") +
+#   theme(legend.position = "none",
+#         axis.line.x = element_blank(),
+#         axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
+#         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
+#         axis.ticks.y = element_line(colour = "black"))
+
+  graphIBImeansIma <- ggplot(data = meanIBI[meanIBI$usGroup == "Imagery-Based",], aes(x = CS, y = mean, fill = CS)) +
   theme_classic() +
   geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_x_discrete(aes(breaks = usGroup), name = "") +
+  scale_x_discrete(name = " ", labels = csLabels, position = "bottom") +
   scale_y_continuous(name = "Mean IBI change (2-5 s)") +
   geom_hline(yintercept = 0) +
-  #geom_text(aes(label = CS, y = 11.5), position = position_dodge(.9), colour = "black", size = plotFS/.pt) + 
-  geom_text(aes(label = usGroup, y = 12.5), colour = "black", size = (plotFS/.pt)-.5, fontface = "bold") +
+  #coord_cartesian(ylim = c(0,12), clip = 'off') +
   theme(legend.position = "none",
+        plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.line.x = element_blank(),
+        axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        axis.ticks.x = element_blank(),
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
-        axis.ticks.y = element_line(colour = "black"))
+        axis.ticks.y = element_line(colour = "black")); 
+
+graphIBImeansReal <- ggplot(data = meanIBI[meanIBI$usGroup == "Classical",], aes(x = CS, y = mean, fill = CS)) +
+  theme_classic() +
+  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+  scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
+  scale_x_discrete(name = " ", labels = csLabels, position = "bottom") +
+  scale_y_continuous(name = "Mean IBI change (2-5 s)") +
+  geom_hline(yintercept = 0) +
+  #coord_cartesian(ylim = c(0,12), clip = 'off') +
+  theme(legend.position = "none",
+        plot.title = element_blank(), #element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
+        axis.line.x = element_blank(),
+        axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
+        axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
+        axis.ticks.y = element_line(colour = "black")); 
 
 # combining graphs into one figure
-graphIBIima <- graphIBIima + theme(plot.margin = unit(c(5,5,5,5), "mm"))
-graphIBIreal <- graphIBIreal + theme(plot.margin = unit(c(5,5,5,5), "mm"))
-graphIBImeans <- graphIBImeans + theme(plot.margin = unit(c(5,5,5,5), "mm"))
-graphIBI <- ggarrange(graphIBIima, graphIBIreal, graphIBImeans,
-                          labels = c("A", "B", "C"),
-                          ncol = 2, nrow = 2, common.legend = TRUE, legend = "bottom"
-)
-graphIBIupperRow <- ggarrange(graphIBIima, graphIBIreal,
-                      labels = c("A", "B"),
-                      ncol = 2, nrow = 1, common.legend = TRUE, legend = "bottom"
-)
-graphIBI <- ggarrange(graphIBIupperRow, graphIBImeans,
-                          labels = c("", "C"),
-                          ncol = 1, nrow = 2, common.legend = TRUE, legend = "bottom"
+graphIBIima <- graphIBIima + theme(plot.margin = unit(c(10,5,5,5), "mm"))
+graphIBIreal <- graphIBIreal + theme(plot.margin = unit(c(10,5,5,5), "mm"))
+#graphIBImeans <- graphIBImeans + theme(plot.margin = unit(c(5,5,5,5), "mm"))
+graphIBImeansIma <- graphIBImeansIma + theme(plot.margin = unit(c(10,5,5,5), "mm"))
+graphIBImeansReal <- graphIBImeansReal + theme(plot.margin = unit(c(10,5,5,5), "mm"))
+# graphIBI <- ggarrange(graphIBIima, graphIBIreal, graphIBImeans,
+#                           labels = c("A", "B", "C"),
+#                           ncol = 3, nrow = 1, common.legend = TRUE, legend = "bottom"
+# )
+
+graphIBIrow1 <- ggarrange(graphIBIima, graphIBImeansIma,
+                          ncol = 2, nrow = 1, 
+                          widths = c(3,2))
+graphIBIrow2 <- ggarrange(graphIBIreal, graphIBImeansReal,
+                          ncol = 2, nrow = 1, 
+                          widths = c(3,2))
+graphIBI <- ggarrange(graphIBIrow1,graphIBIrow2,
+                      ncol = 1, nrow = 2,
+                      labels = c("A Imagery-Based Conditioning", "B Classical Conditioning"),
+                      hjust = -.05
 )
 graphIBI
 
 # saving it
 ggsave(filename = "Figures/Figure4_timeCourses_barPlot_IBITEST4.eps",
        plot = graphIBI,
-       width = 200,
-       height = 140,
+       width = 150,
+       height = 120,
        #height = 200,
        units = "mm",
        dpi = 300
 )
+
+# ggsave(filename = "Figures/Figure4_timeCourses_barPlot_IBITEST4.pdf",
+#        plot = graphIBI,
+#        width = 150,
+#        height = 120,
+#        #height = 200,
+#        units = "mm",
+#        dpi = 300
+# )
+
+cairo_pdf("Figures/Figure4_timeCourses_barPlot_IBITEST4.pdf",
+          width = 150/25.4, height = 120/25.4,
+          family="Helvetica")
+graphIBI
+dev.off()
+
