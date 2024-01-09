@@ -25,6 +25,8 @@ if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
 library(ez) # ver. 4.4-0
 if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
 library(BayesFactor) # ver. 2.0.9
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) #
 if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
 library(ggplot2) # ver. 3.3.2
 if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
@@ -121,9 +123,9 @@ dataLPPLong$time <- factor(dataLPPLong$time)
 
 
 
-#######################################################
-### Imagery-based conditioning - secondary analyses ###
-#######################################################
+############################################################################
+### Imagery-based conditioning - supplementary analyses with time factor ###
+############################################################################
 
 # descriptive statistics for LPP in imagery-based conditioning group
 describe(dataLPP[dataLPP$usGroup == "ima",])
@@ -146,25 +148,19 @@ anovaLPPIma <- ezANOVA(
 capture.output(print(anovaLPPIma), file = paste0(pathname, "/supplement/04s_LPP_timeFactor_ima_anovaFreq.doc"))
 
 # bayesian CS x Time ANOVA on LPP in imagery-based conditioning group
-# set.seed(rngSeed); anovaBFLPPIma <- anovaBF(
-#   formula = LPP ~ CS*time + partInd,
-#   data = dataLPPLong[dataLPPLong$usGroup == "ima",],
-#   whichRandom = "partInd",
-#   whichModels = "all",
-#   iterations = 100000
-# ); print(anovaBFLPPIma)
 set.seed(rngSeed); anovaBFLPPIma <- generalTestBF(
   formula = LPP ~ CS*time + partInd + partInd:CS + partInd:time,
-  data = dataLPPLong[dataLPPLong$usGroup == "ima",],
+  data = dataIBILong[dataIBILong$usGroup == "ima",],
   whichRandom = c("partInd", "partInd:CS", "partInd:time"),
   neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFLPPIma)
-anovaBFLPPIma@bayesFactor$bf <- log(exp(anovaBFLPPIma@bayesFactor$bf) / exp(anovaBFLPPIma@bayesFactor$bf[8]))
-anovaBFLPPIma@denominator@longName <- "Intercept, partInd, partInd:CS, partInd:time"
-print(anovaBFLPPIma)
 capture.output(print(anovaBFLPPIma), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_ima_anovaBayes.doc"))
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFLPPIma)
+capture.output(bf_inclusion(anovaBFLPPIma), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_ima_BFinclusion.doc"))
 
 # quick graph of CS Type x Time ANOVA for LPP in imagery-based conditioning group
 plotLPPIma <- ezPlot(
@@ -262,9 +258,9 @@ capture.output(tableLPPIma, file = paste0(pathname, "/supplement/04s_lpp_timeFac
 
 
 
-###################################################
-### Classical conditioning - secondary analyses ###
-###################################################
+########################################################################
+### Classical conditioning - supplementary analyses with time factor ###
+########################################################################
 
 # descriptive statistics for LPP in classical conditioning group
 describe(dataLPP[dataLPP$usGroup == "real",])
@@ -287,27 +283,21 @@ anovaLPPReal <- ezANOVA(
 capture.output(print(anovaLPPReal), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_real_anovaFreq.doc"))
 
 # bayesian CS x Time ANOVA on LPP in classical conditioning group
-# set.seed(rngSeed); anovaBFLPPReal <- anovaBF(
-#   formula = LPP ~ CS*time + partInd,
-#   data = dataLPPLong[dataLPPLong$usGroup == "real",],
-#   whichRandom = "partInd",
-#   whichModels = "all",
-#   iterations = 100000
-# ); print(anovaBFLPPReal)
 set.seed(rngSeed); anovaBFLPPReal <- generalTestBF(
   formula = LPP ~ CS*time + partInd + partInd:CS + partInd:time,
-  data = dataLPPLong[dataLPPLong$usGroup == "real",],
+  data = dataIBILong[dataIBILong$usGroup == "real",],
   whichRandom = c("partInd", "partInd:CS", "partInd:time"),
   neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFLPPReal)
-anovaBFLPPReal@bayesFactor$bf <- log(exp(anovaBFLPPReal@bayesFactor$bf) / exp(anovaBFLPPReal@bayesFactor$bf[8]))
-anovaBFLPPReal@denominator@longName <- "Intercept, partInd, partInd:CS, partInd:time"
-print(anovaBFLPPReal)
 capture.output(print(anovaBFLPPReal), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_real_anovaBayes.doc"))
 
-# quick & graph of CS Type x Time ANOVA for LPP in imagery-based conditioning group
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFLPPReal)
+capture.output(bf_inclusion(anovaBFLPPReal), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_real_BFinclusion.doc"))
+
+# quick graph of CS Type x Time ANOVA for LPP in imagery-based conditioning group
 plotLPPReal <- ezPlot(
   data = dataLPPLong[dataLPPLong$usGroup == "real",],
   dv = LPP,
@@ -403,9 +393,9 @@ capture.output(tableLPPReal, file = paste0(pathname, "/supplement/04s_lpp_timeFa
 
 
 
-##########################################
-### Across groups - secondary analyses ###
-##########################################
+###############################################################
+### Across groups - supplementary analyses with time factor ###
+###############################################################
 
 # descriptive statistics for LPP ratings across conditioning groups
 describe(dataLPP)
@@ -429,16 +419,9 @@ anovaLPP <- ezANOVA(
   anovaLPP$ANOVA$SSn[7] / (anovaLPP$ANOVA$SSd[7]+anovaLPP$ANOVA$SSn[7]),
   anovaLPP$ANOVA$SSn[8] / (anovaLPP$ANOVA$SSd[8]+anovaLPP$ANOVA$SSn[8])
 ); print(anovaLPP)
-capture.output(print(anovaLPP), file = "Supplement/04s_lpp_timeFactor_both_anovaFreq.doc")
+capture.output(print(anovaLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_anovaFreq.doc"))
 
 # bayesian ANOVA on LPP across conditioning groups
-# set.seed(rngSeed); anovaBFLPP <- anovaBF(
-#   formula = LPP ~ usGroup*CS*time + partInd,
-#   data = dataLPPLong,
-#   whichRandom = "partInd",
-#   whichModels = "all",
-#   iterations = 100000
-# ); print(anovaBFLPP)
 set.seed(rngSeed); anovaBFLPP <- generalTestBF(
   formula = LPP ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
   data = dataLPPLong,
@@ -447,10 +430,12 @@ set.seed(rngSeed); anovaBFLPP <- generalTestBF(
   whichModels = "all",
   iterations = 10000 # only 10,000 iterations because it has to compute 128 models
 ); print(anovaBFLPP)
-anovaBFLPP@bayesFactor$bf <- log(exp(anovaBFLPP@bayesFactor$bf) / exp(anovaBFLPP@bayesFactor$bf[128]))
-anovaBFLPP@denominator@longName <- "Intercept, partInd, partInd:CS, partInd:time"
-print(anovaBFLPP)
-capture.output(print(anovaBFLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_both_anovaBayes.doc"))
+capture.output(print(anovaBFLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_anovaBayes.doc"))
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFLPP)
+capture.output(bf_inclusion(anovaBFLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_BFinclusion.doc"))
+
 
 # quick graph of US Group x CS Type x Time ANOVA for LPP across groups
 plotLPP <- ezPlot(
@@ -463,5 +448,5 @@ plotLPP <- ezPlot(
   split = CS,
   col = usGroup
 ) ; plotLPP
-ggsave(plot = plotLPP, filename = "Supplement/04s_lpp_timeFactor_both_plot.jpg",
+ggsave(plot = plotLPP, filename = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_plot.jpg"),
        width = 20, height = 10, units = "cm")

@@ -25,6 +25,8 @@ if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
 library(ez) # ver. 4.4-0
 if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
 library(BayesFactor) # ver. 2.0.9
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) #
 if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
 library(ggplot2) # ver. 3.3.2
 if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
@@ -291,25 +293,7 @@ set.seed(rngSeed); anovaBFLPP <- anovaBF(
 ); print(anovaBFLPP)
 
 # inclusion factors for bayesian ANOVA effects
-bf_nullModel <- 1
-bf_usGroup <- exp(anovaBFLPP@bayesFactor$bf[1])
-bf_cs <- exp(anovaBFLPP@bayesFactor$bf[2])
-bf_interact <- exp(anovaBFLPP@bayesFactor$bf[3])
-bf_usGroup_cs <- exp(anovaBFLPP@bayesFactor$bf[4])
-bf_usGroup_interact <- exp(anovaBFLPP@bayesFactor$bf[5])
-bf_cs_interact <- exp(anovaBFLPP@bayesFactor$bf[6])
-bf_fullModel <- exp(anovaBFLPP@bayesFactor$bf[7])
-
-# main effect US group: models [1] and [3] vs. null model and model [2]
-bfIncGroupLPP <- (bf_usGroup + bf_usGroup_cs + bf_usGroup_interact + bf_fullModel) / 
-  (bf_nullModel + bf_cs + bf_interact + bf_cs_interact); bfIncGroupLPP
-# main effect CS type: models "main effect CS" & "main effects CS & group" vs.
-#                      null model and "main effect group"
-bfIncCsLPP <- (bf_cs + bf_usGroup_cs + bf_cs_interact + bf_fullModel) / 
-  (bf_nullModel + bf_usGroup + bf_interact + bf_usGroup_interact); bfIncCsLPP
-# interaction: Full model vs. main-effects-only model
-bfIncInteractLPP <- (bf_interact + bf_usGroup_interact + bf_cs_interact + bf_fullModel) / 
-  (bf_nullModel + bf_usGroup + bf_cs + bf_usGroup_cs); bfIncInteractLPP
+bf_inclusion(anovaBFLPP)
 
 # quick graph of group x CS ANOVA on LPP
 ezPlot(
@@ -461,14 +445,12 @@ dataLPPWithin <- dataLPP[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allT
 dataLPPWithin[,3:5] <- as.matrix(dataLPPWithin[,3:5]) -
   rowMeans(as.matrix(dataLPPWithin[,3:5])) 
 # prepare data frame for bar plot with means from standard dataset and SE from
-# dataset without betweem-subject variance
+# dataset without between-subject variance
 meanLPP <- data.frame(
   usGroup = factor(c(rep(1,3),rep(2,3)),
                    labels = c("Imagery-Based","Classical")),
   CS = factor(c(1,2,3,1,2,3),
               labels = c("CS+\nav","CS+\nneu","CS-\n")),
-  #mean = c(describe(dataLPP[dataLPP$usGroup == "ima", c(3,6,9)])$mean,
-  #         describe(dataLPP[dataLPP$usGroup == "real", c(3,6,9)])$mean),
   mean = c(describe(dataLPP[dataLPP$usGroup == "ima", c(4,5,6)])$mean,
            describe(dataLPP[dataLPP$usGroup == "real", c(4,5,6)])$mean),
   se = c(describe(dataLPPWithin[dataLPPWithin$usGroup == "ima", 3:5])$se,

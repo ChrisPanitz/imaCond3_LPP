@@ -24,7 +24,9 @@ if(!is.element("effectsize",installed.packages()[,1])) {install.packages("effect
 if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
   library(ez) # ver. 4.4-0
 if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
-  library(BayesFactor) # ver. 2.0.9
+library(BayesFactor) # ver. 2.0.9
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) #
 if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
   library(ggplot2) # ver. 3.3.2
 if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}

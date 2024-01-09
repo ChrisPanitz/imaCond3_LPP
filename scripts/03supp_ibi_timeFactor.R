@@ -80,9 +80,9 @@ dataIBILong$time <- factor(dataIBILong$time, levels = c("1stBl","2ndBl"))
 
 
 
-#########################################################
-### Imagery-based conditioning - first vs second half ###
-#########################################################
+############################################################################
+### Imagery-based conditioning - supplementary analyses with time factor ###
+############################################################################
 
 # descriptive statistics for IBI in imagery-based conditioning group
 describe(dataIBI[dataIBI$usGroup == "ima",])
@@ -105,13 +105,6 @@ anovaIBIIma <- ezANOVA(
 capture.output(print(anovaIBIIma), file = "supplement/03s_ibi_timeFactor_ima_anovaFreq.doc")
 
 # bayesian CS x Time ANOVA on IBI in imagery-based conditioning group
-# set.seed(rngSeed); anovaBFIBIIma <- anovaBF(
-#   formula = IBI ~ CS*time + partInd,
-#   data = dataIBILong[dataIBILong$usGroup == "ima",],
-#   whichRandom = "partInd",
-#   whichModels = "all",
-#   iterations = 10000
-# ); print(anovaBFIBIIma)
 set.seed(rngSeed); anovaBFIBIIma <- generalTestBF(
   formula = IBI ~ CS*time + partInd + partInd:CS + partInd:time,
   data = dataIBILong[dataIBILong$usGroup == "ima",],
@@ -120,10 +113,11 @@ set.seed(rngSeed); anovaBFIBIIma <- generalTestBF(
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFIBIIma)
-anovaBFIBIIma@bayesFactor$bf <- log(exp(anovaBFIBIIma@bayesFactor$bf) / exp(anovaBFIBIIma@bayesFactor$bf[8]))
-anovaBFIBIIma@denominator@longName <- "Intercept, partInd, partInd:CS, partInd:time"
-print(anovaBFIBIIma)
-capture.output(print(anovaBFIBIIma), file = "supplement/03s_ibi_timeFactor_ima_anovaBayes.doc")
+capture.output(print(anovaBFIBIIma), file = paste0(pathname, "/supplement/03s_ibi_timeFactor_ima_anovaBayes.doc"))
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFIBIIma)
+capture.output(bf_inclusion(anovaBFIBIIma), file = paste0(pathname, "/supplement/03s_ibi_timeFactor_ima_BFinclusion.doc"))
 
 # quick graph of CS Type x Time ANOVA for IBI in imagery-based conditioning group
 plotIBIIma <- ezPlot(
@@ -221,9 +215,9 @@ capture.output(tableIBIIma, file = "supplement/03s_ibi_timeFactor_ima_tTable.doc
 
 
 
-###################################################
-### Classical conditioning - secondary analyses ###
-###################################################
+########################################################################
+### Classical conditioning - supplementary analyses with time factor ###
+########################################################################
 
 # descriptive statistics for IBI in classical conditioning group
 describe(dataIBI[dataIBI$usGroup == "real",])
@@ -246,13 +240,6 @@ anovaIBIReal <- ezANOVA(
 capture.output(print(anovaIBIReal), file = "supplement/03s_ibi_timeFactor_real_anovaFreq.doc")
 
 # bayesian CS x Time ANOVA on IBI in classical conditioning group
-set.seed(rngSeed); anovaBFIBIRealCLASSIC <- anovaBF(
-  formula = IBI ~ CS*time + partInd,
-  data = dataIBILong[dataIBILong$usGroup == "real",],
-  whichRandom = "partInd",
-  whichModels = "all",
-  iterations = 100000
-); print(anovaBFIBIRealCLASSIC)
 set.seed(rngSeed); anovaBFIBIReal <- generalTestBF(
   formula = IBI ~ CS*time + partInd + partInd:CS + partInd:time,
   data = dataIBILong[dataIBILong$usGroup == "real",],
@@ -261,10 +248,11 @@ set.seed(rngSeed); anovaBFIBIReal <- generalTestBF(
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFIBIReal)
-anovaBFIBIReal@bayesFactor$bf <- log(exp(anovaBFIBIReal@bayesFactor$bf) / exp(anovaBFIBIReal@bayesFactor$bf[8]))
-anovaBFIBIReal@denominator@longName <- "Intercept, partInd, partInd:CS, partInd:time"
-print(anovaBFIBIReal)
-capture.output(print(anovaBFIBIReal), file = "Supplement/03s_ibi_timeFactor_real_anovaBayes.doc")
+capture.output(print(anovaBFIBIReal), file = paste0(pathname, "/supplement/03s_ibi_timeFactor_real_anovaBayes.doc"))
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFIBIReal)
+capture.output(bf_inclusion(anovaBFIBIReal), file = paste0(pathname, "/supplement/03s_ibi_timeFactor_real_BFinclusion.doc"))
 
 # quick graph of CS Type x Time ANOVA for IBI in imagery-based conditioning group
 plotIBIReal <- ezPlot(
@@ -362,9 +350,9 @@ capture.output(tableIBIReal, file = "Supplement/03s_ibi_timeFactor_real_tTable.d
 
 
 
-##########################################
-### Across groups - secondary analyses ###
-##########################################
+###############################################################
+### Across groups - supplementary analyses with time factor ###
+###############################################################
 
 # descriptive statistics for IBI ratings across conditioning groups
 describe(dataIBI)
@@ -388,7 +376,7 @@ anovaIBI <- ezANOVA(
   anovaIBI$ANOVA$SSn[7] / (anovaIBI$ANOVA$SSd[7]+anovaIBI$ANOVA$SSn[7]),
   anovaIBI$ANOVA$SSn[8] / (anovaIBI$ANOVA$SSd[8]+anovaIBI$ANOVA$SSn[8])
 ); print(anovaIBI)
-capture.output(print(anovaIBI), file = "Supplement/03s_ibi_both_anovaFreq.doc")
+capture.output(print(anovaIBI), file = "Supplement/03s_ibi_acrossGroups_anovaFreq.doc")
 
 # bayesian ANOVA on IBI across conditioning groups
 # set.seed(rngSeed); anovaBFIBI <- anovaBF(
@@ -398,7 +386,6 @@ capture.output(print(anovaIBI), file = "Supplement/03s_ibi_both_anovaFreq.doc")
 #   whichModels = "all",
 #   iterations = 100000
 # ); print(anovaBFIBI)
-# capture.output(print(anovaBFIBI), file = "Supplement/03s_ibi_both_anovaBayes.doc")
 set.seed(rngSeed); anovaBFIBI <- generalTestBF(
   formula = IBI ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
   data = dataIBILong,
@@ -407,12 +394,11 @@ set.seed(rngSeed); anovaBFIBI <- generalTestBF(
   whichModels = "all",
   iterations = 10000 # only 10,000 iterations because it has to compute 128 models
 ); print(anovaBFIBI)
-anovaBFIBI@bayesFactor$bf <- log(exp(anovaBFIBI@bayesFactor$bf) / exp(anovaBFIBI@bayesFactor$bf[128]))
-anovaBFIBI@denominator@longName <- "Intercept, partInd, partInd:CS, partInd:time"
-print(anovaBFIBI)
-capture.output(print(anovaBFIBI), file = "supplement/03s_ibi_timeFactor_both_anovaBayes.doc")
+capture.output(print(anovaBFIBI), file = "Supplement/03s_ibi_timeFactor_acrossGroups_anovaBayes.doc")
 
-
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFIBI)
+capture.output(bf_inclusion(anovaBFIBI), file = paste0(pathname, "/supplement/03s_ibi_timeFactor_acrossGroups_BFinclusion.doc"))
 
 # quick graph of US Group x CS Type x Time ANOVA for IBI across groups
 plotIBI <- ezPlot(

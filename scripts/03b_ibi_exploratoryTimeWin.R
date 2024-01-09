@@ -25,6 +25,8 @@ if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
 library(ez) # ver. 4.4-0
 if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
 library(BayesFactor) # ver. 2.0.9
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) #
 if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
 library(ggplot2) # ver. 3.3.2
 if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
@@ -239,25 +241,7 @@ set.seed(rngSeed); anovaBFIBI <- anovaBF(
 ); print(anovaBFIBI)
 
 # inclusion factors for bayesian ANOVA effects
-bf_nullModel <- 1
-bf_usGroup <- exp(anovaBFIBI@bayesFactor$bf[1])
-bf_cs <- exp(anovaBFIBI@bayesFactor$bf[2])
-bf_interact <- exp(anovaBFIBI@bayesFactor$bf[3])
-bf_usGroup_cs <- exp(anovaBFIBI@bayesFactor$bf[4])
-bf_usGroup_interact <- exp(anovaBFIBI@bayesFactor$bf[5])
-bf_cs_interact <- exp(anovaBFIBI@bayesFactor$bf[6])
-bf_fullModel <- exp(anovaBFIBI@bayesFactor$bf[7])
-
-# main effect US group: models [1] and [3] vs. null model and model [2]
-bfIncGroupIBI <- (bf_usGroup + bf_usGroup_cs + bf_usGroup_interact + bf_fullModel) / 
-  (bf_nullModel + bf_cs + bf_interact + bf_cs_interact); bfIncGroupIBI
-# main effect CS type: models "main effect CS" & "main effects CS & group" vs.
-#                      null model and "main effect group"
-bfIncCsIBI <- (bf_cs + bf_usGroup_cs + bf_cs_interact + bf_fullModel) / 
-  (bf_nullModel + bf_usGroup + bf_interact + bf_usGroup_interact); bfIncCsIBI
-# interaction: Full model vs. main-effects-only model
-bfIncInteractIBI <- (bf_interact + bf_usGroup_interact + bf_cs_interact + bf_fullModel) / 
-  (bf_nullModel + bf_usGroup + bf_cs + bf_usGroup_cs); bfIncInteractIBI
+bf_inclusion(anovaIBI)
 
 # quick graph of group x CS ANOVA on IBI
 ezPlot(

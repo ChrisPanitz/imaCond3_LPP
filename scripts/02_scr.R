@@ -25,6 +25,8 @@ if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
 library(ez) # ver. 4.4-0
 if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
 library(BayesFactor) # ver. 2.0.9
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) #
 if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
 library(ggplot2) # ver. 3.3.2
 if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
@@ -245,27 +247,9 @@ set.seed(rngSeed); anovaBFSCR <- anovaBF(
 ); print(anovaBFSCR)
 
 # inclusion factors for bayesian ANOVA effects
-bf_nullModel <- 1
-bf_usGroup <- exp(anovaBFSCR@bayesFactor$bf[1])
-bf_cs <- exp(anovaBFSCR@bayesFactor$bf[2])
-bf_interact <- exp(anovaBFSCR@bayesFactor$bf[3])
-bf_usGroup_cs <- exp(anovaBFSCR@bayesFactor$bf[4])
-bf_usGroup_interact <- exp(anovaBFSCR@bayesFactor$bf[5])
-bf_cs_interact <- exp(anovaBFSCR@bayesFactor$bf[6])
-bf_fullModel <- exp(anovaBFSCR@bayesFactor$bf[7])
+bf_inclusion(anovaBFSCR)
 
-# main effect US group: models [1] and [3] vs. null model and model [2]
-bfIncGroupSCR <- (bf_usGroup + bf_usGroup_cs + bf_usGroup_interact + bf_fullModel) / 
-  (bf_nullModel + bf_cs + bf_interact + bf_cs_interact); bfIncGroupSCR
-# main effect CS type: models "main effect CS" & "main effects CS & group" vs.
-#                      null model and "main effect group"
-bfIncCsSCR <- (bf_cs + bf_usGroup_cs + bf_cs_interact + bf_fullModel) / 
-  (bf_nullModel + bf_usGroup + bf_interact + bf_usGroup_interact); bfIncCsSCR
-# interaction: Full model vs. main-effects-only model
-bfIncInteractSCR <- (bf_interact + bf_usGroup_interact + bf_cs_interact + bf_fullModel) / 
-  (bf_nullModel + bf_usGroup + bf_cs + bf_usGroup_cs); bfIncInteractSCR
-
-# quick & dirty graph of group x CS ANOVA on valence ratings
+# quick graph of group x CS ANOVA on SCR
 ezPlot(
   data = dataSCRLong[dataSCRLong$time == "allTr",],
   dv = SCR,
@@ -328,17 +312,6 @@ scrBothNeuMin_BF <- ttestBF(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"] -
 
 
 
-# quick & dirty graph of group x CS ANOVA on SCR
-ezPlot(
-  data = dataSCRLong,
-  dv = SCR,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  x = CS,
-  split = usGroup
-)  
-
 
 #########################
 ### Table for t-tests ###
@@ -380,7 +353,7 @@ tableSCR <- flextable(tableData[1:9,])
 tableSCR <- add_header_lines(tableSCR, top = TRUE, values = "SCR")
 tableSCR <- align(tableSCR, align = "center")
 
-save_as_docx(tableSCR, path = "Tables/tableSCR_raw.docx")
+save_as_docx(tableSCR, path = paste0(pathname, "/tables/tableSCR_raw.docx"))
 
 
 

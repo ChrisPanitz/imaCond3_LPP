@@ -25,6 +25,8 @@ if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
 library(ez) # ver. 4.4-0
 if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
 library(BayesFactor) # ver. 2.0.9
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) #
 if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
 library(ggplot2) # ver. 3.3.2
 if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
@@ -290,27 +292,9 @@ set.seed(rngSeed); anovaBFLPP <- anovaBF(
 ); print(anovaBFLPP)
 
 # inclusion factors for bayesian ANOVA effects
-bf_nullModel <- 1
-bf_usGroup <- exp(anovaBFLPP@bayesFactor$bf[1])
-bf_cs <- exp(anovaBFLPP@bayesFactor$bf[2])
-bf_interact <- exp(anovaBFLPP@bayesFactor$bf[3])
-bf_usGroup_cs <- exp(anovaBFLPP@bayesFactor$bf[4])
-bf_usGroup_interact <- exp(anovaBFLPP@bayesFactor$bf[5])
-bf_cs_interact <- exp(anovaBFLPP@bayesFactor$bf[6])
-bf_fullModel <- exp(anovaBFLPP@bayesFactor$bf[7])
+bf_inclusion(anovaBFLPP)
 
-# main effect US group: models [1] and [3] vs. null model and model [2]
-bfIncGroupLPP <- (bf_usGroup + bf_usGroup_cs + bf_usGroup_interact + bf_fullModel) / 
-  (bf_nullModel + bf_cs + bf_interact + bf_cs_interact); bfIncGroupLPP
-# main effect CS type: models "main effect CS" & "main effects CS & group" vs.
-#                      null model and "main effect group"
-bfIncCsLPP <- (bf_cs + bf_usGroup_cs + bf_cs_interact + bf_fullModel) / 
-  (bf_nullModel + bf_usGroup + bf_interact + bf_usGroup_interact); bfIncCsLPP
-# interaction: Full model vs. main-effects-only model
-bfIncInteractLPP <- (bf_interact + bf_usGroup_interact + bf_cs_interact + bf_fullModel) / 
-  (bf_nullModel + bf_usGroup + bf_cs + bf_usGroup_cs); bfIncInteractLPP
-
-# quick & dirty graph of group x CS ANOVA on LPP
+# quick graph of group x CS ANOVA on LPP
 ezPlot(
   data = dataLPPLong[dataLPPLong$time == "allTr",],
   dv = LPP,
@@ -370,20 +354,6 @@ lppBothNeuMin_BF <- ttestBF(x = dataLPP$Neu_allTr[dataLPP$usGroup == "real"] -
                             y = dataLPP$Neu_allTr[dataLPP$usGroup == "ima"] -
                                 dataLPP$Min_allTr[dataLPP$usGroup == "ima"],
                             nullInterval = NULL, paired = FALSE) # two-sided
-
-
-
-# quick & dirty graph of group x CS ANOVA on valence ratings
-ezPlot(
-  data = dataLPPLong,
-  dv = LPP,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  x = CS,
-  split = usGroup
-)  
-
 
 
 

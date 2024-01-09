@@ -24,7 +24,9 @@ if(!is.element("effectsize",installed.packages()[,1])) {install.packages("effect
 if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
   library(ez) # ver. 4.4-0
 if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
-  library(BayesFactor) # ver. 2.0.9
+library(BayesFactor) # ver. 2.0.9
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) #
 if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
   library(ggplot2) # ver. 3.3.2
 if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
@@ -94,19 +96,24 @@ anovaFearIma <- ezANOVA(
     anovaFearIma$ANOVA$SSn[3] / (anovaFearIma$ANOVA$SSd[3]+anovaFearIma$ANOVA$SSn[3]),
     anovaFearIma$ANOVA$SSn[4] / (anovaFearIma$ANOVA$SSd[4]+anovaFearIma$ANOVA$SSn[4])
   ); print(anovaFearIma)
-capture.output(print(anovaFearIma), file = "supplement/01s_fearRating_timeFactor_ima_anovaFreq.doc")
+capture.output(print(anovaFearIma), file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_ima_anovaFreq.doc"))
 
 # bayesian ANOVA on fear ratings in imagery-based conditioning group
-set.seed(rngSeed); anovaBFFearIma <- anovaBF(
-  formula = fear ~ CS*time + partInd,
+set.seed(rngSeed); anovaBFFearIma <- generalTestBF(
+  formula = fear ~ CS*time + partInd + partInd:CS + partInd:time,
   data = dataFearLong[dataFearLong$usGroup == "ima",],
-  whichRandom = "partInd",
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFFearIma)
-capture.output(print(anovaBFFearIma), file = "supplement/01s_fearRating_timeFactor_ima_anovaBayes.doc")
+capture.output(print(anovaBFFearIma), file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_ima_anovaBayes.doc"))
 
-# quick & dirty graph of CS Type x time ANOVA for fear ratings in imagery-based conditioning group
+# inclusion Bayes Factors
+bf_inclusion(anovaBFFearIma)
+capture.output(bf_inclusion(anovaBFFearIma), file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_ima_BFinclusion.doc"))
+
+# quick graph of CS Type x time ANOVA for fear ratings in imagery-based conditioning group
 plotFearIma <- ezPlot(
   data = dataFearLong[dataFearLong$usGroup == "ima",],
   dv = fear,
@@ -115,7 +122,7 @@ plotFearIma <- ezPlot(
   x = time,
   split = CS
 ) ; plotFearIma 
-ggsave(plot = plotFearIma, filename = "supplement/01s_fearRating_timeFactor_ima_plot.jpg",
+ggsave(plot = plotFearIma, filename = paste0(pathname, "/supplement/01s_fearRating_timeFactor_ima_plot.jpg"),
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on fear ratings in imagery-based conditioning group
@@ -234,7 +241,7 @@ tableFearIma <- data.frame(
          exp(fearImaAvNeuPost_BF@bayesFactor[["bf"]][1]), exp(fearImaAvMinPost_BF@bayesFactor[["bf"]][1]), exp(fearImaNeuMinPost_BF@bayesFactor[["bf"]][1])),
   testDir = c("two.sided","two.sided","two.sided", rep(c("one.sided","one.sided","two.sided"),2))
 )
-capture.output(tableFearIma, file = "supplement/01s_fearRating_timeFactor_ima_tTable.doc")
+capture.output(tableFearIma, file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_ima_tTable.doc"))
 
 
 
@@ -260,19 +267,24 @@ anovaFearReal <- ezANOVA(
     anovaFearReal$ANOVA$SSn[3] / (anovaFearReal$ANOVA$SSd[3]+anovaFearReal$ANOVA$SSn[3]),
     anovaFearReal$ANOVA$SSn[4] / (anovaFearReal$ANOVA$SSd[4]+anovaFearReal$ANOVA$SSn[4])
   ); print(anovaFearReal)
-capture.output(print(anovaFearReal), file = "supplement/01s_fearRating_timeFactor_real_anovaFreq.doc")
+capture.output(print(anovaFearReal), file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_real_anovaFreq.doc"))
 
 # bayesian ANOVA on fear ratings in classical conditioning group
-set.seed(rngSeed); anovaBFFearReal <- anovaBF(
-  formula = fear ~ CS*time + partInd,
+set.seed(rngSeed); anovaBFFearReal <- generalTestBF(
+  formula = fear ~ CS*time + partInd + partInd:CS + partInd:time,
   data = dataFearLong[dataFearLong$usGroup == "real",],
-  whichRandom = "partInd",
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFFearReal)
-capture.output(print(anovaBFFearReal), file = "supplement/01s_fearRating_timeFactor_real_anovaBayes.doc")
+capture.output(print(anovaBFFearReal), file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_real_anovaBayes.doc"))
 
-# quick & dirty graph of CS Type x time ANOVA for fear ratings in classical conditioning group
+# inclusion Bayes Factors
+bf_inclusion(anovaBFFearReal)
+capture.output(bf_inclusion(anovaBFFearReal), file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_real_BFinclusion.doc"))
+
+# quick graph of CS Type x time ANOVA for fear ratings in classical conditioning group
 plotFearReal <- ezPlot(
   data = dataFearLong[dataFearLong$usGroup == "real",],
   dv = fear,
@@ -281,7 +293,7 @@ plotFearReal <- ezPlot(
   x = time,
   split = CS
 ) ; plotFearReal 
-ggsave(plot = plotFearReal, filename = "supplement/01s_fearRating_timeFactor_real_plot.jpg",
+ggsave(plot = plotFearReal, filename = paste0(pathname, "/supplement/01s_fearRating_timeFactor_real_plot.jpg"),
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on fear ratings in classical conditioning group
@@ -400,7 +412,7 @@ tableFearReal <- data.frame(
          exp(fearRealAvNeuPost_BF@bayesFactor[["bf"]][1]), exp(fearRealAvMinPost_BF@bayesFactor[["bf"]][1]), exp(fearRealNeuMinPost_BF@bayesFactor[["bf"]][1])),
   testDir = c("two.sided","two.sided","two.sided", rep(c("one.sided","one.sided","two.sided"),2))
 )
-capture.output(tableFearReal, file = "supplement/01s_fearRating_timeFactor_real_tTable.doc")
+capture.output(tableFearReal, file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_real_tTable.doc"))
 
 
 
@@ -430,19 +442,24 @@ anovaFear <- ezANOVA(
     anovaFear$ANOVA$SSn[7] / (anovaFear$ANOVA$SSd[7]+anovaFear$ANOVA$SSn[7]),
     anovaFear$ANOVA$SSn[8] / (anovaFear$ANOVA$SSd[8]+anovaFear$ANOVA$SSn[8])
   ); print(anovaFear)
-capture.output(print(anovaFear), file = "supplement/01s_fearRating_timeFactor_acrossGroups_anovaFreq.doc")
+capture.output(print(anovaFear), file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_acrossGroups_anovaFreq.doc"))
 
 # bayesian ANOVA on fear ratings across conditioning groups
-set.seed(rngSeed); anovaBFFear <- anovaBF(
-  formula = fear ~ usGroup*CS*time + partInd,
+set.seed(rngSeed); anovaBFFear <- generalTestBF(
+  formula = fear ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
   data = dataFearLong,
-  whichRandom = "partInd",
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
-  iterations = 100000
+  iterations = 10000 # only 10,000 iterations because it has to compute 128 models
 ); print(anovaBFFear)
-capture.output(print(anovaBFFear), file = "supplement/01s_fearRating_timeFactor_acrossGroups_anovaBayes.doc")
+capture.output(print(anovaBFFear), file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_acrossGroups_anovaBayes.doc"))
 
-# quick & dirty graph of group x CS ANOVA on valence ratings
+# inclusion Bayes Factors
+bf_inclusion(anovaBFFear)
+capture.output(bf_inclusion(anovaBFFear), file = paste0(pathname, "/supplement/01s_fearRating_timeFactor_acrossGroups_BFinclusion.doc"))
+
+# quick graphs of group x CS ANOVA on fear ratings
 plotFear <- ezPlot(
   data = dataFearLong,
   dv = fear,
@@ -453,5 +470,5 @@ plotFear <- ezPlot(
   split = CS,  
   col = usGroup
 )  
-ggsave(plot = plotFear, filename = "Supplement/01s_fearRating_timeFactor_acrossGroups_plot.jpg",
+ggsave(plot = plotFear, filename = paste0(pathname, "/supplement/01s_fearRating_timeFactor_acrossGroups_plot.jpg"),
        width = 20, height = 10, units = "cm")

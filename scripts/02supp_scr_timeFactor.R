@@ -25,6 +25,8 @@ if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
 library(ez) # ver. 4.4-0
 if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
 library(BayesFactor) # ver. 2.0.9
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) #
 if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
 library(ggplot2) # ver. 3.3.2
 if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
@@ -77,9 +79,9 @@ dataSCRLong$CS <- factor(dataSCRLong$CS, levels = c("Av","Neu","Min"))
 dataSCRLong$time <- factor(dataSCRLong$time, levels = c("1stBl","2ndBl"))
 
 
-#######################################################
-### Imagery-based conditioning - secondary analyses ###
-#######################################################
+############################################################################
+### Imagery-based conditioning - supplementary analyses with time factor ###
+############################################################################
 
 # descriptive statistics for SCR in imagery-based conditioning group
 describe(dataSCR[dataSCR$usGroup == "ima",])
@@ -99,17 +101,22 @@ anovaSCRIma <- ezANOVA(
     anovaSCRIma$ANOVA$SSn[3] / (anovaSCRIma$ANOVA$SSd[3]+anovaSCRIma$ANOVA$SSn[3]),
     anovaSCRIma$ANOVA$SSn[4] / (anovaSCRIma$ANOVA$SSd[4]+anovaSCRIma$ANOVA$SSn[4])
   ); print(anovaSCRIma)
-capture.output(print(anovaSCRIma), file = "supplement/02s_scr_timeFactor_ima_anovaFreq.doc")
+capture.output(print(anovaSCRIma), file = paste0(pathname, "/supplement/02s_scr_timeFactor_ima_anovaFreq.doc"))
 
 # bayesian CS x Time ANOVA on SCR in imagery-based conditioning group
-set.seed(rngSeed); anovaBFSCRIma <- anovaBF(
-  formula = SCR ~ CS*time + partInd,
+set.seed(rngSeed); anovaBFSCRIma <- generalTestBF(
+  formula = SCR ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
   data = dataSCRLong[dataSCRLong$usGroup == "ima",],
-  whichRandom = "partInd",
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFSCRIma)
-capture.output(print(anovaBFSCRIma), file = "supplement/02s_scr_timeFactor_ima_anovaBayes.doc")
+capture.output(print(anovaBFSCRIma), file = paste0(pathname, "/supplement/02s_scr_timeFactor_ima_anovaBayes.doc"))
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFSCRIma)
+capture.output(bf_inclusion(anovaBFSCRIma), file = paste0(pathname, "/supplement/02s_scr_timeFactor_ima_BFinclusion.doc"))
 
 # quick graph of CS Type x Time ANOVA for SCR in imagery-based conditioning group
 plotSCRIma <- ezPlot(
@@ -120,7 +127,7 @@ plotSCRIma <- ezPlot(
   x = time,
   split = CS
 ) ; plotSCRIma 
-ggsave(plot = plotSCRIma, filename = "supplement/02s_scr_timeFactor_ima_plot.jpg",
+ggsave(plot = plotSCRIma, filename = paste0(pathname, "/supplement/02s_scr_timeFactor_ima_plot.jpg"),
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on SCR in imagery-based conditioning group
@@ -203,11 +210,11 @@ tableSCRIma <- data.frame(
          exp(scrImaAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(scrImaAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(scrImaNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
   testDir = rep(c("one.sided","one.sided","two.sided"),2)
 )
-capture.output(tableSCRIma, file = "supplement/02s_scr_timeFactor_ima_tTable.doc")
+capture.output(tableSCRIma, file = paste0(pathname, "/supplement/02s_scr_timeFactor_ima_tTable.doc"))
 
-###################################################
-### Classical conditioning - secondary analyses ###
-###################################################
+########################################################################
+### Classical conditioning - supplementary analyses with time factor ###
+########################################################################
 
 # descriptive statistics for SCR in classical conditioning group
 describe(dataSCR[dataSCR$usGroup == "real",])
@@ -227,17 +234,22 @@ anovaSCRReal <- ezANOVA(
     anovaSCRReal$ANOVA$SSn[3] / (anovaSCRReal$ANOVA$SSd[3]+anovaSCRReal$ANOVA$SSn[3]),
     anovaSCRReal$ANOVA$SSn[4] / (anovaSCRReal$ANOVA$SSd[4]+anovaSCRReal$ANOVA$SSn[4])
   ); print(anovaSCRReal)
-capture.output(print(anovaSCRReal), file = "supplement/02s_scr_timeFactor_real_anovaFreq.doc")
+capture.output(print(anovaSCRReal), file = paste0(pathname, "/supplement/02s_scr_timeFactor_real_anovaFreq.doc"))
 
 # bayesian CS x Time ANOVA on SCR in classical conditioning group
-set.seed(rngSeed); anovaBFSCRReal <- anovaBF(
-  formula = SCR ~ CS*time + partInd,
+set.seed(rngSeed); anovaBFSCRReal <- generalTestBF(
+  formula = SCR ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
   data = dataSCRLong[dataSCRLong$usGroup == "real",],
-  whichRandom = "partInd",
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFSCRReal)
-capture.output(print(anovaBFSCRReal), file = "supplement/02s_scr_timeFactor_real_anovaBayes.doc")
+capture.output(print(anovaBFSCRReal), file = paste0(pathname, "/supplement/02s_scr_timeFactor_real_anovaBayes.doc"))
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFSCRReal)
+capture.output(bf_inclusion(anovaBFSCRReal), file = paste0(pathname, "/supplement/02s_scr_timeFactor_real_BFinclusion.doc"))
 
 # quick graph of CS Type x Time ANOVA for SCR in classical conditioning group
 plotSCRReal <- ezPlot(
@@ -248,7 +260,7 @@ plotSCRReal <- ezPlot(
   x = time,
   split = CS
 ); plotSCRReal
-ggsave(plot = plotSCRReal, filename = "supplement/02s_scr_timeFactor_real_plot.jpg",
+ggsave(plot = plotSCRReal, filename = paste0(pathname, "/supplement/02s_scr_timeFactor_real_plot.jpg"),
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on SCR in classical conditioning group
@@ -331,7 +343,7 @@ tableSCRReal <- data.frame(
          exp(scrRealAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(scrRealAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(scrRealNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
   testDir = rep(c("one.sided","one.sided","two.sided"),2)
 )
-capture.output(tableSCRReal, file = "supplement/02s_scr_timeFactor_real_tTable.doc")
+capture.output(tableSCRReal, file = paste0(pathname, "/supplement/02s_scr_timeFactor_real_tTable.doc"))
 
 
 
@@ -361,17 +373,22 @@ anovaSCR <- ezANOVA(
   anovaSCR$ANOVA$SSn[7] / (anovaSCR$ANOVA$SSd[7]+anovaSCR$ANOVA$SSn[7]),
   anovaSCR$ANOVA$SSn[8] / (anovaSCR$ANOVA$SSd[8]+anovaSCR$ANOVA$SSn[8])
 ); print(anovaSCR)
-capture.output(print(anovaSCR), file = "supplement/02s_scr_timeFactor_both_anovaFreq.doc")
+capture.output(print(anovaSCR), file = paste0(pathname, "/supplement/02s_scr_timeFactor_acrossGroups_anovaFreq.doc"))
 
 # bayesian Group x CS x Time ANOVA on SCR 
-set.seed(rngSeed); anovaBFSCR <- anovaBF(
-  formula = SCR ~ usGroup*CS*time + partInd,
+set.seed(rngSeed); anovaBFSCR <- generalTestBF(
+  formula = SCR ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
   data = dataSCRLong,
-  whichRandom = "partInd",
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
-  iterations = 100000
+  iterations = 10000 # only 10,000 iterations because it has to compute 128 models
 ); print(anovaBFSCR)
-capture.output(print(anovaBFSCR), file = "supplement/02s_scr_timeFactor_both_anovaBayes.doc")
+capture.output(print(anovaBFSCR), file = paste0(pathname, "/supplement/02s_scr_timeFactor_acrossGroups_anovaBayes.doc"))
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFSCR)
+capture.output(bf_inclusion(anovaBFSCR), file = paste0(pathname, "/supplement/02s_scr_timeFactor_acrossGroups_BFinclusion.doc"))
 
 # quick graph of Group x CS x Time ANOVA on SCR
 plotSCR <- ezPlot(
@@ -384,5 +401,5 @@ plotSCR <- ezPlot(
   split = CS,
   col = usGroup
 ); plotSCR
-ggsave(plot = plotSCR, filename = "supplement/02s_scr_timeFactor_both_plot.jpg",
+ggsave(plot = plotSCR, filename = paste0(pathname, "/supplement/02s_scr_timeFactor_acrossGroups_plot.jpg"),
        width = 20, height = 10, units = "cm")
