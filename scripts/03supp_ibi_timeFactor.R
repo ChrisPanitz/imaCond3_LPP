@@ -25,11 +25,16 @@ if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
 library(ez) # ver. 4.4-0
 if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
 library(BayesFactor) # ver. 2.0.9
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
 if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
 library(bayestestR) # 
 =======
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) # 
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
 library(ggplot2) # ver. 3.3.2
 if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
@@ -53,6 +58,7 @@ library(here) #
 # (see imaCond3_allratings_readme.txt for more details)
 pathname <- here()
 importRatings <- read.csv(paste0(pathname,"/experimentData/imaCond3_demographicsAndRatings.txt"), sep = ",")
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
 =======
 # -99 codes "not applicable" (e.g., ratings that were collected only in one of the expermimental groups)
@@ -61,6 +67,8 @@ importRatings <- read.csv(paste0(pathname,"/experimentData/imaCond3_demographics
 # importRatings <- importRatings[order(importRatings$vpcode),]
 # importRatings$partInd <- 1:48
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 
 # load preprocessed IBI data (see readme file for explanation of content & structure)
 importIBI <- read.csv(paste0(pathname,"/experimentData/imaCond3_ibimatrix_cs.txt"), sep = "\t")
@@ -113,11 +121,15 @@ anovaIBIIma <- ezANOVA(
     anovaIBIIma$ANOVA$SSn[3] / (anovaIBIIma$ANOVA$SSd[3]+anovaIBIIma$ANOVA$SSn[3]),
     anovaIBIIma$ANOVA$SSn[4] / (anovaIBIIma$ANOVA$SSd[4]+anovaIBIIma$ANOVA$SSn[4])
   ); print(anovaIBIIma)
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
 capture.output(print(anovaIBIIma), file = "supplement/03s_ibi_timeFactor_ima_anovaFreq.doc")
 =======
 capture.output(print(anovaIBIIma), file = "Supplement/03s_ibi_ima_anovaFreq.doc")
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+capture.output(print(anovaIBIIma), file = "supplement/03s_ibi_timeFactor_ima_anovaFreq.doc")
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 
 # bayesian CS x Time ANOVA on IBI in imagery-based conditioning group
 # set.seed(rngSeed); anovaBFIBIIma <- anovaBF(
@@ -125,11 +137,15 @@ capture.output(print(anovaIBIIma), file = "Supplement/03s_ibi_ima_anovaFreq.doc"
 #   data = dataIBILong[dataIBILong$usGroup == "ima",],
 #   whichRandom = "partInd",
 #   whichModels = "all",
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
 #   iterations = 10000
 =======
 #   iterations = 100000
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+#   iterations = 10000
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 # ); print(anovaBFIBIIma)
 set.seed(rngSeed); anovaBFIBIIma <- generalTestBF(
   formula = IBI ~ CS*time + partInd + partInd:CS + partInd:time,
@@ -139,18 +155,24 @@ set.seed(rngSeed); anovaBFIBIIma <- generalTestBF(
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFIBIIma)
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
+=======
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 anovaBFIBIIma@bayesFactor$bf <- log(exp(anovaBFIBIIma@bayesFactor$bf) / exp(anovaBFIBIIma@bayesFactor$bf[8]))
 anovaBFIBIIma@denominator@longName <- "Intercept, partInd, partInd:CS, partInd:time"
 print(anovaBFIBIIma)
 capture.output(print(anovaBFIBIIma), file = "supplement/03s_ibi_timeFactor_ima_anovaBayes.doc")
 
 # quick graph of CS Type x Time ANOVA for IBI in imagery-based conditioning group
+<<<<<<< HEAD
 =======
 capture.output(print(anovaBFIBIIma), file = "Supplement/03s_ibi_ima_anovaBayes.doc")
 
 # quick & dirty graph of CS Type x Time ANOVA for IBI in imagery-based conditioning group
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 plotIBIIma <- ezPlot(
   data = dataIBILong[dataIBILong$usGroup == "ima",],
   dv = IBI,
@@ -159,11 +181,15 @@ plotIBIIma <- ezPlot(
   x = time,
   split = CS
 ) ; plotIBIIma 
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
 ggsave(plot = plotIBIIma, filename = "supplement/03s_ibi_timeFactor_ima_plot.jpg",
 =======
 ggsave(plot = plotIBIIma, filename = "Supplement/03s_ibi_ima_plot.jpg",
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+ggsave(plot = plotIBIIma, filename = "supplement/03s_ibi_timeFactor_ima_plot.jpg",
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on IBI in imagery-based conditioning group
@@ -246,11 +272,15 @@ tableIBIIma <- data.frame(
          exp(ibiImaAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(ibiImaAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(ibiImaNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
   testDir = rep(c("one.sided","one.sided","two.sided"),2)
 )
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
 capture.output(tableIBIIma, file = "supplement/03s_ibi_timeFactor_ima_tTable.doc")
 =======
 capture.output(tableIBIIma, file = "Supplement/03s_ibi_ima_tTable.doc")
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+capture.output(tableIBIIma, file = "supplement/03s_ibi_timeFactor_ima_tTable.doc")
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 
 
 
@@ -276,7 +306,10 @@ anovaIBIReal <- ezANOVA(
     anovaIBIReal$ANOVA$SSn[3] / (anovaIBIReal$ANOVA$SSd[3]+anovaIBIReal$ANOVA$SSn[3]),
     anovaIBIReal$ANOVA$SSn[4] / (anovaIBIReal$ANOVA$SSd[4]+anovaIBIReal$ANOVA$SSn[4])
   ); print(anovaIBIReal)
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
+=======
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 capture.output(print(anovaIBIReal), file = "supplement/03s_ibi_timeFactor_real_anovaFreq.doc")
 
 # bayesian CS x Time ANOVA on IBI in classical conditioning group
@@ -287,6 +320,7 @@ set.seed(rngSeed); anovaBFIBIRealCLASSIC <- anovaBF(
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFIBIRealCLASSIC)
+<<<<<<< HEAD
 =======
 capture.output(print(anovaIBIReal), file = "Supplement/03s_ibi_real_anovaFreq.doc")
 
@@ -299,6 +333,8 @@ capture.output(print(anovaIBIReal), file = "Supplement/03s_ibi_real_anovaFreq.do
 #   iterations = 100000
 # ); print(anovaBFIBIReal)
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 set.seed(rngSeed); anovaBFIBIReal <- generalTestBF(
   formula = IBI ~ CS*time + partInd + partInd:CS + partInd:time,
   data = dataIBILong[dataIBILong$usGroup == "real",],
@@ -307,18 +343,24 @@ set.seed(rngSeed); anovaBFIBIReal <- generalTestBF(
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFIBIReal)
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
+=======
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 anovaBFIBIReal@bayesFactor$bf <- log(exp(anovaBFIBIReal@bayesFactor$bf) / exp(anovaBFIBIReal@bayesFactor$bf[8]))
 anovaBFIBIReal@denominator@longName <- "Intercept, partInd, partInd:CS, partInd:time"
 print(anovaBFIBIReal)
 capture.output(print(anovaBFIBIReal), file = "Supplement/03s_ibi_timeFactor_real_anovaBayes.doc")
 
 # quick graph of CS Type x Time ANOVA for IBI in imagery-based conditioning group
+<<<<<<< HEAD
 =======
 capture.output(print(anovaBFIBIReal), file = "Supplement/03s_ibi_real_anovaBayes.doc")
 
 # quick & dirty graph of CS Type x Time ANOVA for IBI in imagery-based conditioning group
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 plotIBIReal <- ezPlot(
   data = dataIBILong[dataIBILong$usGroup == "real",],
   dv = IBI,
@@ -327,11 +369,15 @@ plotIBIReal <- ezPlot(
   x = time,
   split = CS
 ) ; plotIBIReal
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
 ggsave(plot = plotIBIReal, filename = "supplement/03s_ibi_timeFactor_real_plot.jpg",
 =======
 ggsave(plot = plotIBIReal, filename = "Supplement/03s_ibi_real_plot.jpg",
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+ggsave(plot = plotIBIReal, filename = "supplement/03s_ibi_timeFactor_real_plot.jpg",
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on IBI in classical conditioning group
@@ -414,11 +460,15 @@ tableIBIReal <- data.frame(
          exp(ibiRealAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(ibiRealAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(ibiRealNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
   testDir = rep(c("one.sided","one.sided","two.sided"),2)
 )
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
 capture.output(tableIBIReal, file = "Supplement/03s_ibi_timeFactor_real_tTable.doc")
 =======
 capture.output(tableIBIReal, file = "Supplement/03s_ibi_real_tTable.doc")
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+capture.output(tableIBIReal, file = "Supplement/03s_ibi_timeFactor_real_tTable.doc")
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 
 
 
@@ -448,7 +498,10 @@ anovaIBI <- ezANOVA(
   anovaIBI$ANOVA$SSn[7] / (anovaIBI$ANOVA$SSd[7]+anovaIBI$ANOVA$SSn[7]),
   anovaIBI$ANOVA$SSn[8] / (anovaIBI$ANOVA$SSd[8]+anovaIBI$ANOVA$SSn[8])
 ); print(anovaIBI)
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
+=======
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 capture.output(print(anovaIBI), file = "Supplement/03s_ibi_both_anovaFreq.doc")
 
 # bayesian ANOVA on IBI across conditioning groups
@@ -476,6 +529,7 @@ capture.output(print(anovaBFIBI), file = "supplement/03s_ibi_timeFactor_both_ano
 
 
 # quick graph of US Group x CS Type x Time ANOVA for IBI across groups
+<<<<<<< HEAD
 =======
 capture.output(print(anovaIBI), file = "supplement/03s_ibi_both_anovaFreq.doc")
 
@@ -491,6 +545,8 @@ capture.output(print(anovaBFIBI), file = "supplement/03s_ibi_both_anovaBayes.doc
 
 # quick & dirty graph of US Group x CS Type x Time ANOVA for IBI across groups
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
 plotIBI <- ezPlot(
   data = dataIBILong,
   dv = IBI,
@@ -501,9 +557,13 @@ plotIBI <- ezPlot(
   split = CS,
   col = usGroup
 ) ; plotIBI
+<<<<<<< HEAD
 <<<<<<< Updated upstream:scripts/03supp_ibi_timeFactor.R
 ggsave(plot = plotIBI, filename = "supplement/03s_ibi_timeFactor_both_plot.jpg",
 =======
 ggsave(plot = plotIBI, filename = "supplement/03s_ibi_both_plot.jpg",
 >>>>>>> Stashed changes:scripts/03s_ibi_supplement.R
+=======
+ggsave(plot = plotIBI, filename = "supplement/03s_ibi_timeFactor_both_plot.jpg",
+>>>>>>> d296e74fb429f5a2bc4a5911feb6843f63ab80e4
        width = 20, height = 10, units = "cm")
