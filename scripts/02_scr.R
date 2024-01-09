@@ -148,13 +148,12 @@ scrImaNeuMin_BF <- ttestBF(x = dataSCR$Neu_allTr[dataSCR$usGroup == "ima"],
 describe(dataSCR[dataSCR$usGroup == "real",])
 
 # only using subjects without missing SCR data
-dataSCR_noNA <- dataSCR[!is.na(rowMeans(subset(dataSCR, select = Av_allTr:Min_2ndBl))),]
-dataSCRLong_noNA <- dataSCRLong[!is.na(dataSCRLong$SCR),]
+dataSCR <- dataSCR[!is.na(rowMeans(subset(dataSCR, select = Av_allTr:Min_2ndBl))),]
+dataSCRLong <- dataSCRLong[!is.na(dataSCRLong$SCR),]
 
 # frequentist ANOVA on SCR in classical conditioning group, including p. eta^2
 # IV = CS; DV = SCR
 anovaSCRReal <- ezANOVA(
-  #data = dataSCRLong_noNA[dataSCRLong_noNA$usGroup == "real" & dataSCRLong_noNA$time == "allTr",],
   data = dataSCRLong[dataSCRLong$usGroup == "real" & dataSCRLong$time == "allTr",],
   dv = SCR,
   wid = partInd,
@@ -169,7 +168,7 @@ anovaSCRReal <- ezANOVA(
 # bayesian ANOVA on SCR in classical conditioning group
 set.seed(rngSeed); anovaBFSCRReal <- anovaBF(
   formula = SCR ~ CS + partInd,
-  data = dataSCRLong_noNA[dataSCRLong_noNA$usGroup == "real" & dataSCRLong_noNA$time == "allTr",],
+  data = dataSCRLong[dataSCRLong$usGroup == "real" & dataSCRLong$time == "allTr",],
   whichRandom = "partInd",
   iterations = 100000
 ); print(anovaBFSCRReal)
@@ -182,8 +181,8 @@ scrRealAvNeu_t <- t.test(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
 scrRealAvNeu_d <- cohens_d(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
                            y = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
                            paired = TRUE)
-scrRealAvNeu_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"],
-                           y = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"],
+scrRealAvNeu_BF <- ttestBF(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
+                           y = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
                            nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
 # CS+av vs CS-
 scrRealAvMin_t <- t.test(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
@@ -192,8 +191,8 @@ scrRealAvMin_t <- t.test(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
 scrRealAvMin_d <- cohens_d(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
                            y = dataSCR$Min_allTr[dataSCR$usGroup == "real"],
                            paired = TRUE)
-scrRealAvMin_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"],
-                           y = dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
+scrRealAvMin_BF <- ttestBF(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
+                           y = dataSCR$Min_allTr[dataSCR$usGroup == "real"],
                            nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
 # CS+neu vs CS-
 scrRealNeuMin_t <- t.test(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
@@ -202,8 +201,8 @@ scrRealNeuMin_t <- t.test(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
 scrRealNeuMin_d <- cohens_d(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
                             y = dataSCR$Min_allTr[dataSCR$usGroup == "real"],
                             paired = TRUE)
-scrRealNeuMin_BF <- ttestBF(x = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"],
-                            y = dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
+scrRealNeuMin_BF <- ttestBF(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
+                            y = dataSCR$Min_allTr[dataSCR$usGroup == "real"],
                             nullInterval = NULL, paired = TRUE) # two-sided
 
 
@@ -217,7 +216,7 @@ describe(dataSCR)
 
 # frequentist ANOVA on SCR across conditioning groups
 anovaSCR <- ezANOVA(
-  #data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
+  #data = dataSCRLong[dataSCRLong$time == "allTr",],
   data = dataSCRLong[dataSCRLong$time == "allTr",],
   dv = SCR,
   wid = partInd,
@@ -238,7 +237,7 @@ anovaSCR <- ezANOVA(
 # bayesian ANOVA on SCR across conditioning groups
 set.seed(rngSeed); anovaBFSCR <- anovaBF(
   formula = SCR ~ usGroup*CS + partInd,
-  #data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
+  #data = dataSCRLong[dataSCRLong$time == "allTr",],
   data = dataSCRLong[dataSCRLong$time == "allTr",],
   whichRandom = "partInd",
   whichModels = "all",
@@ -268,7 +267,7 @@ bfIncInteractSCR <- (bf_interact + bf_usGroup_interact + bf_cs_interact + bf_ful
 
 # quick & dirty graph of group x CS ANOVA on valence ratings
 ezPlot(
-  data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
+  data = dataSCRLong[dataSCRLong$time == "allTr",],
   dv = SCR,
   wid = partInd,
   within = .(CS),
@@ -289,10 +288,10 @@ scrBothAvNeu_d <- cohens_d(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"] -
                            y = dataSCR$Av_allTr[dataSCR$usGroup == "ima"] -
                                dataSCR$Neu_allTr[dataSCR$usGroup == "ima"],
                            paired = FALSE)
-scrBothAvNeu_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"] -
-                               dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"],
-                           y = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "ima"] -
-                               dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "ima"],
+scrBothAvNeu_BF <- ttestBF(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"] -
+                               dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
+                           y = dataSCR$Av_allTr[dataSCR$usGroup == "ima"] -
+                               dataSCR$Neu_allTr[dataSCR$usGroup == "ima"],
                            nullInterval = NULL, paired = FALSE) # two-sided
 # delta [CS+av - CS-]
 scrBothAvMin_t <- t.test(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"] -
@@ -305,10 +304,10 @@ scrBothAvMin_d <- cohens_d(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"] -
                            y = dataSCR$Av_allTr[dataSCR$usGroup == "ima"] -
                                dataSCR$Min_allTr[dataSCR$usGroup == "ima"],
                            paired = FALSE)
-scrBothAvMin_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"] -
-                               dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
-                           y = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "ima"] -
-                               dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "ima"],
+scrBothAvMin_BF <- ttestBF(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"] -
+                               dataSCR$Min_allTr[dataSCR$usGroup == "real"],
+                           y = dataSCR$Av_allTr[dataSCR$usGroup == "ima"] -
+                               dataSCR$Min_allTr[dataSCR$usGroup == "ima"],
                            nullInterval = NULL, paired = FALSE) # two-sided
 # delta [CS+neu - CS-]
 scrBothNeuMin_t <- t.test(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"] -
@@ -321,17 +320,17 @@ scrBothNeuMin_d <- cohens_d(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"] -
                             y = dataSCR$Neu_allTr[dataSCR$usGroup == "ima"] -
                                 dataSCR$Min_allTr[dataSCR$usGroup == "ima"],
                             paired = FALSE)
-scrBothNeuMin_BF <- ttestBF(x = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"] -
-                                dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
-                            y = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "ima"] -
-                                dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "ima"],
+scrBothNeuMin_BF <- ttestBF(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"] -
+                                dataSCR$Min_allTr[dataSCR$usGroup == "real"],
+                            y = dataSCR$Neu_allTr[dataSCR$usGroup == "ima"] -
+                                dataSCR$Min_allTr[dataSCR$usGroup == "ima"],
                             nullInterval = NULL, paired = FALSE) # two-sided
 
 
 
 # quick & dirty graph of group x CS ANOVA on SCR
 ezPlot(
-  data = dataSCRLong_noNA,
+  data = dataSCRLong,
   dv = SCR,
   wid = partInd,
   within = .(CS),
@@ -392,7 +391,7 @@ save_as_docx(tableSCR, path = "Tables/tableSCR_raw.docx")
 csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-",
              expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
 
-dataSCRWithin <- dataSCR_noNA[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
+dataSCRWithin <- dataSCR[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
 # remove each participant's average from each single value
 dataSCRWithin[,3:5] <- as.matrix(dataSCRWithin[,3:5]) -
   rowMeans(as.matrix(dataSCRWithin[,3:5])) 
