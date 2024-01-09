@@ -12,7 +12,7 @@
 # (installing and) loading required packages
 # will install newest package version, not necessarily the version originally used!
 if(!is.element("psych",installed.packages()[,1])) {install.packages("psych")}
-  library(psych)
+library(psych)
 if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
 library(here)
 

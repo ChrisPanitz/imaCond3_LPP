@@ -156,9 +156,175 @@ dataDisgustLong$time <- factor(dataDisgustLong$time, levels = c("Pre", "Mid", "P
 
 
 
-################################################################################
-### Imagery-based conditioning - unpleasantness ratings - secondary analyses ###
-################################################################################
+###################################################################################
+### Imagery-based conditioning - fear ratings - supplemental analyses over time ###
+###################################################################################
+
+# descriptive statistics for fear ratings in imagery-based conditioning group
+describe(dataFear[dataFear$usGroup == "ima",])
+
+# frequentist ANOVA in imagery-based conditioning group, including p. eta^2
+# IV = CS; DV = fear rating
+anovaFearIma <- ezANOVA(
+  data = dataFearLong[dataFearLong$usGroup == "ima",],
+  dv = fear,
+  wid = partInd,
+  within = .(CS, time),
+  type = 3,
+  detailed = TRUE
+); anovaFearIma$ANOVA$pEtaSq <-
+  c(anovaFearIma$ANOVA$SSn[1] / (anovaFearIma$ANOVA$SSd[1]+anovaFearIma$ANOVA$SSn[1]),
+    anovaFearIma$ANOVA$SSn[2] / (anovaFearIma$ANOVA$SSd[2]+anovaFearIma$ANOVA$SSn[2]),
+    anovaFearIma$ANOVA$SSn[3] / (anovaFearIma$ANOVA$SSd[3]+anovaFearIma$ANOVA$SSn[3]),
+    anovaFearIma$ANOVA$SSn[4] / (anovaFearIma$ANOVA$SSd[4]+anovaFearIma$ANOVA$SSn[4])
+  ); print(anovaFearIma)
+capture.output(print(anovaFearIma), file = "supplement/01s1_timeFactor_fear_ima_anovaFreq.doc")
+
+# bayesian ANOVA on fear ratings in imagery-based conditioning group
+set.seed(rngSeed); anovaBFFearIma <- anovaBF(
+  formula = fear ~ CS*time + partInd,
+  data = dataFearLong[dataFearLong$usGroup == "ima",],
+  whichRandom = "partInd",
+  whichModels = "all",
+  iterations = 100000
+); print(anovaBFFearIma)
+capture.output(print(anovaBFFearIma), file = "supplement/01s1_timeFactor_fear_ima_anovaBayes.doc")
+
+# quick & dirty graph of CS Type x time ANOVA for fear ratings in imagery-based conditioning group
+plotFearIma <- ezPlot(
+  data = dataFearLong[dataFearLong$usGroup == "ima",],
+  dv = fear,
+  wid = partInd,
+  within = .(CS,time),
+  x = time,
+  split = CS
+) ; plotFearIma 
+ggsave(plot = plotFearIma, filename = "supplement/01s1_timeFactor_fear_ima_plot.jpg",
+       width = 10, height = 10, units = "cm")
+
+# frequentist & bayesian t-tests on fear ratings in imagery-based conditioning group
+### Pre
+# CS+av vs CS+neu
+fearImaAvNeuPre_t <- t.test(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
+                            y = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
+                            alternative = "two.sided", paired = TRUE) # two-sided
+fearImaAvNeuPre_d <- cohens_d(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
+                              y = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
+                              paired = TRUE)
+fearImaAvNeuPre_BF <- ttestBF(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
+                              y = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
+                              nullInterval = NULL, paired = TRUE) # two-sided
+# CS+av vs CS-
+fearImaAvMinPre_t <- t.test(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
+                            y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
+                            alternative = "two.sided", paired = TRUE) # two-sided
+fearImaAvMinPre_d <- cohens_d(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
+                              y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
+                              paired = TRUE)
+fearImaAvMinPre_BF <- ttestBF(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
+                              y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
+                              nullInterval = NULL, paired = TRUE) # two-sided
+# CS+neu vs CS-
+fearImaNeuMinPre_t <- t.test(x = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
+                             y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
+                             alternative = "two.sided", paired = TRUE) # two-sided
+fearImaNeuMinPre_d <- cohens_d(x = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
+                               y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
+                               paired = TRUE)
+fearImaNeuMinPre_BF <- ttestBF(x = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
+                               y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
+                               nullIntervall = NULL, paired = TRUE) # two-sided
+### Mid
+# CS+av vs CS+neu
+fearImaAvNeuMid_t <- t.test(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
+                            y = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
+                            alternative = "greater", paired = TRUE) # one-sided
+fearImaAvNeuMid_d <- cohens_d(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
+                              y = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
+                              paired = TRUE)
+fearImaAvNeuMid_BF <- ttestBF(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
+                              y = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
+                              nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+fearImaAvMinMid_t <- t.test(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
+                            y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
+                            alternative = "greater", paired = TRUE) # one-sided
+fearImaAvMinMid_d <- cohens_d(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
+                              y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
+                              paired = TRUE)
+fearImaAvMinMid_BF <- ttestBF(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
+                              y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
+                              nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+fearImaNeuMinMid_t <- t.test(x = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
+                             y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
+                             alternative = "two.sided", paired = TRUE) # two-sided
+fearImaNeuMinMid_d <- cohens_d(x = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
+                               y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
+                               paired = TRUE)
+fearImaNeuMinMid_BF <- ttestBF(x = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
+                               y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
+                               nullIntervall = NULL, paired = TRUE) # two-sided
+
+### Post
+# CS+av vs CS+neu
+fearImaAvNeuPost_t <- t.test(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
+                             y = dataFear$Neu_Post[dataFear$usGroup == "ima"],
+                             alternative = "greater", paired = TRUE) # one-sided
+fearImaAvNeuPost_d <- cohens_d(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
+                               y = dataFear$Neu_Post[dataFear$usGroup == "ima"],
+                               paired = TRUE)
+fearImaAvNeuPost_BF <- ttestBF(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
+                               y = dataFear$Neu_Post[dataFear$usGroup == "ima"],
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+fearImaAvMinPost_t <- t.test(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
+                             y = dataFear$Min_Post[dataFear$usGroup == "ima"],
+                             alternative = "greater", paired = TRUE) # one-sided
+fearImaAvMinPost_d <- cohens_d(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
+                               y = dataFear$Min_Post[dataFear$usGroup == "ima"],
+                               paired = TRUE)
+fearImaAvMinPost_BF <- ttestBF(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
+                               y = dataFear$Min_Post[dataFear$usGroup == "ima"],
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+fearImaNeuMinPost_t <- t.test(x = dataFear$Neu_Post[dataFear$usGroup == "ima"],
+                              y = dataFear$Min_Post[dataFear$usGroup == "ima"],
+                              alternative = "two.sided", paired = TRUE) # two-sided
+fearImaNeuMinPost_d <- cohens_d(x = dataFear$Neu_Post[dataFear$usGroup == "ima"],
+                                y = dataFear$Min_Post[dataFear$usGroup == "ima"],
+                                paired = TRUE)
+fearImaNeuMinPost_BF <- ttestBF(x = dataFear$Neu_Post[dataFear$usGroup == "ima"],
+                                y = dataFear$Min_Post[dataFear$usGroup == "ima"],
+                                nullIntervall = NULL, paired = TRUE) # two-sided
+
+tableFearIma <- data.frame(
+  time = c(rep("Pre",3), rep("Mid",3), rep("Post",3)),
+  comparison = rep(c("CS+av vs CS+neu", "CS+av vs CS-", "CSneu vs CS-"), 3),
+  t = c(fearImaAvNeuPre_t$statistic, fearImaAvMinPre_t$statistic, fearImaNeuMinPre_t$statistic,
+        fearImaAvNeuMid_t$statistic, fearImaAvMinMid_t$statistic, fearImaNeuMinMid_t$statistic,
+        fearImaAvNeuPost_t$statistic, fearImaAvMinPost_t$statistic, fearImaNeuMinPost_t$statistic),
+  df = c(fearImaAvNeuPre_t$parameter, fearImaAvMinPre_t$parameter, fearImaNeuMinPre_t$parameter,
+         fearImaAvNeuMid_t$parameter, fearImaAvMinMid_t$parameter, fearImaNeuMinMid_t$parameter,
+         fearImaAvNeuPost_t$parameter, fearImaAvMinPost_t$parameter, fearImaNeuMinPost_t$parameter), 
+  p = c(fearImaAvNeuPre_t$p.value, fearImaAvMinPre_t$p.value, fearImaNeuMinPre_t$p.value,
+        fearImaAvNeuMid_t$p.value, fearImaAvMinMid_t$p.value, fearImaNeuMinMid_t$p.value,
+        fearImaAvNeuPost_t$p.value, fearImaAvMinPost_t$p.value, fearImaNeuMinPost_t$p.value),
+  d = c(fearImaAvNeuPre_d$Cohens_d, fearImaAvMinPre_d$Cohens_d, fearImaNeuMinPre_d$Cohens_d,
+        fearImaAvNeuMid_d$Cohens_d, fearImaAvMinMid_d$Cohens_d, fearImaNeuMinMid_d$Cohens_d,
+        fearImaAvNeuPost_d$Cohens_d, fearImaAvMinPost_d$Cohens_d, fearImaNeuMinPost_d$Cohens_d),
+  BF = c(exp(fearImaAvNeuPre_BF@bayesFactor[["bf"]][1]), exp(fearImaAvMinPre_BF@bayesFactor[["bf"]][1]), exp(fearImaNeuMinPre_BF@bayesFactor[["bf"]][1]),
+         exp(fearImaAvNeuMid_BF@bayesFactor[["bf"]][1]), exp(fearImaAvMinMid_BF@bayesFactor[["bf"]][1]), exp(fearImaNeuMinMid_BF@bayesFactor[["bf"]][1]),
+         exp(fearImaAvNeuPost_BF@bayesFactor[["bf"]][1]), exp(fearImaAvMinPost_BF@bayesFactor[["bf"]][1]), exp(fearImaNeuMinPost_BF@bayesFactor[["bf"]][1])),
+  testDir = c("two.sided","two.sided","two.sided", rep(c("one.sided","one.sided","two.sided"),2))
+)
+capture.output(tableFearIma, file = "supplement/01s1_timeFactor_fear_ima_tTable.doc")
+
+
+
+#############################################################################################
+### Imagery-based conditioning - unpleasantness ratings - supplemental analyses over time ###
+#############################################################################################
 
 # descriptive statistics for unpleasantness ratings in imagery-based conditioning group
 describe(dataUnpleas[dataUnpleas$usGroup == "ima",])
@@ -178,7 +344,7 @@ anovaUnpleasIma <- ezANOVA(
       anovaUnpleasIma$ANOVA$SSn[3] / (anovaUnpleasIma$ANOVA$SSd[3]+anovaUnpleasIma$ANOVA$SSn[3]),
       anovaUnpleasIma$ANOVA$SSn[4] / (anovaUnpleasIma$ANOVA$SSd[4]+anovaUnpleasIma$ANOVA$SSn[4])
 ); print(anovaUnpleasIma)
-capture.output(print(anovaUnpleasIma), file = "Supplement/01s_unpleas_ima_anovaFreq.doc")
+capture.output(print(anovaUnpleasIma), file = "supplement/01s1_timeFactor_unpleas_ima_anovaFreq.doc")
 
 # bayesian ANOVA on unpleasantness ratings in imagery-based conditioning group
 set.seed(rngSeed); anovaBFUnpleasIma <- anovaBF(
@@ -188,7 +354,7 @@ set.seed(rngSeed); anovaBFUnpleasIma <- anovaBF(
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFUnpleasIma)
-capture.output(print(anovaBFUnpleasIma), file = "Supplement/01s_unpleas_ima_anovaBayes.doc")
+capture.output(print(anovaBFUnpleasIma), file = "supplement/01s1_timeFactor_unpleas_ima_anovaBayes.doc")
 
 # quick & dirty graph of CS Type x time ANOVA for unpleasantness ratings in imagery-based conditioning group
 plotUnpleasIma <- ezPlot(
@@ -199,7 +365,7 @@ plotUnpleasIma <- ezPlot(
   x = time,
   split = CS
 ) ; plotUnpleasIma 
-ggsave(plot = plotUnpleasIma, filename = "Supplement/01s_unpleas_ima_plot.jpg",
+ggsave(plot = plotUnpleasIma, filename = "supplement/01s1_timeFactor_unpleas_ima_plot.jpg",
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on unpleasantness ratings in imagery-based conditioning group
@@ -319,11 +485,13 @@ tableUnpleasIma <- data.frame(
          exp(unpleasImaAvNeuPost_BF@bayesFactor[["bf"]][1]), exp(unpleasImaAvMinPost_BF@bayesFactor[["bf"]][1]), exp(unpleasImaNeuMinPost_BF@bayesFactor[["bf"]][1])),
   testDir = c("two.sided","two.sided","two.sided", rep(c("one.sided","one.sided","two.sided"),2))
 )
-capture.output(tableUnpleasIma, file = "Supplement/01s_unpleas_ima_tTable.doc")
+capture.output(tableUnpleasIma, file = "supplement/01s1_timeFactor_unpleas_ima_tTable.doc")
 
-#########################################################################
-### Imagery-based conditioning - arousal ratings - secondary analyses ###
-#########################################################################
+
+
+######################################################################################
+### Imagery-based conditioning - arousal ratings - supplemental analyses over time ###
+######################################################################################
 
 # descriptive statistics for arousal ratings in imagery-based conditioning group
 describe(dataArousal[dataArousal$usGroup == "ima",])
@@ -343,7 +511,7 @@ anovaArousalIma <- ezANOVA(
     anovaArousalIma$ANOVA$SSn[3] / (anovaArousalIma$ANOVA$SSd[3]+anovaArousalIma$ANOVA$SSn[3]),
     anovaArousalIma$ANOVA$SSn[4] / (anovaArousalIma$ANOVA$SSd[4]+anovaArousalIma$ANOVA$SSn[4])
   ); print(anovaArousalIma)
-capture.output(print(anovaArousalIma), file = "Supplement/01s_arousal_ima_anovaFreq.doc")
+capture.output(print(anovaArousalIma), file = "supplement/01s1_timeFactor_arousal_ima_anovaFreq.doc")
 
 # bayesian ANOVA on arousal ratings in imagery-based conditioning group
 set.seed(rngSeed); anovaBFArousalIma <- anovaBF(
@@ -353,7 +521,7 @@ set.seed(rngSeed); anovaBFArousalIma <- anovaBF(
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFArousalIma)
-capture.output(print(anovaBFArousalIma), file = "Supplement/01s_arousal_ima_anovaBayes.doc")
+capture.output(print(anovaBFArousalIma), file = "supplement/01s1_timeFactor_arousal_ima_anovaBayes.doc")
 
 # quick & dirty graph of CS Type x time ANOVA for arousal ratings in imagery-based conditioning group
 plotArousalIma <- ezPlot(
@@ -364,7 +532,7 @@ plotArousalIma <- ezPlot(
   x = time,
   split = CS
 ) ; plotArousalIma 
-ggsave(plot = plotArousalIma, filename = "Supplement/01s_arousal_ima_plot.jpg",
+ggsave(plot = plotArousalIma, filename = "supplement/01s1_timeFactor_arousal_ima_plot.jpg",
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on arousal ratings in imagery-based conditioning group
@@ -484,177 +652,15 @@ tableArousalIma <- data.frame(
          exp(arousalImaAvNeuPost_BF@bayesFactor[["bf"]][1]), exp(arousalImaAvMinPost_BF@bayesFactor[["bf"]][1]), exp(arousalImaNeuMinPost_BF@bayesFactor[["bf"]][1])),
   testDir = c("two.sided","two.sided","two.sided", rep(c("one.sided","one.sided","two.sided"),2))
 )
-capture.output(tableArousalIma, file = "Supplement/01s_arousal_ima_tTable.doc")
+capture.output(tableArousalIma, file = "supplement/01s1_timeFactor_arousal_ima_tTable.doc")
 
 
 
-######################################################################
-### Imagery-based conditioning - fear ratings - secondary analyses ###
-######################################################################
 
-# descriptive statistics for fear ratings in imagery-based conditioning group
-describe(dataFear[dataFear$usGroup == "ima",])
-
-# frequentist ANOVA in imagery-based conditioning group, including p. eta^2
-# IV = CS; DV = fear rating
-anovaFearIma <- ezANOVA(
-  data = dataFearLong[dataFearLong$usGroup == "ima",],
-  dv = fear,
-  wid = partInd,
-  within = .(CS, time),
-  type = 3,
-  detailed = TRUE
-); anovaFearIma$ANOVA$pEtaSq <-
-  c(anovaFearIma$ANOVA$SSn[1] / (anovaFearIma$ANOVA$SSd[1]+anovaFearIma$ANOVA$SSn[1]),
-    anovaFearIma$ANOVA$SSn[2] / (anovaFearIma$ANOVA$SSd[2]+anovaFearIma$ANOVA$SSn[2]),
-    anovaFearIma$ANOVA$SSn[3] / (anovaFearIma$ANOVA$SSd[3]+anovaFearIma$ANOVA$SSn[3]),
-    anovaFearIma$ANOVA$SSn[4] / (anovaFearIma$ANOVA$SSd[4]+anovaFearIma$ANOVA$SSn[4])
-  ); print(anovaFearIma)
-capture.output(print(anovaFearIma), file = "Supplement/01s_fear_ima_anovaFreq.doc")
-
-# bayesian ANOVA on fear ratings in imagery-based conditioning group
-set.seed(rngSeed); anovaBFFearIma <- anovaBF(
-  formula = fear ~ CS*time + partInd,
-  data = dataFearLong[dataFearLong$usGroup == "ima",],
-  whichRandom = "partInd",
-  whichModels = "all",
-  iterations = 100000
-); print(anovaBFFearIma)
-capture.output(print(anovaBFFearIma), file = "Supplement/01s_fear_ima_anovaBayes.doc")
-
-# quick & dirty graph of CS Type x time ANOVA for fear ratings in imagery-based conditioning group
-plotFearIma <- ezPlot(
-  data = dataFearLong[dataFearLong$usGroup == "ima",],
-  dv = fear,
-  wid = partInd,
-  within = .(CS,time),
-  x = time,
-  split = CS
-) ; plotFearIma 
-ggsave(plot = plotFearIma, filename = "Supplement/01s_fear_ima_plot.jpg",
-       width = 10, height = 10, units = "cm")
-
-# frequentist & bayesian t-tests on fear ratings in imagery-based conditioning group
-### Pre
-# CS+av vs CS+neu
-fearImaAvNeuPre_t <- t.test(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
-                               y = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
-                               alternative = "two.sided", paired = TRUE) # two-sided
-fearImaAvNeuPre_d <- cohens_d(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
-                                 y = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
-                                 paired = TRUE)
-fearImaAvNeuPre_BF <- ttestBF(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
-                                 y = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
-                                 nullInterval = NULL, paired = TRUE) # two-sided
-# CS+av vs CS-
-fearImaAvMinPre_t <- t.test(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
-                               y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
-                               alternative = "two.sided", paired = TRUE) # two-sided
-fearImaAvMinPre_d <- cohens_d(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
-                                 y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
-                                 paired = TRUE)
-fearImaAvMinPre_BF <- ttestBF(x = dataFear$Av_Pre[dataFear$usGroup == "ima"],
-                                 y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
-                                 nullInterval = NULL, paired = TRUE) # two-sided
-# CS+neu vs CS-
-fearImaNeuMinPre_t <- t.test(x = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
-                                y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
-                                alternative = "two.sided", paired = TRUE) # two-sided
-fearImaNeuMinPre_d <- cohens_d(x = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
-                                  y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
-                                  paired = TRUE)
-fearImaNeuMinPre_BF <- ttestBF(x = dataFear$Neu_Pre[dataFear$usGroup == "ima"],
-                                  y = dataFear$Min_Pre[dataFear$usGroup == "ima"],
-                                  nullIntervall = NULL, paired = TRUE) # two-sided
-### Mid
-# CS+av vs CS+neu
-fearImaAvNeuMid_t <- t.test(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
-                               y = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
-                               alternative = "greater", paired = TRUE) # one-sided
-fearImaAvNeuMid_d <- cohens_d(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
-                                 y = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
-                                 paired = TRUE)
-fearImaAvNeuMid_BF <- ttestBF(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
-                                 y = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
-                                 nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
-# CS+av vs CS-
-fearImaAvMinMid_t <- t.test(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
-                               y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
-                               alternative = "greater", paired = TRUE) # one-sided
-fearImaAvMinMid_d <- cohens_d(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
-                                 y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
-                                 paired = TRUE)
-fearImaAvMinMid_BF <- ttestBF(x = dataFear$Av_Mid[dataFear$usGroup == "ima"],
-                                 y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
-                                 nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
-# CS+neu vs CS-
-fearImaNeuMinMid_t <- t.test(x = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
-                                y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
-                                alternative = "two.sided", paired = TRUE) # two-sided
-fearImaNeuMinMid_d <- cohens_d(x = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
-                                  y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
-                                  paired = TRUE)
-fearImaNeuMinMid_BF <- ttestBF(x = dataFear$Neu_Mid[dataFear$usGroup == "ima"],
-                                  y = dataFear$Min_Mid[dataFear$usGroup == "ima"],
-                                  nullIntervall = NULL, paired = TRUE) # two-sided
-
-### Post
-# CS+av vs CS+neu
-fearImaAvNeuPost_t <- t.test(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
-                                y = dataFear$Neu_Post[dataFear$usGroup == "ima"],
-                                alternative = "greater", paired = TRUE) # one-sided
-fearImaAvNeuPost_d <- cohens_d(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
-                                  y = dataFear$Neu_Post[dataFear$usGroup == "ima"],
-                                  paired = TRUE)
-fearImaAvNeuPost_BF <- ttestBF(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
-                                  y = dataFear$Neu_Post[dataFear$usGroup == "ima"],
-                                  nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
-# CS+av vs CS-
-fearImaAvMinPost_t <- t.test(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
-                                y = dataFear$Min_Post[dataFear$usGroup == "ima"],
-                                alternative = "greater", paired = TRUE) # one-sided
-fearImaAvMinPost_d <- cohens_d(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
-                                  y = dataFear$Min_Post[dataFear$usGroup == "ima"],
-                                  paired = TRUE)
-fearImaAvMinPost_BF <- ttestBF(x = dataFear$Av_Post[dataFear$usGroup == "ima"],
-                                  y = dataFear$Min_Post[dataFear$usGroup == "ima"],
-                                  nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
-# CS+neu vs CS-
-fearImaNeuMinPost_t <- t.test(x = dataFear$Neu_Post[dataFear$usGroup == "ima"],
-                                 y = dataFear$Min_Post[dataFear$usGroup == "ima"],
-                                 alternative = "two.sided", paired = TRUE) # two-sided
-fearImaNeuMinPost_d <- cohens_d(x = dataFear$Neu_Post[dataFear$usGroup == "ima"],
-                                   y = dataFear$Min_Post[dataFear$usGroup == "ima"],
-                                   paired = TRUE)
-fearImaNeuMinPost_BF <- ttestBF(x = dataFear$Neu_Post[dataFear$usGroup == "ima"],
-                                   y = dataFear$Min_Post[dataFear$usGroup == "ima"],
-                                   nullIntervall = NULL, paired = TRUE) # two-sided
-
-tableFearIma <- data.frame(
-  time = c(rep("Pre",3), rep("Mid",3), rep("Post",3)),
-  comparison = rep(c("CS+av vs CS+neu", "CS+av vs CS-", "CSneu vs CS-"), 3),
-  t = c(fearImaAvNeuPre_t$statistic, fearImaAvMinPre_t$statistic, fearImaNeuMinPre_t$statistic,
-        fearImaAvNeuMid_t$statistic, fearImaAvMinMid_t$statistic, fearImaNeuMinMid_t$statistic,
-        fearImaAvNeuPost_t$statistic, fearImaAvMinPost_t$statistic, fearImaNeuMinPost_t$statistic),
-  df = c(fearImaAvNeuPre_t$parameter, fearImaAvMinPre_t$parameter, fearImaNeuMinPre_t$parameter,
-         fearImaAvNeuMid_t$parameter, fearImaAvMinMid_t$parameter, fearImaNeuMinMid_t$parameter,
-         fearImaAvNeuPost_t$parameter, fearImaAvMinPost_t$parameter, fearImaNeuMinPost_t$parameter), 
-  p = c(fearImaAvNeuPre_t$p.value, fearImaAvMinPre_t$p.value, fearImaNeuMinPre_t$p.value,
-        fearImaAvNeuMid_t$p.value, fearImaAvMinMid_t$p.value, fearImaNeuMinMid_t$p.value,
-        fearImaAvNeuPost_t$p.value, fearImaAvMinPost_t$p.value, fearImaNeuMinPost_t$p.value),
-  d = c(fearImaAvNeuPre_d$Cohens_d, fearImaAvMinPre_d$Cohens_d, fearImaNeuMinPre_d$Cohens_d,
-        fearImaAvNeuMid_d$Cohens_d, fearImaAvMinMid_d$Cohens_d, fearImaNeuMinMid_d$Cohens_d,
-        fearImaAvNeuPost_d$Cohens_d, fearImaAvMinPost_d$Cohens_d, fearImaNeuMinPost_d$Cohens_d),
-  BF = c(exp(fearImaAvNeuPre_BF@bayesFactor[["bf"]][1]), exp(fearImaAvMinPre_BF@bayesFactor[["bf"]][1]), exp(fearImaNeuMinPre_BF@bayesFactor[["bf"]][1]),
-         exp(fearImaAvNeuMid_BF@bayesFactor[["bf"]][1]), exp(fearImaAvMinMid_BF@bayesFactor[["bf"]][1]), exp(fearImaNeuMinMid_BF@bayesFactor[["bf"]][1]),
-         exp(fearImaAvNeuPost_BF@bayesFactor[["bf"]][1]), exp(fearImaAvMinPost_BF@bayesFactor[["bf"]][1]), exp(fearImaNeuMinPost_BF@bayesFactor[["bf"]][1])),
-  testDir = c("two.sided","two.sided","two.sided", rep(c("one.sided","one.sided","two.sided"),2))
-)
-capture.output(tableFearIma, file = "Supplement/01s_fear_ima_tTable.doc")
 
 
 ############################################################################
-### Classical conditioning - unpleasantness ratings - secondary analyses ###
+### Classical conditioning - unpleasantness ratings - supplemental analyses over time ###
 ############################################################################
 
 # descriptive statistics for unpleasantness ratings in classical conditioning group
@@ -819,7 +825,7 @@ tableUnpleasReal <- data.frame(
 capture.output(tableUnpleasReal, file = "Supplement/01s_unpleas_real_tTable.doc")
 
 #####################################################################
-### Classical conditioning - arousal ratings - secondary analyses ###
+### Classical conditioning - arousal ratings - supplemental analyses over time ###
 #####################################################################
 
 # descriptive statistics for arousal ratings in classical conditioning group
@@ -986,7 +992,7 @@ capture.output(tableArousalReal, file = "Supplement/01s_arousal_real_tTable.doc"
 
 
 ##################################################################
-### Classical conditioning - fear ratings - secondary analyses ###
+### Classical conditioning - fear ratings - supplemental analyses over time ###
 ##################################################################
 
 # descriptive statistics for fear ratings in classical conditioning group
@@ -1152,7 +1158,7 @@ capture.output(tableFearReal, file = "Supplement/01s_fear_real_tTable.doc")
 
 
 ###################################################################
-### Across groups - unpleasantness ratings - secondary analyses ###
+### Across groups - unpleasantness ratings - supplemental analyses over time ###
 ###################################################################
 
 # descriptive statistics  for unpleasantess ratings across conditioning groups
@@ -1206,7 +1212,7 @@ ggsave(plot = plotUnpleas, filename = "Supplement/01s_unpleas_both_plot.jpg",
 
 
 ############################################################
-### Across groups - arousal ratings - secondary analyses ###
+### Across groups - arousal ratings - supplemental analyses over time ###
 ############################################################
 
 # descriptive statistics for arousal ratings across conditioning groups
@@ -1260,7 +1266,7 @@ ggsave(plot = plotArousal, filename = "Supplement/01s_arousal_both_plot.jpg",
 
 
 #########################################################
-### Across groups - fear ratings - secondary analyses ###
+### Across groups - fear ratings - supplemental analyses over time ###
 #########################################################
 
 # descriptive statistics for fear ratings across conditioning groups
