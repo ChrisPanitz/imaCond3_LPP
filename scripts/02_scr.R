@@ -148,6 +148,9 @@ scrImaNeuMin_BF <- ttestBF(x = dataSCR$Neu_allTr[dataSCR$usGroup == "ima"],
 describe(dataSCR[dataSCR$usGroup == "real",])
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 # only using subjects without missing SCR data
 dataSCR_noNA <- dataSCR[!is.na(rowMeans(subset(dataSCR, select = Av_allTr:Min_2ndBl))),]
 dataSCRLong_noNA <- dataSCRLong[!is.na(dataSCRLong$SCR),]
@@ -156,10 +159,13 @@ dataSCRLong_noNA <- dataSCRLong[!is.na(dataSCRLong$SCR),]
 # IV = CS; DV = SCR
 anovaSCRReal <- ezANOVA(
   #data = dataSCRLong_noNA[dataSCRLong_noNA$usGroup == "real" & dataSCRLong_noNA$time == "allTr",],
+<<<<<<< Updated upstream
 =======
 # frequentist ANOVA on SCR in classical conditioning group, including p. eta^2
 # IV = CS; DV = SCR
 anovaSCRReal <- ezANOVA(
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   data = dataSCRLong[dataSCRLong$usGroup == "real" & dataSCRLong$time == "allTr",],
   dv = SCR,
@@ -176,9 +182,13 @@ anovaSCRReal <- ezANOVA(
 set.seed(rngSeed); anovaBFSCRReal <- anovaBF(
   formula = SCR ~ CS + partInd,
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   data = dataSCRLong_noNA[dataSCRLong_noNA$usGroup == "real" & dataSCRLong_noNA$time == "allTr",],
 =======
   data = dataSCRLong[dataSCRLong$usGroup == "real" & dataSCRLong$time == "allTr",],
+>>>>>>> Stashed changes
+=======
+  data = dataSCRLong_noNA[dataSCRLong_noNA$usGroup == "real" & dataSCRLong_noNA$time == "allTr",],
 >>>>>>> Stashed changes
   whichRandom = "partInd",
   iterations = 100000
@@ -193,11 +203,16 @@ scrRealAvNeu_d <- cohens_d(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
                            y = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
                            paired = TRUE)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 scrRealAvNeu_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"],
                            y = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"],
 =======
 scrRealAvNeu_BF <- ttestBF(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
                            y = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
+>>>>>>> Stashed changes
+=======
+scrRealAvNeu_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"],
+                           y = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"],
 >>>>>>> Stashed changes
                            nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
 # CS+av vs CS-
@@ -208,11 +223,16 @@ scrRealAvMin_d <- cohens_d(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
                            y = dataSCR$Min_allTr[dataSCR$usGroup == "real"],
                            paired = TRUE)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 scrRealAvMin_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"],
                            y = dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
 =======
 scrRealAvMin_BF <- ttestBF(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"],
                            y = dataSCR$Min_allTr[dataSCR$usGroup == "real"],
+>>>>>>> Stashed changes
+=======
+scrRealAvMin_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"],
+                           y = dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
 >>>>>>> Stashed changes
                            nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
 # CS+neu vs CS-
@@ -223,11 +243,16 @@ scrRealNeuMin_d <- cohens_d(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
                             y = dataSCR$Min_allTr[dataSCR$usGroup == "real"],
                             paired = TRUE)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 scrRealNeuMin_BF <- ttestBF(x = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"],
                             y = dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
 =======
 scrRealNeuMin_BF <- ttestBF(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
                             y = dataSCR$Min_allTr[dataSCR$usGroup == "real"],
+>>>>>>> Stashed changes
+=======
+scrRealNeuMin_BF <- ttestBF(x = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"],
+                            y = dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
 >>>>>>> Stashed changes
                             nullInterval = NULL, paired = TRUE) # two-sided
 
@@ -243,8 +268,12 @@ describe(dataSCR)
 # frequentist ANOVA on SCR across conditioning groups
 anovaSCR <- ezANOVA(
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   #data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
 =======
+>>>>>>> Stashed changes
+=======
+  #data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
 >>>>>>> Stashed changes
   data = dataSCRLong[dataSCRLong$time == "allTr",],
   dv = SCR,
@@ -267,8 +296,12 @@ anovaSCR <- ezANOVA(
 set.seed(rngSeed); anovaBFSCR <- anovaBF(
   formula = SCR ~ usGroup*CS + partInd,
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   #data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
 =======
+>>>>>>> Stashed changes
+=======
+  #data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
 >>>>>>> Stashed changes
   data = dataSCRLong[dataSCRLong$time == "allTr",],
   whichRandom = "partInd",
@@ -300,9 +333,13 @@ bfIncInteractSCR <- (bf_interact + bf_usGroup_interact + bf_cs_interact + bf_ful
 # quick & dirty graph of group x CS ANOVA on valence ratings
 ezPlot(
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
 =======
   data = dataSCRLong[dataSCRLong$time == "allTr",],
+>>>>>>> Stashed changes
+=======
+  data = dataSCRLong_noNA[dataSCRLong_noNA$time == "allTr",],
 >>>>>>> Stashed changes
   dv = SCR,
   wid = partInd,
@@ -325,15 +362,21 @@ scrBothAvNeu_d <- cohens_d(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"] -
                                dataSCR$Neu_allTr[dataSCR$usGroup == "ima"],
                            paired = FALSE)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 scrBothAvNeu_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"] -
                                dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"],
                            y = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "ima"] -
                                dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "ima"],
+<<<<<<< Updated upstream
 =======
 scrBothAvNeu_BF <- ttestBF(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"] -
                                dataSCR$Neu_allTr[dataSCR$usGroup == "real"],
                            y = dataSCR$Av_allTr[dataSCR$usGroup == "ima"] -
                                dataSCR$Neu_allTr[dataSCR$usGroup == "ima"],
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                            nullInterval = NULL, paired = FALSE) # two-sided
 # delta [CS+av - CS-]
@@ -348,15 +391,21 @@ scrBothAvMin_d <- cohens_d(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"] -
                                dataSCR$Min_allTr[dataSCR$usGroup == "ima"],
                            paired = FALSE)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 scrBothAvMin_BF <- ttestBF(x = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "real"] -
                                dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
                            y = dataSCR_noNA$Av_allTr[dataSCR_noNA$usGroup == "ima"] -
                                dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "ima"],
+<<<<<<< Updated upstream
 =======
 scrBothAvMin_BF <- ttestBF(x = dataSCR$Av_allTr[dataSCR$usGroup == "real"] -
                                dataSCR$Min_allTr[dataSCR$usGroup == "real"],
                            y = dataSCR$Av_allTr[dataSCR$usGroup == "ima"] -
                                dataSCR$Min_allTr[dataSCR$usGroup == "ima"],
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                            nullInterval = NULL, paired = FALSE) # two-sided
 # delta [CS+neu - CS-]
@@ -371,20 +420,27 @@ scrBothNeuMin_d <- cohens_d(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"] -
                                 dataSCR$Min_allTr[dataSCR$usGroup == "ima"],
                             paired = FALSE)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+>>>>>>> Stashed changes
 scrBothNeuMin_BF <- ttestBF(x = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "real"] -
                                 dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "real"],
                             y = dataSCR_noNA$Neu_allTr[dataSCR_noNA$usGroup == "ima"] -
                                 dataSCR_noNA$Min_allTr[dataSCR_noNA$usGroup == "ima"],
+<<<<<<< Updated upstream
 =======
 scrBothNeuMin_BF <- ttestBF(x = dataSCR$Neu_allTr[dataSCR$usGroup == "real"] -
                                 dataSCR$Min_allTr[dataSCR$usGroup == "real"],
                             y = dataSCR$Neu_allTr[dataSCR$usGroup == "ima"] -
                                 dataSCR$Min_allTr[dataSCR$usGroup == "ima"],
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
                             nullInterval = NULL, paired = FALSE) # two-sided
 
 
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 # quick & dirty graph of group x CS ANOVA on SCR
 ezPlot(
@@ -393,6 +449,11 @@ ezPlot(
 # quick graph of group x CS ANOVA on SCR
 ezPlot(
   data = dataSCRLong,
+>>>>>>> Stashed changes
+=======
+# quick & dirty graph of group x CS ANOVA on SCR
+ezPlot(
+  data = dataSCRLong_noNA,
 >>>>>>> Stashed changes
   dv = SCR,
   wid = partInd,
@@ -455,18 +516,26 @@ csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-",
              expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 dataSCRWithin <- dataSCR_noNA[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
 =======
 dataSCRWithin <- dataSCR[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
+>>>>>>> Stashed changes
+=======
+dataSCRWithin <- dataSCR_noNA[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
 >>>>>>> Stashed changes
 # remove each participant's average from each single value
 dataSCRWithin[,3:5] <- as.matrix(dataSCRWithin[,3:5]) -
   rowMeans(as.matrix(dataSCRWithin[,3:5])) 
 # prepare data frame for bar plot with means from standard dataset and SE from
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # dataset without betweem-subject variance
 =======
 # dataset without between-subject variance
+>>>>>>> Stashed changes
+=======
+# dataset without betweem-subject variance
 >>>>>>> Stashed changes
 meanSCR <- data.frame(
   usGroup = factor(c(rep(1,3),rep(2,3)),
@@ -480,6 +549,7 @@ meanSCR <- data.frame(
 )
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 
 plotFS <- 9
@@ -492,14 +562,25 @@ showSig <- TRUE
 
 # plot SCR
 >>>>>>> Stashed changes
+=======
+
+
+plotFS <- 9
+showSig <- TRUE
+
+>>>>>>> Stashed changes
 graphSCR <- ggplot(data = meanSCR, aes(x = usGroup, y = mean, fill = CS)) +
   theme_classic() +
   geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   scale_x_discrete(aes(breaks = usGroup), name = "") +
 =======
+>>>>>>> Stashed changes
+=======
+  scale_x_discrete(aes(breaks = usGroup), name = "") +
 >>>>>>> Stashed changes
   scale_y_continuous(name = "Mean SCR (normalized)") +
   geom_hline(yintercept = 0) +
@@ -508,10 +589,13 @@ graphSCR <- ggplot(data = meanSCR, aes(x = usGroup, y = mean, fill = CS)) +
   theme(legend.position = "none",
         axis.line.x = element_blank(),
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
         axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
@@ -543,8 +627,13 @@ ggsave(filename = "Figures/Figure3_barPlot_SCR.pdf",
        units = "mm",
        dpi = 300
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 )
 
 =======
 )
+>>>>>>> Stashed changes
+=======
+)
+
 >>>>>>> Stashed changes
