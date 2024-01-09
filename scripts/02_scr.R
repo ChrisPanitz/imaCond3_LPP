@@ -52,7 +52,6 @@ importRatings <- read.csv(paste0(pathname, "/experimentData/imaCond3_demographic
 # load SCR data from text file
 # (see imaCond3_scr_readme.txt for more details)
 importSCR <- read.csv(paste0(pathname, "/experimentData/imaCond3_scrmatrix_cs.txt"), sep = "")
-#importSCR <- merge(importRatings[,c("vpcode","partInd","group")], importSCR, by = "vpcode")
 importSCR <- merge(importRatings[,c("partCode","group")], importSCR, by = "partCode")
 importSCR <- importSCR[order(importSCR$partCode),]
 
