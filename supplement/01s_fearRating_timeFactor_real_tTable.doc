@@ -1,0 +1,10 @@
+  time      comparison          t df            p           d           BF   testDir
+1  Pre CS+av vs CS+neu  0.4396332 23 6.643060e-01  0.08973974 2.344104e-01 two.sided
+2  Pre    CS+av vs CS-  0.5141671 23 6.120403e-01  0.10495392 2.420938e-01 two.sided
+3  Pre    CSneu vs CS-  0.0000000 23 1.000000e+00  0.00000000 2.146263e-01 two.sided
+4  Mid CS+av vs CS+neu  5.1269596 23 1.703211e-05  1.04653624 1.427739e+03 one.sided
+5  Mid    CS+av vs CS-  6.4342832 23 7.240183e-07  1.31339255 2.546323e+04 one.sided
+6  Mid    CSneu vs CS-  1.0000000 23 3.277158e-01  0.20412415 3.361416e-01 two.sided
+7 Post CS+av vs CS+neu  7.0144516 23 1.893771e-07  1.43181894 8.766150e+04 one.sided
+8 Post    CS+av vs CS-  6.3954263 23 7.932275e-07  1.30546093 2.341366e+04 one.sided
+9 Post    CSneu vs CS- -0.3270730 23 7.465708e-01 -0.06676350 2.253807e-01 two.sided
