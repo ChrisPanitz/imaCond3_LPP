@@ -1,0 +1,15 @@
+Bayes factor analysis
+--------------
+[1] CS + partInd                  : 19125.34   ±0.32%
+[2] time + partInd                : 0.06859162 ±0.3%
+[3] CS:time + partInd             : 0.7871689  ±0.16%
+[4] CS + time + partInd           : 1380.299   ±0.45%
+[5] CS + CS:time + partInd        : 24670.28   ±0.77%
+[6] time + CS:time + partInd      : 0.05483817 ±0.67%
+[7] CS + time + CS:time + partInd : 1803.243   ±0.55%
+
+Against denominator:
+  unpleasantness ~ partInd 
+---
+Bayes factor type: BFlinearModel, JZS
+
