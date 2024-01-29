@@ -61,18 +61,19 @@ importTheta <- importTheta[order(importTheta$partCode),]
 dataTheta <- data.frame(
   partInd = factor(1:dim(importTheta)[1]),
   usGroup = factor(importTheta$group, labels = c("ima", "real")),
-  Av_allTr = importTheta$Fz_acqTotal_csplusav,
+  #Av_allTr = importTheta$Fz_acqTotal_csplusav,
   Av_1stBl = importTheta$Fz_acqTotal_csplusneu,
   Av_2ndBl = importTheta$Fz_acqTotal_csminus,
-  Neu_allTr = importTheta$Fz_acq1_csplusav,
+  #Neu_allTr = importTheta$Fz_acq1_csplusav,
   Neu_1stBl = importTheta$Fz_acq1_csplusneu,
   Neu_2ndBl = importTheta$Fz_acq1_csminus,
-  Min_allTr = importTheta$Fz_acq2_csplusav,
+  #Min_allTr = importTheta$Fz_acq2_csplusav,
   Min_1stBl = importTheta$Fz_acq2_csplusneu,
   Min_2ndBl = importTheta$Fz_acq2_csminus
 )  
 dataThetaLong <- gather(data = dataTheta, key = "cond", value = "theta",
-                        Av_allTr:Min_2ndBl)
+                        Av_1stBl:Min_2ndBl)
+                        #Av_allTr:Min_2ndBl)
 dataThetaLong <- separate(data = dataThetaLong, col = cond,
                         into = c("CS","time"), sep = "_")
 dataThetaLong$CS <- factor(dataThetaLong$CS)
@@ -102,19 +103,23 @@ anovaThetaIma <- ezANOVA(
       anovaThetaIma$ANOVA$SSn[3] / (anovaThetaIma$ANOVA$SSd[3]+anovaThetaIma$ANOVA$SSn[3]),
       anovaThetaIma$ANOVA$SSn[4] / (anovaThetaIma$ANOVA$SSd[4]+anovaThetaIma$ANOVA$SSn[4])
 ); print(anovaThetaIma)
-capture.output(print(anovaThetaIma), file = "Supplement/05_theta_ima_anovaFreq.doc")
+capture.output(print(anovaThetaIma), file = paste0(pathname, "/supplement/05s_theta_ima_anovaFreq.doc"))
 
-# bayesian ANOVA on theta at Fz in imagery-based conditioning group
-set.seed(rngSeed); anovaBFThetaIma <- anovaBF(
-  formula = theta ~ CS*time + partInd,
+# bayesian CS x Time ANOVA on LPP in imagery-based conditioning group
+set.seed(rngSeed); anovaBFThetaIma <- generalTestBF(
+  formula = theta ~ CS*time + partInd + partInd:CS + partInd:time,
   data = dataThetaLong[dataThetaLong$usGroup == "ima",],
-  whichRandom = "partInd",
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFThetaIma)
-capture.output(print(anovaBFThetaIma), file = "Supplement/05_theta_ima_anovaBayes.doc")
+capture.output(print(anovaBFThetaIma), file = paste0(pathname, "/supplement/05s_theta_ima_anovaBayes.doc"))
 
-# quick & dirty graph of CS Type x time ANOVA for Theta at Fz in imagery-based conditioning group
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFThetaIma)
+
+# quick graph of CS Type x time ANOVA for Theta at Fz in imagery-based conditioning group
 plotThetaIma <- ezPlot(
   data = dataThetaLong[dataThetaLong$usGroup == "ima",],
   dv = theta,
@@ -123,7 +128,7 @@ plotThetaIma <- ezPlot(
   x = time,
   split = CS
 ) ; plotThetaIma 
-ggsave(plot = plotThetaIma, filename = "Supplement/05_theta_ima_plot.jpg",
+ggsave(plot = plotThetaIma, filename = paste0(pathname, "/supplement/05s_theta_ima_plot.jpg"),
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on Theta at Fz in imagery-based conditioning group
@@ -206,7 +211,7 @@ tableThetaIma <- data.frame(
          exp(thetaImaAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(thetaImaAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(thetaImaNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
   testDir = rep(c("one.sided","one.sided","two.sided"),2)
 )
-capture.output(tableThetaIma, file = "Supplement/05_theta_ima_tTable.doc")
+capture.output(tableThetaIma, file = paste0(pathname, "/supplement/05s_theta_ima_tTable.doc"))
 
 
 
@@ -232,19 +237,23 @@ anovaThetaReal <- ezANOVA(
     anovaThetaReal$ANOVA$SSn[3] / (anovaThetaReal$ANOVA$SSd[3]+anovaThetaReal$ANOVA$SSn[3]),
     anovaThetaReal$ANOVA$SSn[4] / (anovaThetaReal$ANOVA$SSd[4]+anovaThetaReal$ANOVA$SSn[4])
   ); print(anovaThetaReal)
-capture.output(print(anovaThetaReal), file = "Supplement/05_theta_real_anovaFreq.doc")
+capture.output(print(anovaThetaReal), file = paste0(pathname, "/supplement/05s_theta_real_anovaFreq.doc"))
 
 # bayesian ANOVA on theta at Fz in classical conditioning group
-set.seed(rngSeed); anovaBFThetaReal <- anovaBF(
-  formula = theta ~ CS*time + partInd,
+set.seed(rngSeed); anovaBFThetaReal <- generalTestBF(
+  formula = theta ~ CS*time + partInd + partInd:CS + partInd:time,
   data = dataThetaLong[dataThetaLong$usGroup == "real",],
-  whichRandom = "partInd",
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
   iterations = 100000
 ); print(anovaBFThetaReal)
-capture.output(print(anovaBFThetaReal), file = "Supplement/05_theta_real_anovaBayes.doc")
+capture.output(print(anovaBFThetaReal), file = paste0(pathname, "/supplement/05s_theta_real_anovaBayes.doc"))
 
-# quick & dirty graph of CS Type x time ANOVA for Theta at Fz in classical conditioning group
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFThetaReal)
+
+# quick graph of CS Type x time ANOVA for Theta at Fz in classical conditioning group
 plotThetaReal <- ezPlot(
   data = dataThetaLong[dataThetaLong$usGroup == "real",],
   dv = theta,
@@ -253,7 +262,7 @@ plotThetaReal <- ezPlot(
   x = time,
   split = CS
 ) ; plotThetaReal 
-ggsave(plot = plotThetaReal, filename = "Supplement/05_theta_real_plot.jpg",
+ggsave(plot = plotThetaReal, filename = paste0(pathname, "/supplement/05s_theta_real_plot.jpg"),
        width = 10, height = 10, units = "cm")
 
 # frequentist & bayesian t-tests on Theta at Fz in classical conditioning group
@@ -336,7 +345,7 @@ tableThetaReal <- data.frame(
          exp(thetaRealAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(thetaRealAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(thetaRealNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
   testDir = rep(c("one.sided","one.sided","two.sided"),2)
 )
-capture.output(tableThetaReal, file = "Supplement/05_theta_real_tTable.doc")
+capture.output(tableThetaReal, file = paste0(pathname, "/supplement/05s_theta_real_tTable.doc"))
 
 
 
@@ -366,20 +375,23 @@ anovaTheta <- ezANOVA(
   anovaTheta$ANOVA$SSn[7] / (anovaTheta$ANOVA$SSd[7]+anovaTheta$ANOVA$SSn[7]),
   anovaTheta$ANOVA$SSn[8] / (anovaTheta$ANOVA$SSd[8]+anovaTheta$ANOVA$SSn[8])
 ); print(anovaTheta)
-capture.output(print(anovaTheta), file = "Supplement/05_theta_both_anovaFreq.doc")
+capture.output(print(anovaTheta), file = paste0(pathname, "/supplement/05s_theta_acrossGroups_anovaFreq.doc"))
 
 # bayesian ANOVA on Theta at Fz across conditioning groups
-set.seed(rngSeed); anovaBFTheta <- anovaBF(
-  formula = theta ~ usGroup*CS*time + partInd,
+set.seed(rngSeed); anovaBFTheta <- generalTestBF(
+  formula = theta ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
   data = dataThetaLong,
-  whichRandom = "partInd",
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
-  iterations = 100000
+  iterations = 10000 # only 10,000 iterations because it has to compute 128 models
 ); print(anovaBFTheta)
-capture.output(print(anovaBFTheta), file = "Supplement/05_theta_both_anovaBayes.doc")
+capture.output(print(anovaBFTheta), file = paste0(pathname, "/supplement/05s_theta_acrossGroups_anovaBayes.doc"))
 
-max(exp(anovaBFTheta@bayesFactor$bf))
-# quick & dirty graph of group x CS ANOVA on Theta at Fz
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFTheta)
+
+# quick graph of group x CS ANOVA on Theta at Fz
 plotTheta <- ezPlot(
   data = dataThetaLong,
   dv = theta,
@@ -390,5 +402,5 @@ plotTheta <- ezPlot(
   split = CS,
   col = usGroup
 ); plotTheta
-ggsave(plot = plotTheta, filename = "Supplement/05_theta_both_plot.jpg",
+ggsave(plot = plotTheta, filename = paste0(pathname, "/supplement/05s_theta_acrossGroups_plot.jpg"),
        width = 20, height = 10, units = "cm")

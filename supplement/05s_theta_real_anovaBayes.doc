@@ -1,0 +1,16 @@
+Bayes factor analysis
+--------------
+[1] CS + partInd + CS:partInd + time:partInd                  : 1.029502e+70 ±0.67%
+[2] time + partInd + CS:partInd + time:partInd                : 1.707912e+71 ±0.52%
+[3] CS:time + partInd + CS:partInd + time:partInd             : 9.056006e+69 ±0.48%
+[4] CS + time + partInd + CS:partInd + time:partInd           : 2.27954e+70  ±0.64%
+[5] CS + CS:time + partInd + CS:partInd + time:partInd        : 1.21899e+69  ±1.1%
+[6] time + CS:time + partInd + CS:partInd + time:partInd      : 2.074096e+70 ±1.69%
+[7] CS + time + CS:time + partInd + CS:partInd + time:partInd : 2.731044e+69 ±2.21%
+[8] partInd + CS:partInd + time:partInd                       : 7.776311e+70 ±0.55%
+
+Against denominator:
+  Intercept only 
+---
+Bayes factor type: BFlinearModel, JZS
+
