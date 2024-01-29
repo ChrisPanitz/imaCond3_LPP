@@ -244,7 +244,7 @@ set.seed(rngSeed); anovaBFIBI <- anovaBF(
 ); print(anovaBFIBI)
 
 # inclusion factors for bayesian ANOVA effects
-bf_inclusion(anovaIBI)
+bf_inclusion(anovaBFIBI)
 
 # quick graph of group x CS ANOVA on IBI
 ezPlot(
@@ -349,7 +349,7 @@ tableIBI <- flextable(tableData[1:9,])
 tableIBI <- add_header_lines(tableIBI, top = TRUE, values = "IBI")
 tableIBI <- align(tableIBI, align = "center")
 
-save_as_docx(tableIBI, path = paste0(pathname, "/supplement/03_s_tableIBI_aware_raw.docx"))
+save_as_docx(tableIBI, path = paste0(pathname, "/supplement/03s_tableIBI_aware_raw.docx"))
 
 
 

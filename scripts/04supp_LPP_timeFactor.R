@@ -150,7 +150,7 @@ capture.output(print(anovaLPPIma), file = paste0(pathname, "/supplement/04s_LPP_
 # bayesian CS x Time ANOVA on LPP in imagery-based conditioning group
 set.seed(rngSeed); anovaBFLPPIma <- generalTestBF(
   formula = LPP ~ CS*time + partInd + partInd:CS + partInd:time,
-  data = dataIBILong[dataIBILong$usGroup == "ima",],
+  data = dataLPPLong[dataLPPLong$usGroup == "ima",],
   whichRandom = c("partInd", "partInd:CS", "partInd:time"),
   neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
@@ -285,7 +285,7 @@ capture.output(print(anovaLPPReal), file = paste0(pathname, "/supplement/04s_lpp
 # bayesian CS x Time ANOVA on LPP in classical conditioning group
 set.seed(rngSeed); anovaBFLPPReal <- generalTestBF(
   formula = LPP ~ CS*time + partInd + partInd:CS + partInd:time,
-  data = dataIBILong[dataIBILong$usGroup == "real",],
+  data = dataLPPLong[dataLPPLong$usGroup == "real",],
   whichRandom = c("partInd", "partInd:CS", "partInd:time"),
   neverExclude = c("partInd", "partInd:CS", "partInd:time"),
   whichModels = "all",
