@@ -397,7 +397,7 @@ tableLPP <- flextable(tableData[1:9,])
 tableLPP <- add_header_lines(tableLPP, top = TRUE, values = "LPP")
 tableLPP <- align(tableLPP, align = "center")
 
-save_as_docx(tableLPP, path = paste0(pathname, "/Tables/tableLPP_raw.docx"))
+save_as_docx(tableLPP, path = paste0(pathname, "/supplement/04s_tableLPP_exploratory_raw.docx"))
 
 
 
@@ -444,14 +444,12 @@ dataLPPWithin <- dataLPP[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allT
 dataLPPWithin[,3:5] <- as.matrix(dataLPPWithin[,3:5]) -
   rowMeans(as.matrix(dataLPPWithin[,3:5])) 
 # prepare data frame for bar plot with means from standard dataset and SE from
-# dataset without betweem-subject variance
+# dataset without between-subject variance
 meanLPP <- data.frame(
   usGroup = factor(c(rep(1,3),rep(2,3)),
                    labels = c("Imagery-Based","Classical")),
   CS = factor(c(1,2,3,1,2,3),
               labels = c("CS+\nav","CS+\nneu","CS-\n")),
-  #mean = c(describe(dataLPP[dataLPP$usGroup == "ima", c(3,6,9)])$mean,
-  #         describe(dataLPP[dataLPP$usGroup == "real", c(3,6,9)])$mean),
   mean = c(describe(dataLPP[dataLPP$usGroup == "ima", c(4,5,6)])$mean,
            describe(dataLPP[dataLPP$usGroup == "real", c(4,5,6)])$mean),
   se = c(describe(dataLPPWithin[dataLPPWithin$usGroup == "ima", 3:5])$se,
@@ -468,10 +466,11 @@ plotFS <- 9
 showSig <- TRUE
 
 
+# ERP at PZ for imagery-based conditioning group
 graphLPPima <- ggplot(data = lppGAima, aes(x = time, y = LPP, colour = csType)) + 
   theme_classic() +
   geom_rect(xmin = TWOI[1], xmax = TWOI[2], ymin = yMin, ymax = yMax, fill = "gray90", colour = NA) +
-  geom_line(aes(colour = csType), size = lineSize) + 
+  geom_line(aes(colour = csType), linewidth = lineSize) + 
   scale_x_continuous(breaks = seq(-200,1000,200)) +
   scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   lims(y = c(yMin, yMax)) +
@@ -479,16 +478,17 @@ graphLPPima <- ggplot(data = lppGAima, aes(x = time, y = LPP, colour = csType)) 
   guides(colour = guide_legend(order = 1), fill = FALSE) +
   theme(
     legend.position = "none",
-    plot.title = element_blank(), #element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
+    plot.title = element_blank(),
     axis.title.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
     axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
     axis.title.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
     axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"))
 
+# ERP at PZ for classical conditioning group
 graphLPPreal <- ggplot(data = lppGAreal, aes(x = time, y = LPP, colour = csType)) + 
   theme_classic() +
   geom_rect(xmin = TWOI[1], xmax = TWOI[2], ymin = yMin, ymax = yMax, fill = "gray90", colour = NA) +
-  geom_line(aes(colour = csType), size = lineSize) + 
+  geom_line(aes(colour = csType), linewidth = lineSize) + 
   scale_x_continuous(breaks = seq(-200,1000,200)) +
   scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   lims(y = c(yMin, yMax)) +
@@ -496,12 +496,13 @@ graphLPPreal <- ggplot(data = lppGAreal, aes(x = time, y = LPP, colour = csType)
   guides(colour = guide_legend(order = 1), fill = FALSE) +
   theme(
     legend.position = "none",
-    plot.title = element_blank(), #element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
+    plot.title = element_blank(),
     axis.title.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
     axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
     axis.title.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
     axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"))
 
+# bar plot for imagery-based conditioning group
 graphLPPmeansIma <- ggplot(data = meanLPP[meanLPP$usGroup == "Imagery-Based",], aes(x = CS, y = mean, fill = CS)) +
   theme_classic() +
   geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
@@ -518,6 +519,7 @@ graphLPPmeansIma <- ggplot(data = meanLPP[meanLPP$usGroup == "Imagery-Based",], 
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
         axis.ticks.y = element_line(colour = "black")); 
 
+# bar plot for classical conditioning group
 graphLPPmeansReal <- ggplot(data = meanLPP[meanLPP$usGroup == "Classical",], aes(x = CS, y = mean, fill = CS)) +
   theme_classic() +
   geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
@@ -527,7 +529,7 @@ graphLPPmeansReal <- ggplot(data = meanLPP[meanLPP$usGroup == "Classical",], aes
   scale_y_continuous(name = "Mean LPP amplitude (300-700 ms)", limits = c(0,14), breaks = c(0,5,10), expand = c(0,0)) +
   coord_cartesian(ylim = c(0,12), clip = 'off') +
   theme(legend.position = "none",
-        plot.title = element_blank(), #element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
+        plot.title = element_blank(),
         axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
         axis.ticks.x = element_blank(),
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
@@ -537,21 +539,17 @@ graphLPPmeansReal <- ggplot(data = meanLPP[meanLPP$usGroup == "Classical",], aes
 if (showSig == TRUE){
   graphLPPmeansIma <- graphLPPmeansIma +
     geom_segment(aes(x = 1, y = mean+se+.5, xend = 2, yend = mean+se+.5), data = meanLPP[1,]) +
-    geom_text(aes(label = "†", x = 1.5, y = mean+se+1), size = plotFS/4, data = meanLPP[1,]) +
+    geom_text(aes(label = "†", x = 1.5, y = mean+se+1), size = plotFS/4, data = meanLPP[1,], family = "Helvetica") +
     geom_segment(aes(x = 1, y = mean+se+1.5, xend = 3, yend = mean+se+1.5), data = meanLPP[1,]) +
     geom_text(aes(label = "***", x = 2, y = mean+se+1.6), size = plotFS/2, data = meanLPP[1,])
   graphLPPmeansReal <- graphLPPmeansReal +  
     geom_segment(aes(x = 1, y = mean+se+.5, xend = 2, yend = mean+se+.5), data = meanLPP[4,]) +
     geom_text(aes(label = "**", x = 1.5, y = mean+se+.6), size = plotFS/2, data = meanLPP[4,]) +
     geom_segment(aes(x = 1, y = mean+se+1.5, xend = 3, yend = mean+se+1.5), data = meanLPP[4,]) +
-    geom_text(aes(label = "†", x = 2, y = mean+se+2), size = plotFS/4, data = meanLPP[4,])
+    geom_text(aes(label = "†", x = 2, y = mean+se+2), size = plotFS/4, data = meanLPP[4,], family = "Helvetica")
 }
 
 
-
-
-
-# Averaging Amplitudes for All Channels for Plotting Topographies
 
 # Average individual amplitudes across whole sample
 topoAvgAV <- colMeans(topoMatAV)
@@ -570,7 +568,9 @@ topoAvgMINreal <- colMeans(topoMatMIN[importRatings$group == "real",])
 nrChans = length(topoAvgAV)
 
 # Create data frame with factors lab, driving frequency & modulation function, 
-# electrode name, x & y coordinates for plot & ssVEP amplitude
+# electrode name, x & y coordinates for plot & LPP amplitude
+
+# across groups
 dfTopos <- data.frame(
   electrode = chanLocs$name,
   x = chanLocs$x,
@@ -580,6 +580,7 @@ dfTopos <- data.frame(
   csm = topoAvgMIN
 )
 
+# imagery-based conditioning group
 dfToposIma <- data.frame(
   electrode = chanLocs$name,
   x = chanLocs$x,
@@ -589,6 +590,7 @@ dfToposIma <- data.frame(
   csm = topoAvgMINima
 )
 
+# classical conditioning group
 dfToposReal <- data.frame(
   electrode = chanLocs$name,
   x = chanLocs$x,
@@ -598,12 +600,14 @@ dfToposReal <- data.frame(
   csm = topoAvgMINreal
 )
 
+# compute difference values comparing CS+av to the mean of CS+neu and CS-
 dfTopos$contrast <- 1*dfTopos$csp_av - 0.5*dfTopos$csp_neu - 0.5*dfTopos$csm
 dfToposIma$contrast <- 1*dfToposIma$csp_av - 0.5*dfToposIma$csp_neu - 0.5*dfToposIma$csm
 dfToposReal$contrast <- 1*dfToposReal$csp_av - 0.5*dfToposReal$csp_neu - 0.5*dfToposReal$csm
 
 
 
+# settings for topography plots
 topoRes <- 400
 chanCol <- "black"
 nrColors <- 8
@@ -612,11 +616,17 @@ minLim <- min(dfTopos$contrast)
 maxLim <- max(dfTopos$contrast)
 absLim <- max(abs(c(minLim, maxLim)))
 
+### create topography plots
+
+# across groups
 topoAll <- topoplot(data = dfTopos,
                     contour = FALSE, interp_limit = "head", highlights = chanNames,
                     grid_res = topoRes, quantity = "contrast", scaling = .5)
+# transform color scale into discrete steps
 topoAll$data$fill <- as.numeric(bin(data = topoAll$data$fill, nbins = nrColors))
-  
+
+
+# imagery-based conditioning group  
 topoIma <- topoplot(data = dfToposIma,
                     contour = FALSE, interp_limit = "head", highlights = chanNames,
                     grid_res = topoRes, quantity = "contrast", scaling = .33, 
@@ -625,6 +635,7 @@ topoIma <- topoplot(data = dfToposIma,
   theme(legend.position = "bottom",
         legend.text = element_text(size = plotFS),
         plot.title = element_text(hjust = 0.5, size = plotFS))
+# format the color bar
 topoIma$guides$fill$barwidth <- unit(6, "lines")
 topoIma$guides$fill$barheight <- unit(.5, "lines")
 topoIma$guides$fill$title <- expression(paste(Delta, " amplitude ", (µV)))
@@ -634,6 +645,8 @@ topoIma$guides$fill$title.position <- "bottom"
 topoIma$guides$fill$title.hjust <- 0.5
 topoIma$guides$fill$nbin <- nrColors
 
+
+# imagery-based conditioning group  
 topoReal <- topoplot(data = dfToposReal,
                      contour = FALSE, interp_limit = "head", highlights = chanNames,
                      grid_res = topoRes, quantity = "contrast", scaling = .33,
@@ -642,16 +655,17 @@ topoReal <- topoplot(data = dfToposReal,
   theme(legend.position = "bottom",
         legend.text = element_text(size = plotFS),
         plot.title = element_text(hjust = 0.5, size = plotFS))
+# format the color bar
 topoReal$guides$fill$barwidth <- unit(6, "lines")
 topoReal$guides$fill$barheight <- unit(.5, "lines")
-topoIma$guides$fill$title <- expression(paste(Delta, " amplitude ", (µV)))
+topoReal$guides$fill$title <- expression(paste(Delta, " amplitude ", (µV)))
 topoReal$guides$fill$title.theme$size <- plotFS
 topoReal$guides$fill$title.theme$angle <- 0
 topoReal$guides$fill$title.position <- "bottom"
 topoReal$guides$fill$title.hjust <- 0.5
 topoReal$guides$fill$nbin <- nrColors
 
-
+# use the same, discrete color scales for the two groups
 topoFillVec <- c(topoIma$data$fill, topoReal$data$fill)
 totMin <- min(topoFillVec)
 totMax <- max(topoFillVec)
@@ -665,7 +679,9 @@ topoIma$data$fill <- topoFillVec[1 : (length(topoFillVec)/2)]
 topoReal$data$fill <- topoFillVec[(length(topoFillVec)/2+1) : length(topoFillVec)]
 
 
-# combining graphs into one figure
+
+### combining graphs into one figure
+# add margins
 graphLPPima <- graphLPPima + theme(plot.margin = unit(c(10,5,5,5), "mm"))
 graphLPPreal <- graphLPPreal + theme(plot.margin = unit(c(10,5,5,5), "mm"))
 graphLPPmeansIma <- graphLPPmeansIma + theme(plot.margin = unit(c(10,2.5,5,7.5), "mm"))
@@ -673,6 +689,7 @@ graphLPPmeansReal <- graphLPPmeansReal + theme(plot.margin = unit(c(10,2.5,5,7.5
 topoIma <- topoIma + theme(plot.margin = unit(c(10,5,2.6,5), "mm"))
 topoReal <- topoReal + theme(plot.margin = unit(c(10,5,2.6,5), "mm"))
 
+# create panels and merge them
 graphLPProw1 <- ggarrange(graphLPPima, graphLPPmeansIma, topoIma,
                           ncol = 3, nrow = 1, 
                           widths = c(3,2,2))
@@ -683,29 +700,21 @@ graphLPP <- ggarrange(graphLPProw1,graphLPProw2,
                       ncol = 1, nrow = 2,
                       labels = c("A) Imagery-Based Conditioning", "B) Classical Conditioning"),
                       hjust = -.05
-                      )
+)
+# plot
 graphLPP
 
 # saving it
-ggsave(filename = paste0(pathname, "/Figures/Figure5_timeCourses_barPlot_LPP.eps"),
+ggsave(filename = paste0(pathname, "/supplement/04s_lpp_exploratory_timeCourseBarPlot.eps"),
        plot = graphLPP,
        width = 200,
        height = 150,
-       units = "mm",
-       dpi = 300
+       units = "mm"
 )
 
-# ggsave(filename = paste0(pathname, "/Figures/Figure5_timeCourses_barPlot_LPP.pdf"),
-#        plot = graphLPP,
-#        width = 200,
-#        height = 150,
-#        units = "mm",
-#        dpi = 300
-# )
-
-cairo_pdf("example.pdf",
-          width = 200/25.4, height = 150/25.4,
-          family="Helvetica")
-graphLPP
-dev.off()
-
+ggsave(filename = paste0(pathname, "/supplement/04s_lpp_exploratory_timeCourseBarPlot.pdf"),
+       plot = graphLPP,
+       width = 200,
+       height = 150,
+       units = "mm"
+)

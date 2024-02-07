@@ -47,7 +47,6 @@ if(!is.element("OneR",installed.packages()[,1])) {install.packages("OneR")}
 library(OneR) # 
 if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
 library(here) # 
-### CHANGE EEGUTILS !!! ###
 
 ###################################
 ### Setting time window for LPP ###
@@ -701,7 +700,7 @@ graphLPP <- ggarrange(graphLPProw1,graphLPProw2,
                       ncol = 1, nrow = 2,
                       labels = c("A) Imagery-Based Conditioning", "B) Classical Conditioning"),
                       hjust = -.05
-                      )
+)
 # plot
 graphLPP
 
