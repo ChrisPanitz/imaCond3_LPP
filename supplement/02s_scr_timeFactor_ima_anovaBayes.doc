@@ -1,15 +1,16 @@
 Bayes factor analysis
 --------------
-[1] CS + partInd                  : 0.08793363  ±0.35%
-[2] time + partInd                : 0.6595549   ±0.41%
-[3] CS:time + partInd             : 0.1529883   ±0.38%
-[4] CS + time + partInd           : 0.05837118  ±0.56%
-[5] CS + CS:time + partInd        : 0.01368809  ±1.57%
-[6] time + CS:time + partInd      : 0.1020297   ±1.12%
-[7] CS + time + CS:time + partInd : 0.009109757 ±1%
+[1] CS + partInd + CS:partInd + time:partInd                  : 0.1166401  ±0.3%
+[2] time + partInd + CS:partInd + time:partInd                : 0.5360561  ±0.37%
+[3] CS:time + partInd + CS:partInd + time:partInd             : 0.1644998  ±0.27%
+[4] CS + time + partInd + CS:partInd + time:partInd           : 0.06320831 ±0.64%
+[5] CS + CS:time + partInd + CS:partInd + time:partInd        : 0.01944675 ±0.81%
+[6] time + CS:time + partInd + CS:partInd + time:partInd      : 0.09029963 ±1.09%
+[7] CS + time + CS:time + partInd + CS:partInd + time:partInd : 0.01072706 ±1.71%
+[8] partInd + CS:partInd + time:partInd                       : 1          ±0.06%
 
 Against denominator:
-  SCR ~ partInd 
+  Intercept and random slopes only 
 ---
 Bayes factor type: BFlinearModel, JZS
 
