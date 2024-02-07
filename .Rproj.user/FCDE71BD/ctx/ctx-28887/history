@@ -1,0 +1,512 @@
+anovaBFSCRReal@denominator@longName <- "Intercept and random slopes only"
+# show and save results
+print(anovaBFSCRReal)
+capture.output(print(anovaBFSCRReal), file = paste0(pathname, "/supplement/02s_scr_timeFactor_real_anovaBayes.doc"))
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFSCRReal)
+capture.output(bf_inclusion(anovaBFSCRReal), file = paste0(pathname, "/supplement/02s_scr_timeFactor_real_BFinclusion.doc"))
+# quick graph of CS Type x Time ANOVA for SCR in classical conditioning group
+plotSCRReal <- ezPlot(
+data = dataSCRLong[dataSCRLong$usGroup == "real",],
+dv = SCR,
+wid = partInd,
+within = .(CS,time),
+x = time,
+split = CS
+); plotSCRReal
+ggsave(plot = plotSCRReal, filename = paste0(pathname, "/supplement/02s_scr_timeFactor_real_plot.jpg"),
+width = 10, height = 10, units = "cm")
+# frequentist & bayesian t-tests on SCR in classical conditioning group
+### 1stBl
+# CS+av vs CS+neu
+scrRealAvNeu1stBl_t <- t.test(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_1stBl[dataSCR$usGroup == "real"],
+alternative = "greater", paired = TRUE) # one-sided
+scrRealAvNeu1stBl_d <- cohens_d(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_1stBl[dataSCR$usGroup == "real"],
+paired = TRUE)
+scrRealAvNeu1stBl_BF <- ttestBF(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_1stBl[dataSCR$usGroup == "real"],
+nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+scrRealAvMin1stBl_t <- t.test(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+alternative = "greater", paired = TRUE) # one-sided
+scrRealAvMin1stBl_d <- cohens_d(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+paired = TRUE)
+scrRealAvMin1stBl_BF <- ttestBF(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+scrRealNeuMin1stBl_t <- t.test(x = dataSCR$Neu_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+alternative = "two.sided", paired = TRUE) # two-sided
+scrRealNeuMin1stBl_d <- cohens_d(x = dataSCR$Neu_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+paired = TRUE)
+scrRealNeuMin1stBl_BF <- ttestBF(x = dataSCR$Neu_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+nullInterval = NULL, paired = TRUE) # two-sided
+### 2ndBl
+# CS+av vs CS+neu
+scrRealAvNeu2ndBl_t <- t.test(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"],
+alternative = "greater", paired = TRUE) # one-sided
+scrRealAvNeu2ndBl_d <- cohens_d(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"],
+paired = TRUE)
+scrRealAvNeu2ndBl_BF <- ttestBF(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"],
+nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+scrRealAvMin2ndBl_t <- t.test(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+alternative = "greater", paired = TRUE) # one-sided
+scrRealAvMin2ndBl_d <- cohens_d(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+paired = TRUE)
+scrRealAvMin2ndBl_BF <- ttestBF(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+scrRealNeuMin2ndBl_t <- t.test(x = dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+alternative = "two.sided", paired = TRUE) # two-sided
+scrRealNeuMin2ndBl_d <- cohens_d(x = dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+paired = TRUE)
+scrRealNeuMin2ndBl_BF <- ttestBF(x = dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+nullInterval = NULL, paired = TRUE) # two-sided
+tableSCRReal <- data.frame(
+time = c(rep("1stBl",3), rep("2ndBl",3)),
+comparison = rep(c("CS+av vs CS+neu", "CS+av vs CS-", "CSneu vs CS-"), 2),
+t = c(scrRealAvNeu1stBl_t$statistic, scrRealAvMin1stBl_t$statistic, scrRealNeuMin1stBl_t$statistic,
+scrRealAvNeu2ndBl_t$statistic, scrRealAvMin2ndBl_t$statistic, scrRealNeuMin2ndBl_t$statistic),
+df = c(scrRealAvNeu1stBl_t$parameter, scrRealAvMin1stBl_t$parameter, scrRealNeuMin1stBl_t$parameter,
+scrRealAvNeu2ndBl_t$parameter, scrRealAvMin2ndBl_t$parameter, scrRealNeuMin2ndBl_t$parameter),
+p = c(scrRealAvNeu1stBl_t$p.value, scrRealAvMin1stBl_t$p.value, scrRealNeuMin1stBl_t$p.value,
+scrRealAvNeu2ndBl_t$p.value, scrRealAvMin2ndBl_t$p.value, scrRealNeuMin2ndBl_t$p.value),
+d = c(scrRealAvNeu1stBl_d$Cohens_d, scrRealAvMin1stBl_d$Cohens_d, scrRealNeuMin1stBl_d$Cohens_d,
+scrRealAvNeu2ndBl_d$Cohens_d, scrRealAvMin2ndBl_d$Cohens_d, scrRealNeuMin2ndBl_d$Cohens_d),
+BF = c(exp(scrRealAvNeu1stBl_BF@bayesFactor[["bf"]][1]), exp(scrRealAvMin1stBl_BF@bayesFactor[["bf"]][1]), exp(scrRealNeuMin1stBl_BF@bayesFactor[["bf"]][1]),
+exp(scrRealAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(scrRealAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(scrRealNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
+testDir = rep(c("one.sided","one.sided","two.sided"),2)
+)
+capture.output(tableSCRReal, file = paste0(pathname, "/supplement/02s_scr_timeFactor_real_tTable.doc"))
+###############################################################
+### Across groups - supplementary analyses with time factor ###
+###############################################################
+# descriptive statistics for SCR ratings across conditioning groups
+describe(dataSCR)
+# frequentist Group x CS x Time ANOVA on SCR
+anovaSCR <- ezANOVA(
+data = dataSCRLong,
+dv = SCR,
+wid = partInd,
+within = .(CS,time),
+between = .(usGroup),
+type = 3,
+detailed = TRUE
+); anovaSCR$ANOVA$pEtaSq <- c(
+anovaSCR$ANOVA$SSn[1] / (anovaSCR$ANOVA$SSd[1]+anovaSCR$ANOVA$SSn[1]),
+anovaSCR$ANOVA$SSn[2] / (anovaSCR$ANOVA$SSd[2]+anovaSCR$ANOVA$SSn[2]),
+anovaSCR$ANOVA$SSn[3] / (anovaSCR$ANOVA$SSd[3]+anovaSCR$ANOVA$SSn[3]),
+anovaSCR$ANOVA$SSn[4] / (anovaSCR$ANOVA$SSd[4]+anovaSCR$ANOVA$SSn[4]),
+anovaSCR$ANOVA$SSn[5] / (anovaSCR$ANOVA$SSd[5]+anovaSCR$ANOVA$SSn[5]),
+anovaSCR$ANOVA$SSn[6] / (anovaSCR$ANOVA$SSd[6]+anovaSCR$ANOVA$SSn[6]),
+anovaSCR$ANOVA$SSn[7] / (anovaSCR$ANOVA$SSd[7]+anovaSCR$ANOVA$SSn[7]),
+anovaSCR$ANOVA$SSn[8] / (anovaSCR$ANOVA$SSd[8]+anovaSCR$ANOVA$SSn[8])
+); print(anovaSCR)
+capture.output(print(anovaSCR), file = paste0(pathname, "/supplement/02s_scr_timeFactor_acrossGroups_anovaFreq.doc"))
+# bayesian Group x CS x Time ANOVA on SCR
+set.seed(rngSeed); anovaBFSCR <- generalTestBF(
+formula = SCR ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
+data = dataSCRLong,
+whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+neverExclude = c("partInd", "partInd:CS", "partInd:time"),
+whichModels = "all",
+iterations = 10000 # only 10,000 iterations because it has to compute 128 models
+)
+# compute Bayes factor relative to null model including random slopes instead
+# of intercept-only null model
+anovaBFSCR@bayesFactor$bf <- log(exp(anovaBFSCR@bayesFactor$bf) /
+exp(anovaBFSCR@bayesFactor$bf[length(anovaBFSCR@bayesFactor$bf)]))
+anovaBFSCR@denominator@longName <- "Intercept and random slopes only"
+# show and save results
+print(anovaBFSCR)
+capture.output(print(anovaBFSCR), file = paste0(pathname, "/supplement/02s_scr_timeFactor_acrossGroups_anovaBayes.doc"))
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFSCR)
+capture.output(bf_inclusion(anovaBFSCR), file = paste0(pathname, "/supplement/02s_scr_timeFactor_acrossGroups_BFinclusion.doc"))
+# quick graph of Group x CS x Time ANOVA on SCR
+plotSCR <- ezPlot(
+data = dataSCRLong,
+dv = SCR,
+wid = partInd,
+within = .(CS,time),
+between = .(usGroup),
+x = time,
+split = CS,
+col = usGroup
+); plotSCR
+ggsave(plot = plotSCR, filename = paste0(pathname, "/supplement/02s_scr_timeFactor_acrossGroups_plot.jpg"),
+width = 20, height = 10, units = "cm")
+# frequentist & bayesian t-tests on SCR (difference scores) across groups
+### 1st Block
+# delta [CS+av - CS+neu]
+scrBothAvNeu1stBl_t <- t.test(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"] -
+dataSCR$Neu_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_1stBl[dataSCR$usGroup == "ima"] -
+dataSCR$Neu_1stBl[dataSCR$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+scrBothAvNeu1stBl_d <- cohens_d(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"] -
+dataSCR$Neu_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_1stBl[dataSCR$usGroup == "ima"] -
+dataSCR$Neu_1stBl[dataSCR$usGroup == "ima"],
+paired = FALSE)
+scrBothAvNeu1stBl_BF <- ttestBF(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"] -
+dataSCR$Neu_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_1stBl[dataSCR$usGroup == "ima"] -
+dataSCR$Neu_1stBl[dataSCR$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+scrBothAvMin1stBl_t <- t.test(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_1stBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+scrBothAvMin1stBl_d <- cohens_d(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_1stBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "ima"],
+paired = FALSE)
+scrBothAvMin1stBl_BF <- ttestBF(x = dataSCR$Av_1stBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_1stBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+scrBothNeuMin1stBl_t <- t.test(x = dataSCR$Neu_1stBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_1stBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+scrBothNeuMin1stBl_d <- cohens_d(x = dataSCR$Neu_1stBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_1stBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "ima"],
+paired = FALSE)
+scrBothNeuMin1stBl_BF <- ttestBF(x = dataSCR$Neu_1stBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_1stBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_1stBl[dataSCR$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+### 2nd Block
+# delta [CS+av - CS+neu]
+scrBothAvNeu2ndBl_t <- t.test(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"] -
+dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_2ndBl[dataSCR$usGroup == "ima"] -
+dataSCR$Neu_2ndBl[dataSCR$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+scrBothAvNeu2ndBl_d <- cohens_d(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"] -
+dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_2ndBl[dataSCR$usGroup == "ima"] -
+dataSCR$Neu_2ndBl[dataSCR$usGroup == "ima"],
+paired = FALSE)
+scrBothAvNeu2ndBl_BF <- ttestBF(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"] -
+dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_2ndBl[dataSCR$usGroup == "ima"] -
+dataSCR$Neu_2ndBl[dataSCR$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+scrBothAvMin2ndBl_t <- t.test(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_2ndBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+scrBothAvMin2ndBl_d <- cohens_d(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_2ndBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "ima"],
+paired = FALSE)
+scrBothAvMin2ndBl_BF <- ttestBF(x = dataSCR$Av_2ndBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Av_2ndBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+scrBothNeuMin2ndBl_t <- t.test(x = dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_2ndBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+scrBothNeuMin2ndBl_d <- cohens_d(x = dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_2ndBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "ima"],
+paired = FALSE)
+scrBothNeuMin2ndBl_BF <- ttestBF(x = dataSCR$Neu_2ndBl[dataSCR$usGroup == "real"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "real"],
+y = dataSCR$Neu_2ndBl[dataSCR$usGroup == "ima"] -
+dataSCR$Min_2ndBl[dataSCR$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+tableSCRBoth <- data.frame(
+time = c(rep("1stBl",3), rep("2ndBl",3)),
+comparison = rep(c("CS+av vs CS+neu", "CS+av vs CS-", "CSneu vs CS-"), 2),
+t = c(scrBothAvNeu1stBl_t$statistic, scrBothAvMin1stBl_t$statistic, scrBothNeuMin1stBl_t$statistic,
+scrBothAvNeu2ndBl_t$statistic, scrBothAvMin2ndBl_t$statistic, scrBothNeuMin2ndBl_t$statistic),
+df = c(scrBothAvNeu1stBl_t$parameter, scrBothAvMin1stBl_t$parameter, scrBothNeuMin1stBl_t$parameter,
+scrBothAvNeu2ndBl_t$parameter, scrBothAvMin2ndBl_t$parameter, scrBothNeuMin2ndBl_t$parameter),
+p = c(scrBothAvNeu1stBl_t$p.value*3, scrBothAvMin1stBl_t$p.value*3, scrBothNeuMin1stBl_t$p.value*3, # Bonferroni
+scrBothAvNeu2ndBl_t$p.value*3, scrBothAvMin2ndBl_t$p.value*3, scrBothNeuMin2ndBl_t$p.value*3), # Bonferroni
+d = c(scrBothAvNeu1stBl_d$Cohens_d, scrBothAvMin1stBl_d$Cohens_d, scrBothNeuMin1stBl_d$Cohens_d,
+scrBothAvNeu2ndBl_d$Cohens_d, scrBothAvMin2ndBl_d$Cohens_d, scrBothNeuMin2ndBl_d$Cohens_d),
+BF = c(exp(scrBothAvNeu1stBl_BF@bayesFactor[["bf"]][1]), exp(scrBothAvMin1stBl_BF@bayesFactor[["bf"]][1]), exp(scrBothNeuMin1stBl_BF@bayesFactor[["bf"]][1]),
+exp(scrBothAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(scrBothAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(scrBothNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
+testDir = rep("two.sided",6)
+)
+tableSCRBoth$p[tableSCRBoth$p > 1] <- 1
+capture.output(tableSCRBoth, file = paste0(pathname, "/supplement/02s_scr_timeFactor_acrossGroups_tTable.doc"))
+# random number generator seed (necessary for Bayesian ANOVAs)
+# created with [set.seed(NULL)] and [sample(2^31 - 1, 1)]
+rngSeed <- 814677222
+# (installing and) loading required packages
+# will install newest package version, not necessarily the version originally used!
+if(!is.element("tidyr",installed.packages()[,1])) {install.packages("tidyr")}
+library(tidyr) # ver. 1.1.2
+if(!is.element("psych",installed.packages()[,1])) {install.packages("psych")}
+library(psych) # ver. 2.0.9
+if(!is.element("effectsize",installed.packages()[,1])) {install.packages("effectsize")}
+library(effectsize) # ver. 2.0.9
+if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
+library(ez) # ver. 4.4-0
+if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(BayesFactor) # ver. 2.0.9
+if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
+library(bayestestR) #
+if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
+library(ggplot2) # ver. 3.3.2
+if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
+library(scico) # ver. 1.2.0
+if(!is.element("scales",installed.packages()[,1])) {install.packages("scales")}
+library(scales) #
+if(!is.element("ggpubr",installed.packages()[,1])) {install.packages("ggpubr")}
+library(ggpubr) #
+if(!is.element("flextable",installed.packages()[,1])) {install.packages("flextable")}
+library(flextable) #
+if(!is.element("stringr",installed.packages()[,1])) {install.packages("stringr")}
+library(stringr) #
+if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
+library(here) #
+########################
+### data preparation ###
+########################
+# Rating data contains group membership
+# (see imaCond3_allratings_readme.txt for more details)
+pathname <- here()
+importRatings <- read.csv(paste0(pathname,"/experimentData/imaCond3_demographicsAndRatings.txt"), sep = ",")
+# load preprocessed IBI data (see readme file for explanation of content & structure)
+importIBI <- read.csv(paste0(pathname,"/experimentData/imaCond3_ibimatrix_cs.txt"), sep = "\t")
+importIBI <- merge(importRatings[,c("partCode","group")], importIBI, by = "partCode")
+importIBI <- importIBI[order(importIBI$partCode),]
+importIBI$partInd <- factor(1:48)
+# create IBI data frame; IBI values are means from 2 to 5 s post-CS
+dataIBI <- data.frame(
+partInd = factor(importIBI$partInd),
+usGroup = factor(importIBI$group, labels = c("ima", "real")),
+#Av_allTr = rowMeans(subset(importIBI, select = ibi_Akq_51_5:ibi_Akq_51_10)),
+Av_1stBl = rowMeans(subset(importIBI, select = ibi_Akq1_51_5:ibi_Akq1_51_10)),
+Av_2ndBl = rowMeans(subset(importIBI, select = ibi_Akq2_51_5:ibi_Akq2_51_10)),
+#Neu_allTr = rowMeans(subset(importIBI, select = ibi_Akq_52_5:ibi_Akq_52_10)),
+Neu_1stBl = rowMeans(subset(importIBI, select = ibi_Akq1_52_5:ibi_Akq1_52_10)),
+Neu_2ndBl = rowMeans(subset(importIBI, select = ibi_Akq2_52_5:ibi_Akq2_52_10)),
+#Min_allTr = rowMeans(subset(importIBI, select = ibi_Akq_53_5:ibi_Akq_53_10)),
+Min_1stBl = rowMeans(subset(importIBI, select = ibi_Akq1_53_5:ibi_Akq1_53_10)),
+Min_2ndBl = rowMeans(subset(importIBI, select = ibi_Akq2_53_5:ibi_Akq2_53_10))
+)
+# transform into long format
+dataIBILong <- gather(data = dataIBI, key = "cond", value = "IBI", Av_1stBl:Min_2ndBl)
+dataIBILong <- separate(data = dataIBILong, col = cond, into = c("CS","time"), sep = "_")
+dataIBILong$CS <- factor(dataIBILong$CS, levels = c("Av","Neu","Min"))
+dataIBILong$time <- factor(dataIBILong$time, levels = c("1stBl","2ndBl"))
+# frequentist & bayesian t-tests on IBI in imagery-based conditioning group
+### 1stBl
+# CS+av vs CS+neu
+ibiImaAvNeu1stBl_t <- t.test(x = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"],
+alternative = "greater", paired = TRUE) # one-sided
+ibiImaAvNeu1stBl_d <- cohens_d(x = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"],
+paired = TRUE)
+ibiImaAvNeu1stBl_BF <- ttestBF(x = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"],
+nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+ibiImaAvMin1stBl_t <- t.test(x = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+alternative = "greater", paired = TRUE) # one-sided
+ibiImaAvMin1stBl_d <- cohens_d(x = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+paired = TRUE)
+ibiImaAvMin1stBl_BF <- ttestBF(x = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+ibiImaNeuMin1stBl_t <- t.test(x = dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+alternative = "two.sided", paired = TRUE) # two-sided
+ibiImaNeuMin1stBl_d <- cohens_d(x = dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+paired = TRUE)
+ibiImaNeuMin1stBl_BF <- ttestBF(x = dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+nullInterval = NULL, paired = TRUE) # two-sided
+### 2ndBl
+# CS+av vs CS+neu
+ibiImaAvNeu2ndBl_t <- t.test(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"],
+alternative = "greater", paired = TRUE) # one-sided
+ibiImaAvNeu2ndBl_d <- cohens_d(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"],
+paired = TRUE)
+ibiImaAvNeu2ndBl_BF <- ttestBF(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"],
+nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+ibiImaAvMin2ndBl_t <- t.test(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+alternative = "greater", paired = TRUE) # one-sided
+ibiImaAvMin2ndBl_d <- cohens_d(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+paired = TRUE)
+ibiImaAvMin2ndBl_BF <- ttestBF(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+ibiImaNeuMin2ndBl_t <- t.test(x = dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+alternative = "two.sided", paired = TRUE) # two-sided
+ibiImaNeuMin2ndBl_d <- cohens_d(x = dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+paired = TRUE)
+ibiImaNeuMin2ndBl_BF <- ttestBF(x = dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"],
+y = dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+nullInterval = NULL, paired = TRUE) # two-sided
+# frequentist & bayesian t-tests on IBI (difference scores) across groups
+### 1st Block
+# delta [CS+av - CS+neu]
+ibiBothAvNeu1stBl_t <- t.test(x = dataIBI$Av_1stBl[dataIBI$usGroup == "real"] -
+dataIBI$Neu_1stBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"] -
+dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+ibiBothAvNeu1stBl_d <- cohens_d(x = dataIBI$Av_1stBl[dataIBI$usGroup == "real"] -
+dataIBI$Neu_1stBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"] -
+dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"],
+paired = FALSE)
+ibiBothAvNeu1stBl_BF <- ttestBF(x = dataIBI$Av_1stBl[dataIBI$usGroup == "real"] -
+dataIBI$Neu_1stBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"] -
+dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+ibiBothAvMin1stBl_t <- t.test(x = dataIBI$Av_1stBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+ibiBothAvMin1stBl_d <- cohens_d(x = dataIBI$Av_1stBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+paired = FALSE)
+ibiBothAvMin1stBl_BF <- ttestBF(x = dataIBI$Av_1stBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_1stBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+ibiBothNeuMin1stBl_t <- t.test(x = dataIBI$Neu_1stBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "real"],
+y = dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+ibiBothNeuMin1stBl_d <- cohens_d(x = dataIBI$Neu_1stBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "real"],
+y = dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+paired = FALSE)
+ibiBothNeuMin1stBl_BF <- ttestBF(x = dataIBI$Neu_1stBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "real"],
+y = dataIBI$Neu_1stBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_1stBl[dataIBI$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+### 2nd Block
+# delta [CS+av - CS+neu]
+ibiBothAvNeu2ndBl_t <- t.test(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "real"] -
+dataIBI$Neu_2ndBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"] -
+dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+ibiBothAvNeu2ndBl_d <- cohens_d(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "real"] -
+dataIBI$Neu_2ndBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"] -
+dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"],
+paired = FALSE)
+ibiBothAvNeu2ndBl_BF <- ttestBF(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "real"] -
+dataIBI$Neu_2ndBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"] -
+dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+ibiBothAvMin2ndBl_t <- t.test(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+ibiBothAvMin2ndBl_d <- cohens_d(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+paired = FALSE)
+ibiBothAvMin2ndBl_BF <- ttestBF(x = dataIBI$Av_2ndBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "real"],
+y = dataIBI$Av_2ndBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+ibiBothNeuMin2ndBl_t <- t.test(x = dataIBI$Neu_2ndBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "real"],
+y = dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+alternative = "two.sided", paired = FALSE) # two-sided
+ibiBothNeuMin2ndBl_d <- cohens_d(x = dataIBI$Neu_2ndBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "real"],
+y = dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+paired = FALSE)
+ibiBothNeuMin2ndBl_BF <- ttestBF(x = dataIBI$Neu_2ndBl[dataIBI$usGroup == "real"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "real"],
+y = dataIBI$Neu_2ndBl[dataIBI$usGroup == "ima"] -
+dataIBI$Min_2ndBl[dataIBI$usGroup == "ima"],
+nullInterval = NULL, paired = FALSE) # two-sided
+tableIBIBoth <- data.frame(
+time = c(rep("1stBl",3), rep("2ndBl",3)),
+comparison = rep(c("CS+av vs CS+neu", "CS+av vs CS-", "CSneu vs CS-"), 2),
+t = c(ibiBothAvNeu1stBl_t$statistic, ibiBothAvMin1stBl_t$statistic, ibiBothNeuMin1stBl_t$statistic,
+ibiBothAvNeu2ndBl_t$statistic, ibiBothAvMin2ndBl_t$statistic, ibiBothNeuMin2ndBl_t$statistic),
+df = c(ibiBothAvNeu1stBl_t$parameter, ibiBothAvMin1stBl_t$parameter, ibiBothNeuMin1stBl_t$parameter,
+ibiBothAvNeu2ndBl_t$parameter, ibiBothAvMin2ndBl_t$parameter, ibiBothNeuMin2ndBl_t$parameter),
+p = c(ibiBothAvNeu1stBl_t$p.value*3, ibiBothAvMin1stBl_t$p.value*3, ibiBothNeuMin1stBl_t$p.value*3, # Bonferroni
+ibiBothAvNeu2ndBl_t$p.value*3, ibiBothAvMin2ndBl_t$p.value*3, ibiBothNeuMin2ndBl_t$p.value*3), # Bonferroni
+d = c(ibiBothAvNeu1stBl_d$Cohens_d, ibiBothAvMin1stBl_d$Cohens_d, ibiBothNeuMin1stBl_d$Cohens_d,
+ibiBothAvNeu2ndBl_d$Cohens_d, ibiBothAvMin2ndBl_d$Cohens_d, ibiBothNeuMin2ndBl_d$Cohens_d),
+BF = c(exp(ibiBothAvNeu1stBl_BF@bayesFactor[["bf"]][1]), exp(ibiBothAvMin1stBl_BF@bayesFactor[["bf"]][1]), exp(ibiBothNeuMin1stBl_BF@bayesFactor[["bf"]][1]),
+exp(ibiBothAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(ibiBothAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(ibiBothNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
+testDir = rep("two.sided",6)
+)
+tableIBIBoth$p[tableIBIBoth$p > 1] <- 1
+capture.output(tableIBIBoth, file = paste0(pathname, "/supplement/03s_ibi_timeFactor_acrossGroups_tTable.doc"))
