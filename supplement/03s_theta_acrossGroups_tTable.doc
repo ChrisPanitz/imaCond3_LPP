@@ -1,0 +1,4 @@
+       comparison         t       df         p          d        BF   testDir
+1 CS+av vs CS+neu -1.456309 30.89641 0.4661850 -0.4204003 0.6773536 two.sided
+2    CS+av vs CS- -1.157503 33.62037 0.7656738 -0.3341422 0.4952111 two.sided
+3    CSneu vs CS-  1.180340 45.61800 0.7319501  0.3407347 0.5059767 two.sided

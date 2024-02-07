@@ -1,0 +1,12 @@
+Inclusion Bayes Factors (Model Averaged)
+
+             P(prior) P(posterior) Inclusion BF
+CS               0.44         1.00     5.90e+05
+partInd          0.89         1.00     5.56e+11
+CS:partInd       0.89         1.00     5.56e+11
+partInd:time     0.89         1.00     5.56e+11
+time             0.44         0.07        0.092
+CS:time          0.44         1.00     1.34e+07
+
+* Compared among: all models
+*    Priors odds: uniform-equal
