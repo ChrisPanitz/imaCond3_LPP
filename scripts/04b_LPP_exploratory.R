@@ -705,14 +705,14 @@ graphLPP <- ggarrange(graphLPProw1,graphLPProw2,
 graphLPP
 
 # saving it
-ggsave(filename = paste0(pathname, "/supplement/04s_lpp_exploratory_timeCourseBarPlot.eps"),
+ggsave(filename = paste0(pathname, "/supplement/Figure5b_timeCourse_barPlot_LPP_exploratory.eps"),
        plot = graphLPP,
        width = 200,
        height = 150,
        units = "mm"
 )
 
-ggsave(filename = paste0(pathname, "/supplement/04s_lpp_exploratory_timeCourseBarPlot.pdf"),
+ggsave(filename = paste0(pathname, "/supplement/Figure5b_timeCourse_barPlot_LPP_exploratory.pdf"),
        plot = graphLPP,
        width = 200,
        height = 150,

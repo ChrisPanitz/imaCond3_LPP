@@ -1148,10 +1148,10 @@ tableAnger <- add_header_lines(tableAnger, top = TRUE, values = "anger")
 tableDisgust <- flextable(tableData[28:36,])
 tableDisgust <- add_header_lines(tableDisgust, top = TRUE, values = "disgust")
 
-save_as_docx(tableUnpleas, path = paste0(pathname, "/supplement/tableUnpleas_raw.docx"))
-save_as_docx(tableArousal, path = paste0(pathname, "/supplement/tableArousal_raw.docx"))
-save_as_docx(tableAnger, path = paste0(pathname, "/supplement/tableAnger_raw.docx"))
-save_as_docx(tableDisgust, path = paste0(pathname, "/supplement/tableDisgust_raw.docx"))
+save_as_docx(tableUnpleas, path = paste0(pathname, "/supplement/t_table_Unpleasant.docx"))
+save_as_docx(tableArousal, path = paste0(pathname, "/supplement/t_table_Arousal.docx"))
+save_as_docx(tableAnger, path = paste0(pathname, "/supplement/t_table_Anger.docx"))
+save_as_docx(tableDisgust, path = paste0(pathname, "/supplement/t_table_Disgust.docx"))
 
 
 

@@ -415,26 +415,3 @@ if (showSig == TRUE){
     geom_text(aes(label = "***", x = 2.0, y = mean+se+.45), size = plotFS/2, data = plotDataFear[4,])
 }
 graphFear
-
-
-
-# add margins to plot
-# graphFear <- graphFear + theme(plot.title = element_blank(),
-#                                plot.margin = margin(5,5,5,5))
-# 
-# saving it
-# ggsave(filename = paste0(pathname, "/figures/Figure2_barplotFear.eps"),
-#        plot = graphFear,
-#        width = 100,
-#        height = 70,
-#        units = "mm",
-#        dpi = 300
-# )
-# 
-# ggsave(filename = paste0(pathname, "/figures/Figure2_barplotFear.pdf"),
-#        plot = graphFear,
-#        width = 100,
-#        height = 70,
-#        units = "mm",
-#        dpi = 300
-# )
