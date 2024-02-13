@@ -1,9 +1,9 @@
 # --- author: Christian Panitz
 # --- encoding: en_US.UTF-8
-# --- R version: 4.0.3 (2020-10-10) -- "Bunny-Wunnies Freak Out"
-# --- RStudio version: 1.3.1093
-# --- script version: Jan 2023
-# --- content: supplementary rating analyses - ANOVA with factor Time
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Feb 2024
+# --- content: supplementary frontal theta analyses
 
 ###################
 ### preparing R ###
@@ -13,34 +13,16 @@
 # created with [set.seed(NULL)] and [sample(2^31 - 1, 1)] 
 rngSeed <- 814677222
 
-# (installing and) loading required packages
-# will install newest package version, not necessarily the version originally used!
-if(!is.element("tidyr",installed.packages()[,1])) {install.packages("tidyr")}
-  library(tidyr) # ver. 1.1.2
-if(!is.element("psych",installed.packages()[,1])) {install.packages("psych")}
-  library(psych) # ver. 2.0.9
-if(!is.element("effectsize",installed.packages()[,1])) {install.packages("effectsize")}
-  library(effectsize) # ver. 2.0.9
-if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
-  library(ez) # ver. 4.4-0
-if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
-library(BayesFactor) # ver. 2.0.9
-if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
-library(bayestestR) #
-if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
-  library(ggplot2) # ver. 3.3.2
-if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
-  library(scico) # ver. 1.2.0
-if(!is.element("scales",installed.packages()[,1])) {install.packages("scales")}
-  library(scales) # 
-if(!is.element("ggpubr",installed.packages()[,1])) {install.packages("ggpubr")}
-  library(ggpubr) # 
-if(!is.element("flextable",installed.packages()[,1])) {install.packages("flextable")}
-  library(flextable) # 
-if(!is.element("stringr",installed.packages()[,1])) {install.packages("stringr")}
-  library(stringr) # 
-if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
-library(here) #
+# loading required packages
+library(tidyr) # ver. 1.3.0
+library(psych) # ver. 2.3.9
+library(effectsize) # ver. 0.8.6
+library(ez) # ver. 4.4-0
+library(BayesFactor) # ver. 0.9.12-4.5
+library(bayestestR) # 0.13.1
+library(stringr) # ver. 1.5.0
+library(here) # ver. 1.0.1
+
 
 ########################
 ### data preparation ###
