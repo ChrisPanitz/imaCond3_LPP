@@ -41,6 +41,7 @@ if(!is.element("stringr",installed.packages()[,1])) {install.packages("stringr")
   library(stringr) # 
 if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
   library(here) # 
+library(ggbeeswarm)
 
 
 ########################
@@ -355,43 +356,45 @@ save_as_docx(tableFear, path = paste0(pathname, "/supplement/01s_tableFear_aware
 #############################
 # remove between-subject variance for plotting standard errors based on
 # within-subject variance
-dataFearWithin <- dataFear[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
+dataFearLongPost <- dataFear[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
 # remove each participant's average from each single value
-dataFearWithin[,3:5] <- as.matrix(dataFearWithin[,3:5]) -
-  rowMeans(as.matrix(dataFearWithin[,3:5])) 
-
-# prepare data frame for bar plot with means from standard dataset and SE from
-# dataset without between-subject variance
-plotDataFear <- data.frame(
-  usGroup = factor(c(rep("Imagery-Based",3),rep("Classical",3)),
-                   levels = c("Imagery-Based","Classical")),
-  CS = factor(c("CS+ av","CS+ neu","CS- ","CS+ av","CS+ neu","CS- "),
-              levels = c("CS+ av","CS+ neu","CS- ")),
-  mean = c(describe(dataFear[dataFear$usGroup == "ima", c(5,8,11)])$mean,
-           describe(dataFear[dataFear$usGroup == "real", c(5,8,11)])$mean),
-  se = c(describe(dataFearWithin[dataFearWithin$usGroup == "ima", 3:5])$se,
-         describe(dataFearWithin[dataFearWithin$usGroup == "real", 3:5])$se)
-)
+dataFearLongPost[dataFearLongPost$usGroup == "ima",6:8] <- as.matrix(dataFearLongPost[dataFearLongPost$usGroup == "ima",3:5]) -
+  rowMeans(as.matrix(dataFearLongPost[dataFearLongPost$usGroup == "ima",3:5])) + mean(as.matrix(dataFearLongPost[dataFearLongPost$usGroup == "ima",3:5]))
+dataFearLongPost[dataFearLongPost$usGroup == "real",6:8] <- as.matrix(dataFearLongPost[dataFearLongPost$usGroup == "real",3:5]) -
+  rowMeans(as.matrix(dataFearLongPost[dataFearLongPost$usGroup == "real",3:5])) + mean(as.matrix(dataFearLongPost[dataFearLongPost$usGroup == "real",3:5]))
+names(dataFearLongPost) <- c("partInd","usGroup","Av_btw","Neu_btw","Min_btw","Av_wth","Neu_wth","Min_wth")
+# into long format
+dataFearLongPost <- pivot_longer(data = dataFearLongPost, cols = Av_btw:Min_wth,
+                                 names_to = c("CS","variance"), names_sep = "_", values_to = "fear")
+dataFearLongPost <- pivot_wider(data = dataFearLongPost, names_from = "variance", values_from = "fear")
+dataFearLongPost$CS <- factor(dataFearLongPost$CS, levels = c("Av","Neu","Min"))
+levels(dataFearLongPost$usGroup) <- c("Imagery-based","Classical")
 
 # some general settings
-plotFS <- 9
+plotFS <- 8
 showSig <- TRUE
-csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-",
-             expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
+csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
 
-# bar graphs of group x CS effects on fear ratings
-graphFear <- ggplot(data = plotDataFear, aes(x = usGroup, y = mean, fill = CS)) +
+# plotting
+graphFear <- ggplot(data = dataFearLongPost, aes(x = usGroup, y = btw, fill = CS, color = CS)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+  stat_summary(aes(y = wth), fun.data = mean_se, geom = "errorbar", position=position_dodge(0.8), width = 0.1, linewidth = 0.2) +
+  stat_summary(fun = mean, geom = "crossbar", position = position_dodge(0.8), width = 0.25, linewidth = 0.2) +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_y_continuous(name = "Fear rating (1-5)", limits = c(0.5,5.2), oob = rescale_none, expand = c(0,0)) +
-  #labs(title = "Fear") +
+  scale_color_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_y_continuous(name = "Fear rating (1-5)", limits = c(0.4,6), breaks = 1:5, oob = rescale_none, expand = c(0,0)) +
   geom_vline(xintercept = 0.41) +
-  geom_rect(aes(xmin = 0.4, xmax = 2.6, ymin = 0.45, ymax = 1), fill = "white") +
-  geom_hline(yintercept = 1) +
-  geom_text(aes(y = 0.8), label = csLabels, position = position_dodge(.9), colour = "black", size = plotFS/.pt) + 
-  geom_text(aes(label = usGroup, y = 5), colour = "black", size = plotFS/.pt, fontface = "bold") +
+  geom_rect(xmin = 0.4, xmax = 2.6, ymin = 0.35, ymax = 0.8, fill = "white", color = "white") +
+  geom_hline(yintercept = 0.8) +
+  geom_beeswarm(aes(color = CS), dodge.width = 0.8, cex = 0.6, size = .1, color = "gray70") +
+  geom_violin(alpha = .2, color = NA, bw = .5, position = position_dodge(0.8), width = 0.75) +
+  geom_text(x = 0.7, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.3, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.7, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.3, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(aes(label = usGroup, y = 5.9), colour = "black", size = (plotFS-2)/.pt, fontface = "bold") +
   theme(legend.position = "none",
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.line.x = element_blank(),
@@ -405,13 +408,13 @@ graphFear <- ggplot(data = plotDataFear, aes(x = usGroup, y = mean, fill = CS)) 
 
 if (showSig == TRUE){
   graphFear <- graphFear +
-    geom_segment(aes(x = 0.7, y = mean+se+.1, xend = 1.0, yend = mean+se+.1), data = plotDataFear[1,]) +
-    geom_text(aes(label = "***", x = 0.85, y = mean+se+.15), size = plotFS/2, data = plotDataFear[1,]) +
-    geom_segment(aes(x = 0.7, y = mean+se+.4, xend = 1.3, yend = mean+se+.4), data = plotDataFear[1,]) +
-    geom_text(aes(label = "**", x = 1.0, y = mean+se+.45), size = plotFS/2, data = plotDataFear[1,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.1, xend = 2.0, yend = mean+se+.1), data = plotDataFear[4,]) +
-    geom_text(aes(label = "***", x = 1.85, y = mean+se+.15), size = plotFS/2, data = plotDataFear[4,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.4, xend = 2.3, yend = mean+se+.4), data = plotDataFear[4,]) +
-    geom_text(aes(label = "***", x = 2.0, y = mean+se+.45), size = plotFS/2, data = plotDataFear[4,])
+    geom_segment(aes(x = 0.74, y = 5.1, xend = 1.0, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "**", x = 0.85, y =5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 0.74, y = 5.4, xend = 1.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.0, y = 5.45), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.1, xend = 2.0, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.85, y = 5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.4, xend = 2.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 2.0, y = 5.45), size = plotFS/4, color = "gray20")
 }
 graphFear

@@ -41,6 +41,7 @@ if(!is.element("stringr",installed.packages()[,1])) {install.packages("stringr")
   library(stringr) # 
 if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
   library(here) # 
+library(ggbeeswarm)
 
 
 ########################
@@ -1160,81 +1161,87 @@ save_as_docx(tableDisgust, path = paste0(pathname, "/supplement/t_table_Disgust.
 #############################
 # remove between-subject variance for plotting standard errors based on
 # within-subject variance
-dataUnpleasWithin <- dataUnpleas[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
-dataArousalWithin <- dataArousal[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
-dataAngerWithin <- dataAnger[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
-dataDisgustWithin <- dataDisgust[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
-# remove each participant's average from each single value
-dataUnpleasWithin[,3:5] <- as.matrix(dataUnpleasWithin[,3:5]) -
-  rowMeans(as.matrix(dataUnpleasWithin[,3:5])) 
-dataArousalWithin[,3:5] <- as.matrix(dataArousalWithin[,3:5]) -
-  rowMeans(as.matrix(dataArousalWithin[,3:5])) 
-dataAngerWithin[,3:5] <- as.matrix(dataAngerWithin[,3:5]) -
-  rowMeans(as.matrix(dataAngerWithin[,3:5])) 
-dataDisgustWithin[,3:5] <- as.matrix(dataDisgustWithin[,3:5]) -
-  rowMeans(as.matrix(dataDisgustWithin[,3:5])) 
+dataUnpleasLongPost <- dataUnpleas[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
+dataArousalLongPost <- dataArousal[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
+dataAngerLongPost <- dataAnger[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
+dataDisgustLongPost <- dataDisgust[,c("partInd","usGroup","Av_Post","Neu_Post","Min_Post")]
 
-# prepare data frame for bar plot with means from standard dataset and SE from
-# dataset without betweem-subject variance
-plotdataUnpleas <- data.frame(
-  usGroup = factor(c(rep("Imagery-Based",3),rep("Classical",3)),
-                    levels = c("Imagery-Based","Classical")),
-  CS = factor(c("CS+ av","CS+ neu","CS- ","CS+ av","CS+ neu","CS- "),
-              levels = c("CS+ av","CS+ neu","CS- ")),
-  mean = c(describe(dataUnpleas[dataUnpleas$usGroup == "ima", c(5,8,11)])$mean,
-           describe(dataUnpleas[dataUnpleas$usGroup == "real", c(5,8,11)])$mean),
-  se = c(describe(dataUnpleasWithin[dataUnpleasWithin$usGroup == "ima", 3:5])$se,
-         describe(dataUnpleasWithin[dataUnpleasWithin$usGroup == "real", 3:5])$se)
-)
-plotDataArousal <- data.frame(
-  usGroup = factor(c(rep("Imagery-Based",3),rep("Classical",3)),
-                   levels = c("Imagery-Based","Classical")),
-  CS = factor(c("CS+ av","CS+ neu","CS- ","CS+ av","CS+ neu","CS- "),
-              levels = c("CS+ av","CS+ neu","CS- ")),
-  mean = c(describe(dataArousal[dataArousal$usGroup == "ima", c(5,8,11)])$mean,
-           describe(dataArousal[dataArousal$usGroup == "real", c(5,8,11)])$mean),
-  se = c(describe(dataArousalWithin[dataArousalWithin$usGroup == "ima", 3:5])$se,
-         describe(dataArousalWithin[dataArousalWithin$usGroup == "real", 3:5])$se)
-)
-plotDataAnger <- data.frame(
-  usGroup = factor(c(rep("Imagery-Based",3),rep("Classical",3)),
-                   levels = c("Imagery-Based","Classical")),
-  CS = factor(c("CS+ av","CS+ neu","CS- ","CS+ av","CS+ neu","CS- "),
-              levels = c("CS+ av","CS+ neu","CS- ")),
-  mean = c(describe(dataAnger[dataAnger$usGroup == "ima", c(5,8,11)])$mean,
-           describe(dataAnger[dataAnger$usGroup == "real", c(5,8,11)])$mean),
-  se = c(describe(dataAngerWithin[dataAngerWithin$usGroup == "ima", 3:5])$se,
-         describe(dataAngerWithin[dataAngerWithin$usGroup == "real", 3:5])$se)
-)
-plotDataDisgust <- data.frame(
-  usGroup = factor(c(rep("Imagery-Based",3),rep("Classical",3)),
-                   levels = c("Imagery-Based","Classical")),
-  CS = factor(c("CS+ av","CS+ neu","CS- ","CS+ av","CS+ neu","CS- "),
-              levels = c("CS+ av","CS+ neu","CS- ")),
-  mean = c(describe(dataDisgust[dataDisgust$usGroup == "ima", c(5,8,11)])$mean,
-           describe(dataDisgust[dataDisgust$usGroup == "real", c(5,8,11)])$mean),
-  se = c(describe(dataDisgustWithin[dataDisgustWithin$usGroup == "ima", 3:5])$se,
-         describe(dataDisgustWithin[dataDisgustWithin$usGroup == "real", 3:5])$se)
-)
+# remove each participant's average from each single value
+dataUnpleasLongPost[dataUnpleasLongPost$usGroup == "ima",6:8] <- as.matrix(dataUnpleasLongPost[dataUnpleasLongPost$usGroup == "ima",3:5]) -
+  rowMeans(as.matrix(dataUnpleasLongPost[dataUnpleasLongPost$usGroup == "ima",3:5])) + mean(as.matrix(dataUnpleasLongPost[dataUnpleasLongPost$usGroup == "ima",3:5]))
+dataUnpleasLongPost[dataUnpleasLongPost$usGroup == "real",6:8] <- as.matrix(dataUnpleasLongPost[dataUnpleasLongPost$usGroup == "real",3:5]) -
+  rowMeans(as.matrix(dataUnpleasLongPost[dataUnpleasLongPost$usGroup == "real",3:5])) + mean(as.matrix(dataUnpleasLongPost[dataUnpleasLongPost$usGroup == "real",3:5]))
+names(dataUnpleasLongPost) <- c("partInd","usGroup","Av_btw","Neu_btw","Min_btw","Av_wth","Neu_wth","Min_wth")
+
+dataArousalLongPost[dataArousalLongPost$usGroup == "ima",6:8] <- as.matrix(dataArousalLongPost[dataArousalLongPost$usGroup == "ima",3:5]) -
+  rowMeans(as.matrix(dataArousalLongPost[dataArousalLongPost$usGroup == "ima",3:5])) + mean(as.matrix(dataArousalLongPost[dataArousalLongPost$usGroup == "ima",3:5]))
+dataArousalLongPost[dataArousalLongPost$usGroup == "real",6:8] <- as.matrix(dataArousalLongPost[dataArousalLongPost$usGroup == "real",3:5]) -
+  rowMeans(as.matrix(dataArousalLongPost[dataArousalLongPost$usGroup == "real",3:5])) + mean(as.matrix(dataArousalLongPost[dataArousalLongPost$usGroup == "real",3:5]))
+names(dataArousalLongPost) <- c("partInd","usGroup","Av_btw","Neu_btw","Min_btw","Av_wth","Neu_wth","Min_wth")
+
+dataAngerLongPost[dataAngerLongPost$usGroup == "ima",6:8] <- as.matrix(dataAngerLongPost[dataAngerLongPost$usGroup == "ima",3:5]) -
+  rowMeans(as.matrix(dataAngerLongPost[dataAngerLongPost$usGroup == "ima",3:5])) + mean(as.matrix(dataAngerLongPost[dataAngerLongPost$usGroup == "ima",3:5]))
+dataAngerLongPost[dataAngerLongPost$usGroup == "real",6:8] <- as.matrix(dataAngerLongPost[dataAngerLongPost$usGroup == "real",3:5]) -
+  rowMeans(as.matrix(dataAngerLongPost[dataAngerLongPost$usGroup == "real",3:5])) + mean(as.matrix(dataAngerLongPost[dataAngerLongPost$usGroup == "real",3:5]))
+names(dataAngerLongPost) <- c("partInd","usGroup","Av_btw","Neu_btw","Min_btw","Av_wth","Neu_wth","Min_wth")
+
+dataDisgustLongPost[dataDisgustLongPost$usGroup == "ima",6:8] <- as.matrix(dataDisgustLongPost[dataDisgustLongPost$usGroup == "ima",3:5]) -
+  rowMeans(as.matrix(dataDisgustLongPost[dataDisgustLongPost$usGroup == "ima",3:5])) + mean(as.matrix(dataDisgustLongPost[dataDisgustLongPost$usGroup == "ima",3:5]))
+dataDisgustLongPost[dataDisgustLongPost$usGroup == "real",6:8] <- as.matrix(dataDisgustLongPost[dataDisgustLongPost$usGroup == "real",3:5]) -
+  rowMeans(as.matrix(dataDisgustLongPost[dataDisgustLongPost$usGroup == "real",3:5])) + mean(as.matrix(dataDisgustLongPost[dataDisgustLongPost$usGroup == "real",3:5]))
+names(dataDisgustLongPost) <- c("partInd","usGroup","Av_btw","Neu_btw","Min_btw","Av_wth","Neu_wth","Min_wth")
+
+# into long format
+dataUnpleasLongPost <- pivot_longer(data = dataUnpleasLongPost, cols = Av_btw:Min_wth,
+                                 names_to = c("CS","variance"), names_sep = "_", values_to = "fear")
+dataUnpleasLongPost <- pivot_wider(data = dataUnpleasLongPost, names_from = "variance", values_from = "fear")
+dataUnpleasLongPost$CS <- factor(dataUnpleasLongPost$CS, levels = c("Av","Neu","Min"))
+levels(dataUnpleasLongPost$usGroup) <- c("Imagery-based","Classical")
+
+dataArousalLongPost <- pivot_longer(data = dataArousalLongPost, cols = Av_btw:Min_wth,
+                                 names_to = c("CS","variance"), names_sep = "_", values_to = "fear")
+dataArousalLongPost <- pivot_wider(data = dataArousalLongPost, names_from = "variance", values_from = "fear")
+dataArousalLongPost$CS <- factor(dataArousalLongPost$CS, levels = c("Av","Neu","Min"))
+levels(dataArousalLongPost$usGroup) <- c("Imagery-based","Classical")
+
+dataAngerLongPost <- pivot_longer(data = dataAngerLongPost, cols = Av_btw:Min_wth,
+                                 names_to = c("CS","variance"), names_sep = "_", values_to = "fear")
+dataAngerLongPost <- pivot_wider(data = dataAngerLongPost, names_from = "variance", values_from = "fear")
+dataAngerLongPost$CS <- factor(dataAngerLongPost$CS, levels = c("Av","Neu","Min"))
+levels(dataAngerLongPost$usGroup) <- c("Imagery-based","Classical")
+
+dataDisgustLongPost <- pivot_longer(data = dataDisgustLongPost, cols = Av_btw:Min_wth,
+                                 names_to = c("CS","variance"), names_sep = "_", values_to = "fear")
+dataDisgustLongPost <- pivot_wider(data = dataDisgustLongPost, names_from = "variance", values_from = "fear")
+dataDisgustLongPost$CS <- factor(dataDisgustLongPost$CS, levels = c("Av","Neu","Min"))
+levels(dataDisgustLongPost$usGroup) <- c("Imagery-based","Classical")
+
 
 # some general settings
-plotFS <- 9
+plotFS <- 8
 showSig <- TRUE
-csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-",
-             expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
+csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
 
-# bar graphs of group x CS effects on unpleasantness ratings
-graphUnpleas <- ggplot(data = plotdataUnpleas, aes(x = usGroup, y = mean, fill = CS)) +
+# graphs of group x CS effects on unpleasantness ratings
+graphUnpleas <- ggplot(data = dataUnpleasLongPost, aes(x = usGroup, y = btw, fill = CS, color = CS)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+  stat_summary(aes(y = wth), fun.data = mean_se, geom = "errorbar", position=position_dodge(0.8), width = 0.1, linewidth = 0.2) +
+  stat_summary(fun = mean, geom = "crossbar", position = position_dodge(0.8), width = 0.25, linewidth = 0.2) +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_y_continuous(name = "Unpleasantness rating (1-5)", limits = c(0.5,5.2), oob = rescale_none, expand = c(0,0)) +
-  labs(title = "Unpleasantness") +
+  scale_color_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_y_continuous(name = "Unpleasantness rating (1-5)", limits = c(0.4,6), breaks = 1:5, oob = rescale_none, expand = c(0,0)) +
   geom_vline(xintercept = 0.41) +
-  geom_rect(aes(xmin = 0.4, xmax = 2.6, ymin = 0.45, ymax = 1), fill = "white") +
-  geom_hline(yintercept = 1) +
-  geom_text(aes(label = usGroup, y = 0.9), colour = "black", size = plotFS/.pt, fontface = "bold") +
+  geom_rect(xmin = 0.4, xmax = 2.6, ymin = 0.35, ymax = 0.8, fill = "white", color = "white") +
+  geom_hline(yintercept = 0.8) +
+  geom_beeswarm(aes(color = CS), dodge.width = 0.8, cex = 0.6, size = .1, color = "gray70") +
+  geom_violin(alpha = .2, color = NA, bw = .5, position = position_dodge(0.8), width = 0.75) +
+  geom_text(x = 0.74, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.26, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.74, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.26, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(aes(label = usGroup, y = 5.9), colour = "black", size = (plotFS-2)/.pt, fontface = "bold") +
   theme(legend.position = "none",
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.line.x = element_blank(),
@@ -1248,29 +1255,37 @@ graphUnpleas <- ggplot(data = plotdataUnpleas, aes(x = usGroup, y = mean, fill =
 
 if (showSig == TRUE){
   graphUnpleas <- graphUnpleas +
-    geom_segment(aes(x = 0.7, y = mean+se+.1, xend = 1.0, yend = mean+se+.1), data = plotdataUnpleas[1,]) +
-    geom_text(aes(label = "***", x = 0.85, y = mean+se+.15), size = plotFS/2, data = plotdataUnpleas[1,]) +
-    geom_segment(aes(x = 0.7, y = mean+se+.4, xend = 1.3, yend = mean+se+.4), data = plotdataUnpleas[1,]) +
-    geom_text(aes(label = "***", x = 1.0, y = mean+se+.45), size = plotFS/2, data = plotdataUnpleas[1,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.1, xend = 2.0, yend = mean+se+.1), data = plotdataUnpleas[4,]) +
-    geom_text(aes(label = "***", x = 1.85, y = mean+se+.15), size = plotFS/2, data = plotdataUnpleas[4,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.4, xend = 2.3, yend = mean+se+.4), data = plotdataUnpleas[4,]) +
-    geom_text(aes(label = "***", x = 2.0, y = mean+se+.45), size = plotFS/2, data = plotdataUnpleas[4,])
+    geom_segment(aes(x = 0.74, y = 5.1, xend = 1.0, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 0.87, y =5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 0.74, y = 5.4, xend = 1.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.0, y = 5.45), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.1, xend = 2.0, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.87, y = 5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.4, xend = 2.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 2.0, y = 5.45), size = plotFS/4, color = "gray20")
 }
 graphUnpleas
 
-# bar graphs of group x CS effects on arousal ratings
-graphArousal <- ggplot(data = plotDataArousal, aes(x = usGroup, y = mean, fill = CS)) +
+# graphs of group x CS effects on arousal ratings
+graphArousal <- ggplot(data = dataArousalLongPost, aes(x = usGroup, y = btw, fill = CS, color = CS)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+  stat_summary(aes(y = wth), fun.data = mean_se, geom = "errorbar", position=position_dodge(0.8), width = 0.1, linewidth = 0.2) +
+  stat_summary(fun = mean, geom = "crossbar", position = position_dodge(0.8), width = 0.25, linewidth = 0.2) +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_y_continuous(name = "Arousal rating (1-5)", limits = c(0.5,5.2), oob = rescale_none, expand = c(0,0)) +
-  labs(title = "Arousal") +
+  scale_color_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_y_continuous(name = "Arousal rating (1-5)", limits = c(0.4,6), breaks = 1:5, oob = rescale_none, expand = c(0,0)) +
   geom_vline(xintercept = 0.41) +
-  geom_rect(aes(xmin = 0.4, xmax = 2.6, ymin = 0.45, ymax = 1), fill = "white") +
-  geom_hline(yintercept = 1) +
-  geom_text(aes(label = usGroup, y = 0.9), colour = "black", size = plotFS/.pt, fontface = "bold") +
+  geom_rect(xmin = 0.4, xmax = 2.6, ymin = 0.35, ymax = 0.8, fill = "white", color = "white") +
+  geom_hline(yintercept = 0.8) +
+  geom_beeswarm(aes(color = CS), dodge.width = 0.8, cex = 0.6, size = .1, color = "gray70") +
+  geom_violin(alpha = .2, color = NA, bw = .5, position = position_dodge(0.8), width = 0.75) +
+  geom_text(x = 0.74, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.26, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.74, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.26, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(aes(label = usGroup, y = 5.9), colour = "black", size = (plotFS-2)/.pt, fontface = "bold") +
   theme(legend.position = "none",
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.line.x = element_blank(),
@@ -1284,31 +1299,39 @@ graphArousal <- ggplot(data = plotDataArousal, aes(x = usGroup, y = mean, fill =
 
 if (showSig == TRUE){
   graphArousal <- graphArousal +
-    geom_segment(aes(x = 1.0, y = mean+se+.1, xend = 1.3, yend = mean+se+.1), data = plotDataArousal[2,]) +
-    geom_text(aes(label = "**", x = 1.15, y = mean+se+.15), size = plotFS/2, data = plotDataArousal[2,]) +
-    geom_segment(aes(x = 0.7, y = mean+se+.1, xend = 1.3, yend = mean+se+.1), data = plotDataArousal[1,]) +
-    geom_text(aes(label = "***", x = 1.0, y = mean+se+.15), size = plotFS/2, data = plotDataArousal[1,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.1, xend = 2.0, yend = mean+se+.1), data = plotDataArousal[4,]) +
-    geom_text(aes(label = "***", x = 1.85, y = mean+se+.15), size = plotFS/2, data = plotDataArousal[4,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.4, xend = 2.3, yend = mean+se+.4), data = plotDataArousal[4,]) +
-    geom_text(aes(label = "***", x = 2.0, y = mean+se+.45), size = plotFS/2, data = plotDataArousal[4,]) +
-    geom_segment(aes(x = 2.0, y = mean+se+.1, xend = 2.3, yend = mean+se+.1), data = plotDataArousal[5,]) +
-    geom_text(aes(label = "**", x = 2.15, y = mean+se+.15), size = plotFS/2, data = plotDataArousal[5,])
+    geom_segment(aes(x = 1.0, y = 5.1, xend = 1.26, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "**", x = 1.13, y = 5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 0.74, y = 5.4, xend = 1.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.0, y = 5.45), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.1, xend = 1.99, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.87, y = 5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.4, xend = 2.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 2.0, y = 5.45), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 2.01, y = 5.1, xend = 2.26, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "**", x = 2.13, y = 5.15), size = plotFS/4, color = "gray20")
 }
 graphArousal
 
-# bar graphs of group x CS effects on anger ratings
-graphAnger <- ggplot(data = plotDataAnger, aes(x = usGroup, y = mean, fill = CS)) +
+# graphs of group x CS effects on anger ratings
+graphAnger <- ggplot(data = dataAngerLongPost, aes(x = usGroup, y = btw, fill = CS, color = CS)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+  stat_summary(aes(y = wth), fun.data = mean_se, geom = "errorbar", position=position_dodge(0.8), width = 0.1, linewidth = 0.2) +
+  stat_summary(fun = mean, geom = "crossbar", position = position_dodge(0.8), width = 0.25, linewidth = 0.2) +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_y_continuous(name = "Anger rating (1-5)", limits = c(0.5,5.2), oob = rescale_none, expand = c(0,0)) +
-  labs(title = "Anger") +
+  scale_color_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_y_continuous(name = "Anger rating (1-5)", limits = c(0.4,6), breaks = 1:5, oob = rescale_none, expand = c(0,0)) +
   geom_vline(xintercept = 0.41) +
-  geom_rect(aes(xmin = 0.4, xmax = 2.6, ymin = 0.45, ymax = 1), fill = "white") +
-  geom_hline(yintercept = 1) +
-  geom_text(aes(label = usGroup, y = 0.9), colour = "black", size = plotFS/.pt, fontface = "bold") +
+  geom_rect(xmin = 0.4, xmax = 2.6, ymin = 0.35, ymax = 0.8, fill = "white", color = "white") +
+  geom_hline(yintercept = 0.8) +
+  geom_beeswarm(aes(color = CS), dodge.width = 0.8, cex = 0.6, size = .1, color = "gray70") +
+  geom_violin(alpha = .2, color = NA, bw = .5, position = position_dodge(0.8), width = 0.75) +
+  geom_text(x = 0.74, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.26, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.74, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.26, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(aes(label = usGroup, y = 5.9), colour = "black", size = (plotFS-2)/.pt, fontface = "bold") +
   theme(legend.position = "none",
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.line.x = element_blank(),
@@ -1322,29 +1345,37 @@ graphAnger <- ggplot(data = plotDataAnger, aes(x = usGroup, y = mean, fill = CS)
 
 if (showSig == TRUE){
   graphAnger <- graphAnger +
-    geom_segment(aes(x = 0.7, y = mean+se+.1, xend = 1.0, yend = mean+se+.1), data = plotDataAnger[1,]) +
-    geom_text(aes(label = "***", x = 0.85, y = mean+se+.15), size = plotFS/2, data = plotDataAnger[1,]) +
-    geom_segment(aes(x = 0.7, y = mean+se+.4, xend = 1.3, yend = mean+se+.4), data = plotDataAnger[1,]) +
-    geom_text(aes(label = "***", x = 1.0, y = mean+se+.45), size = plotFS/2, data = plotDataAnger[1,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.1, xend = 2.0, yend = mean+se+.1), data = plotDataAnger[4,]) +
-    geom_text(aes(label = "***", x = 1.85, y = mean+se+.15), size = plotFS/2, data = plotDataAnger[4,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.4, xend = 2.3, yend = mean+se+.4), data = plotDataAnger[4,]) +
-    geom_text(aes(label = "***", x = 2.0, y = mean+se+.45), size = plotFS/2, data = plotDataAnger[4,])
+    geom_segment(aes(x = 0.74, y = 5.1, xend = 1.0, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 0.87, y =5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 0.74, y = 5.4, xend = 1.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.0, y = 5.45), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.1, xend = 2.0, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.87, y = 5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.4, xend = 2.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 2.0, y = 5.45), size = plotFS/4, color = "gray20")
 }
 graphAnger
 
-# bar graphs of group x CS effects on disgust ratings
-graphDisgust <- ggplot(data = plotDataDisgust, aes(x = usGroup, y = mean, fill = CS)) +
+# graphs of group x CS effects on disgust ratings
+graphDisgust <- ggplot(data = dataDisgustLongPost, aes(x = usGroup, y = btw, fill = CS, color = CS)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+  stat_summary(aes(y = wth), fun.data = mean_se, geom = "errorbar", position=position_dodge(0.8), width = 0.1, linewidth = 0.2) +
+  stat_summary(fun = mean, geom = "crossbar", position = position_dodge(0.8), width = 0.25, linewidth = 0.2) +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_y_continuous(name = "Disgust rating (1-5)", limits = c(0.5,5.2), oob = rescale_none, expand = c(0,0)) +
-  labs(title = "Disgust") +
+  scale_color_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_y_continuous(name = "Disgust rating (1-5)", limits = c(0.4,6), breaks = 1:5, oob = rescale_none, expand = c(0,0)) +
   geom_vline(xintercept = 0.41) +
-  geom_rect(aes(xmin = 0.4, xmax = 2.6, ymin = 0.45, ymax = 1), fill = "white") +
-  geom_hline(yintercept = 1) +
-  geom_text(aes(label = usGroup, y = 0.9), colour = "black", size = plotFS/.pt, fontface = "bold") +
+  geom_rect(xmin = 0.4, xmax = 2.6, ymin = 0.35, ymax = 0.8, fill = "white", color = "white") +
+  geom_hline(yintercept = 0.8) +
+  geom_beeswarm(aes(color = CS), dodge.width = 0.8, cex = 0.6, size = .1, color = "gray70") +
+  geom_violin(alpha = .2, color = NA, bw = .5, position = position_dodge(0.8), width = 0.75) +
+  geom_text(x = 0.74, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.26, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 1.74, y = 0.6, label = csLabels[1], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.0, y = 0.6, label = csLabels[2], colour = "black", size = plotFS/.pt) +
+  geom_text(x = 2.26, y = 0.6, label = csLabels[3], colour = "black", size = plotFS/.pt) +
+  geom_text(aes(label = usGroup, y = 5.9), colour = "black", size = (plotFS-2)/.pt, fontface = "bold") +
   theme(legend.position = "none",
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.line.x = element_blank(),
@@ -1358,14 +1389,14 @@ graphDisgust <- ggplot(data = plotDataDisgust, aes(x = usGroup, y = mean, fill =
 
 if (showSig == TRUE){
   graphDisgust <- graphDisgust +
-    geom_segment(aes(x = 0.7, y = mean+se+.1, xend = 1.0, yend = mean+se+.1), data = plotDataDisgust[1,]) +
-    geom_text(aes(label = "***", x = 0.85, y = mean+se+.15), size = plotFS/2, data = plotDataDisgust[1,]) +
-    geom_segment(aes(x = 0.7, y = mean+se+.4, xend = 1.3, yend = mean+se+.4), data = plotDataDisgust[1,]) +
-    geom_text(aes(label = "***", x = 1.0, y = mean+se+.45), size = plotFS/2, data = plotDataDisgust[1,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.1, xend = 2.0, yend = mean+se+.1), data = plotDataDisgust[4,]) +
-    geom_text(aes(label = "**", x = 1.85, y = mean+se+.15), size = plotFS/2, data = plotDataDisgust[4,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.4, xend = 2.3, yend = mean+se+.4), data = plotDataDisgust[4,]) +
-    geom_text(aes(label = "**", x = 2.0, y = mean+se+.45), size = plotFS/2, data = plotDataDisgust[4,])
+    geom_segment(aes(x = 0.74, y = 5.1, xend = 1.0, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 0.87, y =5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 0.74, y = 5.4, xend = 1.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.0, y = 5.45), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.1, xend = 2.0, yend = 5.1), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "**", x = 1.87, y = 5.15), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 5.4, xend = 2.26, yend = 5.4), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "**", x = 2.0, y = 5.45), size = plotFS/4, color = "gray20")
 }
 graphDisgust
 
@@ -1378,24 +1409,16 @@ graphArousal <- graphArousal + theme(plot.margin = unit(c(5,5,5,5), "mm"))
 graphAnger <- graphAnger + theme(plot.margin = unit(c(5,5,5,5), "mm"))
 graphDisgust <- graphDisgust + theme(plot.margin = unit(c(5,5,5,5), "mm"))
 
-# make a dummy graph to extract the legend
-dummyGraph <- ggplot(data = plotDataDisgust, aes(x = usGroup, y = mean, fill = CS)) +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
-  scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  theme(legend.title = element_blank())
-graphLegend <- get_legend(dummyGraph)
-
 # merging the subplots
-graphRatings <- ggarrange(graphUnpleas, graphArousal, graphLegend,
+graphRatings <- ggarrange(graphUnpleas, graphArousal,
                           graphAnger, graphDisgust,
-                          labels = c("A", "B", "", "C", "D"),
-                          ncol = 3, nrow = 2,
-                          widths = c(3,3,1))
+                          labels = c("A", "B", "C", "D"),
+                          ncol = 2, nrow = 2)
 
 
 
 # saving it
-ggsave(filename = paste0(pathname, "/supplement/FigureSupp_barplotOtherRatings.eps"),
+ggsave(filename = paste0(pathname, "/supplement/FigureSupp_plotOtherRatings.eps"),
        plot = graphRatings,
        width = 210,
        height = 180,
@@ -1403,7 +1426,7 @@ ggsave(filename = paste0(pathname, "/supplement/FigureSupp_barplotOtherRatings.e
        dpi = 300
 )
 
-ggsave(filename = paste0(pathname, "/supplement/FigureSupp_barplototherRatings.pdf"),
+ggsave(filename = paste0(pathname, "/supplement/FigureSupp_plotOtherRatings.pdf"),
        plot = graphRatings,
        device = "pdf",
        width = 210,
