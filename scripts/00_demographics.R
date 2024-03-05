@@ -23,7 +23,6 @@ library(here)
 ##################################
 
 # load rating data from text file
-# (see imaCond3_demogrphicsAndRatings_readme.txt for more details)
 pathname <- here()
 dfRatings <- read.csv(paste0(pathname, "/experimentData/imaCond3_demographicsAndRatings.txt"), sep=",")
 
@@ -38,3 +37,6 @@ table(dfRatings$gender, dfRatings$group)
 # frequencies for self-reported handedness across and separate for conditioning groups
 table(dfRatings$handedness)
 table(dfRatings$handedness, dfRatings$group)
+
+# Average BIS sensitivity scores, separate for gender
+describeBy(dfRatings$bis, group = dfRatings$gender)

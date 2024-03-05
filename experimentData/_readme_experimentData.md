@@ -16,6 +16,7 @@ partCode: alphanumeric participant ID
 gender: factor with 2 levels ("female", "male")
 age: age in years
 handedness: factor with 2 levels ("right", "left")
+bis: mean score from the BIS sensitivity scale (German translation by Strobel et al [2001] of the Carver & White BIS/BAS scales [1994]); scale range: 1 to 4
 group: conditioning group, 2 levels ("ima" = imagery-based conditioning group, "real" = classical conditioning group)
 cs_permut: values 1-3; permutation set for assignment of face stimulus to CS
 cue_permut: values 1-3; permutation set for assignment of geometric cues to imagery (-99: not assigned in class. cond. group)
