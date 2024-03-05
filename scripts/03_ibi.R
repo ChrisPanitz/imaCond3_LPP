@@ -350,6 +350,39 @@ save_as_docx(tableIBI, path = paste0(pathname, "/tables/tableIBI_raw.docx"))
 
 
 
+# additional t-test to follow-up on the main effect of CS Type that is significant
+# across but not within groups
+# CS+av vs CS+neu
+ibiAvNeu_t <- t.test(x = dataIBI$Av_allTr,
+                         y = dataIBI$Neu_allTr,
+                         alternative = "greater", paired = TRUE) # one-sided
+ibiAvNeu_d <- cohens_d(x = dataIBI$Av_allTr,
+                           y = dataIBI$Neu_allTr,
+                           paired = TRUE)
+ibiAvNeu_BF <- ttestBF(x = dataIBI$Av_allTr,
+                           y = dataIBI$Neu_allTr,
+                           nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+ibiAvMin_t <- t.test(x = dataIBI$Av_allTr,
+                         y = dataIBI$Min_allTr,
+                         alternative = "greater", paired = TRUE) # one-sided
+ibiAvMin_d <- cohens_d(x = dataIBI$Av_allTr,
+                           y = dataIBI$Min_allTr,
+                           paired = TRUE)
+ibiAvMin_BF <- ttestBF(x = dataIBI$Av_allTr,
+                           y = dataIBI$Min_allTr,
+                           nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+ibiNeuMin_t <- t.test(x = dataIBI$Neu_allTr,
+                          y = dataIBI$Min_allTr,
+                          alternative = "two.sided", paired = TRUE) # two-sided
+ibiNeuMin_d <- cohens_d(x = dataIBI$Neu_allTr,
+                            y = dataIBI$Min_allTr,
+                            paired = TRUE)
+ibiNeuMin_BF <- ttestBF(x = dataIBI$Neu_allTr,
+                            y = dataIBI$Min_allTr,
+                            nullInterval = NULL, paired = TRUE) # two-sided
+
 ####################
 ### Plotting IBI ###
 ####################
