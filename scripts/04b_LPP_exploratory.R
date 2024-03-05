@@ -111,7 +111,7 @@ for (partI in 1:length(importRatings$partCode)) {
   topoMatMIN[partI,] <- colMeans(tempData[SWOI[1]:SWOI[2],])
 }
 
-# create LPP data frame; LPP values are means from 300 to 700 s post-CS
+# create LPP data frame; LPP values are means from 400 to 1000 s post-CS
 dataLPP <- data.frame(
   partCode = factor(importRatings$partCode),
   partInd = factor(1:dim(importRatings)[1]),
@@ -509,7 +509,7 @@ graphLPPmeansIma <- ggplot(data = meanLPP[meanLPP$usGroup == "Imagery-Based",], 
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
   scale_x_discrete(name = " ", labels = csLabels, position = "bottom") +
-  scale_y_continuous(name = "Mean LPP amplitude (300-700 ms)", limits = c(0,14), breaks = c(0,5,10), expand = c(0,0)) +
+  scale_y_continuous(name = "Mean LPP amplitude (400-1000 ms)", limits = c(0,14), breaks = c(0,5,10), expand = c(0,0)) +
   coord_cartesian(ylim = c(0,12), clip = 'off') +
   theme(legend.position = "none",
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
@@ -526,7 +526,7 @@ graphLPPmeansReal <- ggplot(data = meanLPP[meanLPP$usGroup == "Classical",], aes
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
   geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
   scale_x_discrete(name = " ", labels = csLabels, position = "bottom") +
-  scale_y_continuous(name = "Mean LPP amplitude (300-700 ms)", limits = c(0,14), breaks = c(0,5,10), expand = c(0,0)) +
+  scale_y_continuous(name = "Mean LPP amplitude (400-1000 ms)", limits = c(0,14), breaks = c(0,5,10), expand = c(0,0)) +
   coord_cartesian(ylim = c(0,12), clip = 'off') +
   theme(legend.position = "none",
         plot.title = element_blank(),
