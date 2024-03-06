@@ -41,6 +41,7 @@ if(!is.element("stringr",installed.packages()[,1])) {install.packages("stringr")
 library(stringr) # 
 if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
 library(here) #
+library(ggbeeswarm)
 
 ########################
 ### data preparation ###
@@ -415,32 +416,35 @@ ibiGAacqReal <- data.frame(
               row.names = NULL)
 
 
-dataIBIWithin <- dataIBI[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
-# remove each participant's average from each single value
-dataIBIWithin[,3:5] <- as.matrix(dataIBIWithin[,3:5]) -
-  rowMeans(as.matrix(dataIBIWithin[,3:5])) 
-# prepare data frame for bar plot with means from standard dataset and SE from
-# dataset without betweem-subject variance
-meanIBI <- data.frame(
-  usGroup = factor(c(rep(1,3),rep(2,3)),
-                   labels = c("Imagery-Based","Classical")),
-  CS = factor(c(1,2,3,1,2,3),
-              labels = c("CS+\nav","CS+\nneu","CS-\n")),
-  mean = c(describe(dataIBI[dataIBI$usGroup == "ima", c(3,6,9)])$mean,
-           describe(dataIBI[dataIBI$usGroup == "real", c(3,6,9)])$mean),
-  se = c(describe(dataIBIWithin[dataIBIWithin$usGroup == "ima", 3:5])$se,
-         describe(dataIBIWithin[dataIBIWithin$usGroup == "real", 3:5])$se)
-)
 
+# compute difference values
+dataIBILongAll <- dataIBILong[dataIBILong$time == "allTr",]
+dataIBIdiffAvNeu <- aggregate(IBI ~ partInd + partInd + usGroup,
+                              data = dataIBILongAll[dataIBILongAll$CS == "Av" | dataIBILongAll$CS == "Neu",], FUN = "diff")
+dataIBIdiffAvMin <- aggregate(IBI ~ partInd + partInd + usGroup,
+                              data = dataIBILongAll[dataIBILongAll$CS == "Av" | dataIBILongAll$CS == "Min",], FUN = "diff")
+# dataIBIdiffNeuMin <- aggregate(IBI ~ partCode + partInd + usGroup,
+#                                data = dataIBILong[dataIBILong$CS == "Neu" | dataIBILong$CS == "Min",], FUN = "diff")
+
+#dataIBIdiff <- rbind(dataIBIdiffAvNeu, dataIBIdiffAvMin, dataIBIdiffNeuMin)
+dataIBIdiff <- rbind(dataIBIdiffAvNeu, dataIBIdiffAvMin)
+dataIBIdiff$IBI <- -dataIBIdiff$IBI
+
+#dataIBIdiff$comp <- factor(c(rep("AVvsNEU", 48), rep("AVvsMIN", 48), rep("NeuvsMIN", 48)), levels = c("AVvsNEU", "AVvsMIN", "NEUvsMIN"))
+dataIBIdiff$comp <- factor(c(rep("AVvsNEU", 48), rep("AVvsMIN", 48)),
+                           levels = c("AVvsNEU", "AVvsMIN"))
+
+#compLabels = c(expression(paste("CS+"[av], " - CS+"[neu])), expression(paste("\n","CS+"[av], " - CS-")), expression(paste("CS+"[neu], " - CS-")))
+compLabels = c(expression(paste("CS+"[av], " - CS+"[neu])), expression(paste("\n","CS+"[av], " - CS-")))
 
 
 # settings for plotting
 lineSize <- 1
 yMin <- -20
 yMax <- 42
-yMinBar <- -18
-yMaxBar <- 17
-plotFS <- 9
+yMinDiff <- -60
+yMaxDiff <- 80
+plotFS <- 8
 showSig <- TRUE
 
 # timecourse imaginary-based conditioning group
@@ -449,11 +453,16 @@ graphIBIima <- ggplot(data = ibiGAacqIma, aes(x = time, y = IBI, colour = csType
   geom_rect(xmin = 2, xmax = 5, ymin = yMin, ymax = yMax, fill = "gray90", colour = NA) +
   geom_line(aes(colour = csType), linewidth = lineSize) + 
   scale_x_continuous(breaks = seq(-1,7,1)) +
-  scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7), labels = csLabels) +
   lims(y = c(yMin, yMax)) +
   labs(x = "Time relative to CS onset (s)", y = "IBI change from baseline (ms)", fill = "", colour = "") +
   guides(colour = guide_legend(order = 1), fill = "none") +
-  theme(legend.position = "none",
+  theme(legend.position = c(.15,.9),
+        legend.direction = "vertical",
+        legend.text.align = 0,
+        legend.text = element_text(size = plotFS-2),
+        legend.key.size = unit(.5, "lines"),
+        legend.background = element_blank(),
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.title.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
         axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
@@ -466,74 +475,81 @@ graphIBIreal <- ggplot(data = ibiGAacqReal, aes(x = time, y = IBI, colour = csTy
   geom_rect(xmin = 2, xmax = 5, ymin = yMin, ymax = yMax, fill = "gray90", colour = NA) +
   geom_line(aes(colour = csType), linewidth = lineSize) + 
   scale_x_continuous(breaks = seq(-1,7,1)) +
-  scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7), labels = csLabels) +
   lims(y = c(yMin, yMax)) +
   labs(x = "Time relative to CS onset (s)", y = "IBI change from baseline (ms)", fill = "", colour = "") +
   guides(colour = guide_legend(order = 1), fill = "none") +
-  theme(legend.position = "none",
+  theme(legend.position = c(.15,.9),
+        legend.direction = "vertical",
+        legend.text.align = 0,
+        legend.text = element_text(size = plotFS-2),
+        legend.key.size = unit(.5, "lines"),
+        legend.background = element_blank(),
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.title.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
         axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"))
 
-# bar plot imaginary-based conditioning group
-graphIBImeansIma <- ggplot(data = meanIBI[meanIBI$usGroup == "Imagery-Based",], aes(x = CS, y = mean, fill = CS)) +
+# difference plots imaginary-based conditioning group
+graphIBIdiffIma <- ggplot(data = dataIBIdiff[dataIBIdiff$usGroup == "ima",], aes(x = comp, y = IBI)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+  geom_violin(alpha = .2, color = NA, fill = "gray50", bw = 5, width = 0.75) +
+  geom_quasirandom(size = .5, width = .10, color = "gray70") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .10) +
+  stat_summary(fun = "mean", geom = "crossbar", linewidth = .3, width = .25, color = "black") +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_x_discrete(name = " ", labels = csLabels, position = "bottom") +
-  scale_y_continuous(name = "Mean IBI change (2-5 s)", limits = c(yMinBar, yMaxBar)) +
+  scale_x_discrete(name = " ", labels = compLabels, position = "bottom") +
+  scale_y_continuous(name = "Difference in mean IBI change (2-5 s)", limits = c(yMinDiff, yMaxDiff+10)) +
   geom_hline(yintercept = 0) +
   theme(legend.position = "none",
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
         axis.line.x = element_blank(),
-        axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5), size = plotFS-2, color = "black"),
         axis.ticks.x = element_blank(),
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
         axis.ticks.y = element_line(colour = "black")); 
 
-# bar plot classical conditioning group
-graphIBImeansReal <- ggplot(data = meanIBI[meanIBI$usGroup == "Classical",], aes(x = CS, y = mean, fill = CS)) +
+# difference plots classical conditioning group
+graphIBIdiffReal <- ggplot(data = dataIBIdiff[dataIBIdiff$usGroup == "real",], aes(x = comp, y = IBI)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+  geom_violin(alpha = .2, color = NA, fill = "gray50", bw = 5, width = 0.75) +
+  geom_quasirandom(size = .5, width = .10, color = "gray70") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .10) +
+  stat_summary(fun = "mean", geom = "crossbar", linewidth = .3, width = .25, color = "black") +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_x_discrete(name = " ", labels = csLabels, position = "bottom") +
-  scale_y_continuous(name = "Mean IBI change (2-5 s)", limits = c(yMinBar, yMaxBar)) +
+  scale_x_discrete(name = " ", labels = compLabels, position = "bottom") +
+  scale_y_continuous(name = "Difference in mean IBI change (2-5 s)", limits = c(yMinDiff, yMaxDiff+10)) +
   geom_hline(yintercept = 0) +
   theme(legend.position = "none",
         plot.title = element_blank(),
         axis.line.x = element_blank(),
-        axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5), size = plotFS-2, color = "black"),
         axis.ticks.x = element_blank(),
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
         axis.ticks.y = element_line(colour = "black")); 
 
 if (showSig == TRUE){
-  graphIBImeansIma <- graphIBImeansIma +
-    geom_segment(aes(x = 1, y = mean-se-1.5, xend = 3, yend = mean-se-1.5), data = meanIBI[3,]) +
-    geom_text(aes(label = "†", x = 2, y = mean-se-3.5), size = plotFS/3, data = meanIBI[3,], family = "Helvetica")
-  graphIBImeansReal <- graphIBImeansReal +  
-    geom_segment(aes(x = 1, y = mean+se+4.5, xend = 3, yend = mean+se+4.5), data = meanIBI[4,]) +
-    geom_text(aes(label = "*", x = 2, y = mean+se+5.6), size = plotFS/2, data = meanIBI[4,])
+  graphIBIdiffIma <- graphIBIdiffIma +
+    geom_text(aes(label = "†", x = 2, y = yMaxDiff+7.5), size = plotFS/2, color = "darkred", family = "Helvetica")
+  graphIBIdiffReal <- graphIBIdiffReal +  
+    geom_text(aes(label = "*", x = 2, y = yMaxDiff+5), size = plotFS/1.5, color = "darkred")
 }
 
 ### combining graphs into one figure
 # adding margins
 graphIBIima <- graphIBIima + theme(plot.margin = unit(c(10,5,5,5), "mm"))
 graphIBIreal <- graphIBIreal + theme(plot.margin = unit(c(10,5,5,5), "mm"))
-graphIBImeansIma <- graphIBImeansIma + theme(plot.margin = unit(c(10,5,5,5), "mm"))
-graphIBImeansReal <- graphIBImeansReal + theme(plot.margin = unit(c(10,5,5,5), "mm"))
+graphIBIdiffIma <- graphIBIdiffIma + theme(plot.margin = unit(c(10,5,5,5), "mm"))
+graphIBIdiffReal <- graphIBIdiffReal + theme(plot.margin = unit(c(10,5,5,5), "mm"))
 
 # arrange panels
-graphIBIrow1 <- ggarrange(graphIBIima, graphIBImeansIma,
+graphIBIrow1 <- ggarrange(graphIBIima, graphIBIdiffIma,
                           ncol = 2, nrow = 1, 
                           widths = c(3,2))
-graphIBIrow2 <- ggarrange(graphIBIreal, graphIBImeansReal,
+graphIBIrow2 <- ggarrange(graphIBIreal, graphIBIdiffReal,
                           ncol = 2, nrow = 1, 
                           widths = c(3,2))
 graphIBI <- ggarrange(graphIBIrow1,graphIBIrow2,
@@ -545,14 +561,14 @@ graphIBI <- ggarrange(graphIBIrow1,graphIBIrow2,
 graphIBI
 
 # saving it
-ggsave(filename = paste0(pathname, "/figures/Figure4_timeCourses_barPlot_IBI.eps"),
+ggsave(filename = paste0(pathname, "/figures/Figure4_timeCourses_diffPlot_IBI.eps"),
        plot = graphIBI,
        width = 150,
        height = 150,
        units = "mm"
 )
 
-ggsave(filename = paste0(pathname, "/figures/Figure4_timeCourses_barPlot_IBI.pdf"),
+ggsave(filename = paste0(pathname, "/figures/Figure4_timeCourses_diffPlot_IBI.pdf"),
        plot = graphIBI,
        width = 150,
        height = 150,
