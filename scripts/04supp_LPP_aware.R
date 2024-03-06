@@ -47,7 +47,7 @@ if(!is.element("OneR",installed.packages()[,1])) {install.packages("OneR")}
 library(OneR) # 
 if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
 library(here) # 
-### CHANGE EEGUTILS !!! ###
+library(ggbeeswarm)
 
 ###################################
 ### Setting time window for LPP ###
@@ -58,7 +58,6 @@ sRate <- 1024 # sampling rate of EEG data (Hz)
 startSeg <- -200 # time of first data point relative to CS (in ms)
 TWOI <- c(300,700) # Time Window Of Interest (in ms)
 chanNames <- c("Pz")
-#chanInd <- 20 #31 # 31 = index of Pz in EEG array
 
 # computed
 # Sample Window Of Interest
@@ -71,7 +70,7 @@ SWOI <- c(round(TWOI[1]-startSeg*sRate/1000),round(TWOI[2]-startSeg*sRate/1000))
 ########################
 
 # Rating data contains group membership
-# (see imaCond3_allratings_readme.txt for more details)
+# (see imaCond3_demographicsAndRatings_readme.txt for more details)
 pathname <- here()
 importRatings <- read.csv(paste0(pathname, "/experimentData/imaCond3_demographicsAndRatings.txt"), sep=",")
 
@@ -707,18 +706,3 @@ graphLPP <- ggarrange(graphLPProw1,graphLPProw2,
                       )
 # plot
 graphLPP
-
-# saving it
-# ggsave(filename = paste0(pathname, "/figures/Figure5_timeCourse_barPlot_LPP.eps"),
-#        plot = graphLPP,
-#        width = 200,
-#        height = 150,
-#        units = "mm"
-# )
-# 
-# ggsave(filename = paste0(pathname, "/figures/Figure5_timeCourse_barPlot_LPP.pdf"),
-#        plot = graphLPP,
-#        width = 200,
-#        height = 150,
-#        units = "mm"
-# )
