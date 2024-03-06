@@ -41,6 +41,7 @@ if(!is.element("stringr",installed.packages()[,1])) {install.packages("stringr")
 library(stringr) # 
 if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
 library(here) #
+library(ggbeeswarm)
 
 ########################
 ### data preparation ###
@@ -360,60 +361,65 @@ save_as_docx(tableSCR, path = paste0(pathname, "/tables/tableSCR_raw.docx"))
 ####################
 ### Plotting SCR ###
 ####################
-
-csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-",
-             expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
-
-dataSCRWithin <- dataSCR[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
+# remove between-subject variance for plotting standard errors based on
+# within-subject variance
+dataSCRLongAll <- dataSCR[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
 # remove each participant's average from each single value
-dataSCRWithin[,3:5] <- as.matrix(dataSCRWithin[,3:5]) -
-  rowMeans(as.matrix(dataSCRWithin[,3:5])) 
-# prepare data frame for bar plot with means from standard dataset and SE from
-# dataset without betweem-subject variance
-meanSCR <- data.frame(
-  usGroup = factor(c(rep(1,3),rep(2,3)),
-                   labels = c("Imagery-Based","Classical")),
-  CS = factor(c(1,2,3,1,2,3),
-              labels = csLabels[1:3]),
-  mean = c(describe(dataSCR[dataSCR$usGroup == "ima", c(3,6,9)])$mean,
-           describe(dataSCR[dataSCR$usGroup == "real", c(3,6,9)])$mean),
-  se = c(describe(dataSCRWithin[dataSCRWithin$usGroup == "ima", 3:5])$se,
-         describe(dataSCRWithin[dataSCRWithin$usGroup == "real", 3:5])$se)
-)
+dataSCRLongAll[dataSCRLongAll$usGroup == "ima",6:8] <- as.matrix(dataSCRLongAll[dataSCRLongAll$usGroup == "ima",3:5]) -
+  rowMeans(as.matrix(dataSCRLongAll[dataSCRLongAll$usGroup == "ima",3:5])) + mean(as.matrix(dataSCRLongAll[dataSCRLongAll$usGroup == "ima",3:5]))
+dataSCRLongAll[dataSCRLongAll$usGroup == "real",6:8] <- as.matrix(dataSCRLongAll[dataSCRLongAll$usGroup == "real",3:5]) -
+  rowMeans(as.matrix(dataSCRLongAll[dataSCRLongAll$usGroup == "real",3:5])) + mean(as.matrix(dataSCRLongAll[dataSCRLongAll$usGroup == "real",3:5]))
+names(dataSCRLongAll) <- c("partInd","usGroup","Av_btw","Neu_btw","Min_btw","Av_wth","Neu_wth","Min_wth")
+# into long format
+dataSCRLongAll <- pivot_longer(data = dataSCRLongAll, cols = Av_btw:Min_wth,
+                                 names_to = c("CS","variance"), names_sep = "_", values_to = "scr")
+dataSCRLongAll <- pivot_wider(data = dataSCRLongAll, names_from = "variance", values_from = "scr")
+dataSCRLongAll$CS <- factor(dataSCRLongAll$CS, levels = c("Av","Neu","Min"))
+levels(dataSCRLongAll$usGroup) <- c("Imagery-based","Classical")
 
-
-
-plotFS <- 9
+# some general settings
+plotFS <- 8
 showSig <- TRUE
+csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
 
-graphSCR <- ggplot(data = meanSCR, aes(x = usGroup, y = mean, fill = CS)) +
+# plotting
+graphSCR <- ggplot(data = dataSCRLongAll, aes(x = usGroup, y = btw, fill = CS, color = CS)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
+  geom_violin(alpha = .2, color = NA, bw = .1, position = position_dodge(0.8), width = 0.75) +
+  geom_quasirandom(dodge.width = 0.8, size = .2, color = "gray70", width = 0.03) +
+  stat_summary(aes(y = wth), fun.data = mean_se, geom = "errorbar", position=position_dodge(0.8), width = 0.2, linewidth = 0.2) +
+  stat_summary(fun = mean, geom = "crossbar", position = position_dodge(0.8), width = 0.35, linewidth = 0.2) +
   scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_x_discrete(aes(breaks = usGroup), name = "") +
-  scale_y_continuous(name = "Mean SCR (normalized)") +
-  geom_hline(yintercept = 0) +
-  geom_text(aes(label = usGroup, y = .2), colour = "black", size = (plotFS/.pt)-.5, fontface = "bold") +
-  geom_text(aes(y = -0.01), label = csLabels, position = position_dodge(width = .9), colour = "black", size = (plotFS/.pt)-.5, fontface = "bold") + 
+  scale_color_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_y_continuous(name = "Mean SCR (normalized)", limits = c(-0.25, 0.6)) +
+  geom_hline(yintercept = -0.2) +
+  geom_text(x = 0.74, y = -0.25, label = csLabels[1], colour = "black", size = (plotFS-1)/.pt) +
+  geom_text(x = 1.0, y = -0.25, label = csLabels[2], colour = "black", size = (plotFS-1)/.pt) +
+  geom_text(x = 1.26, y = -0.25, label = csLabels[3], colour = "black", size = (plotFS-1)/.pt) +
+  geom_text(x = 1.74, y = -0.25, label = csLabels[1], colour = "black", size = (plotFS-1)/.pt) +
+  geom_text(x = 2.0, y = -0.25, label = csLabels[2], colour = "black", size = (plotFS-1)/.pt) +
+  geom_text(x = 2.26, y = -0.25, label = csLabels[3], colour = "black", size = (plotFS-1)/.pt) +
+  geom_text(aes(label = usGroup, y = .6), colour = "black", size = ((plotFS-2)/.pt), fontface = "bold") +
   theme(legend.position = "none",
         axis.line.x = element_blank(),
-        axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),        axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
         axis.ticks.y = element_line(colour = "black"),
         plot.margin = unit(c(5,5,5,5), "mm"))
 
 if (showSig == TRUE){
   graphSCR <- graphSCR +
-    geom_segment(aes(x = 1.7, y = mean+se+.005, xend = 2.0, yend = mean+se+.005), data = meanSCR[4,]) +
-    geom_text(aes(label = "***", x = 1.85, y = mean+se+.01), size = plotFS/2, data = meanSCR[4,]) +
-    geom_segment(aes(x = 1.7, y = mean+se+.02, xend = 2.3, yend = mean+se+.02), data = meanSCR[4,]) +
-    geom_text(aes(label = "***", x = 2.0, y = mean+se+.025), size = plotFS/2, data = meanSCR[4,])
+    geom_segment(aes(x = 1.74, y = 0.46, xend = 2.0, yend = 0.46), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 1.87, y = 0.465), size = plotFS/4, color = "gray20") +
+    geom_segment(aes(x = 1.74, y = 0.50, xend = 2.26, yend = 0.50), linewidth = 0.2, color = "gray20") +
+    geom_text(aes(label = "***", x = 2.0, y = 0.505), size = plotFS/4, color = "gray20")
 }
 graphSCR
 
 # saving it
-ggsave(filename = "Figures/Figure3_barPlot_SCR.eps",
+ggsave(filename = "Figures/Figure3_plotSCR.eps",
        plot = graphSCR,
        width = 100,
        height = 70,
@@ -421,7 +427,7 @@ ggsave(filename = "Figures/Figure3_barPlot_SCR.eps",
        dpi = 300
 )
 
-ggsave(filename = "Figures/Figure3_barPlot_SCR.pdf",
+ggsave(filename = "Figures/Figure3_plotSCR.pdf",
        plot = graphSCR,
        width = 100,
        height = 70,
