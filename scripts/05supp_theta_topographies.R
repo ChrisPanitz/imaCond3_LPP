@@ -2,8 +2,8 @@
 # --- encoding: en_US.UTF-8
 # --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
 # --- RStudio version: 2023.06.0
-# --- script version: Feb 2024
-# --- content: supplementary theta analyses - plot topographies
+# --- script version: Mar 2024
+# --- content: Plotting topographies for frontomedial Theta (across CS and pairwise comparisons within experimental groups)
 
 ###################
 ### preparing R ###
@@ -22,7 +22,6 @@ library(eegUtils) # ver. 0.7.0
 ########################
 
 # load rating data from text file
-# (see realCond3_allratings_readme.txt for more details)
 pathname <- here()
 importRatings <- read.csv(paste0(pathname, "/experimentData/imaCond3_demographicsAndRatings.txt"), sep=",")
 

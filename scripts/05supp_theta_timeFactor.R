@@ -2,8 +2,8 @@
 # --- encoding: en_US.UTF-8
 # --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
 # --- RStudio version: 2023.06.0
-# --- script version: Feb 2024
-# --- content: supplementary frontal theta analyses with factor Time
+# --- script version: Mar 2024
+# --- content: Supplementary analyses on frontomedial Theta, including factor "Time"
 
 ###################
 ### preparing R ###
@@ -19,8 +19,10 @@ library(psych) # ver. 2.3.9
 library(effectsize) # ver. 0.8.6
 library(ez) # ver. 4.4-0
 library(BayesFactor) # ver. 0.9.12-4.5
-library(bayestestR) # 0.13.1
-library(stringr) # ver. 1.5.0
+library(bayestestR) # ver. 0.13.1
+library(ggplot2) # ver. 3.4.2
+library(flextable) # ver. 0.9.4
+library(stringr) #  ver. 1.5.0
 library(here) # ver. 1.0.1
 
 

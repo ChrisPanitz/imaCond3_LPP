@@ -2,8 +2,8 @@
 # --- encoding: en_US.UTF-8
 # --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
 # --- RStudio version: 2023.06.0
-# --- script version: Feb 2024
-# --- content: supplementary frontal theta analyses
+# --- script version: Mar 2024
+# --- content: Supplementary analyses on frontomedial Theta, parallel to main analyses (ANOVAs, pairwise comparisons, plotting)
 
 ###################
 ### preparing R ###
@@ -22,6 +22,7 @@ library(BayesFactor) # ver. 0.9.12-4.5
 library(bayestestR) # 0.13.1
 library(stringr) # ver. 1.5.0
 library(here) # ver. 1.0.1
+library(ggplot2) # ver. 3.4.2
 
 
 ########################
@@ -29,7 +30,6 @@ library(here) # ver. 1.0.1
 ########################
 
 # load rating data from text file
-# (see realCond3_allratings_readme.txt for more details)
 pathname <- here()
 importRatings <- read.csv(paste0(pathname, "/experimentData/imaCond3_demographicsAndRatings.txt"), sep=",")
 
@@ -326,4 +326,4 @@ tableThetaBoth <- data.frame(
   testDir = rep("two.sided",3)
 )
 tableThetaBoth$p[tableThetaBoth$p > 1] <- 1
-capture.output(tableThetaBoth, file = paste0(pathname, "/supplement/03s_theta_acrossGroups_tTable.doc"))
+capture.output(tableThetaBoth, file = paste0(pathname, "/supplement/05s_theta_acrossGroups_tTable.doc"))

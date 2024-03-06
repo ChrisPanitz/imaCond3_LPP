@@ -1,9 +1,9 @@
 # --- author: Christian Panitz
 # --- encoding: en_US.UTF-8
-# --- R version: 4.0.3 (2020-10-10) -- "Bunny-Wunnies Freak Out"
-# --- RStudio version: 1.3.1093
-# --- script version: Feb 2022
-# --- content: LPP analyses of imagery-based conditioning data in Panitz & Mueller (2022)
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Mar 2024
+# --- content: Supplementary analyses on LPP: repeat main analyses in contingency-aware participants
 
 ###################
 ### preparing R ###
@@ -13,41 +13,25 @@
 # created with [set.seed(NULL)] and [sample(2^31 - 1, 1)] 
 rngSeed <- 814677222
 
-# (installing and) loading required packages
-# will install newest package version, not necessarily the version originally used!
-if(!is.element("tidyr",installed.packages()[,1])) {install.packages("tidyr")}
-library(tidyr) # ver. 1.1.2
-if(!is.element("psych",installed.packages()[,1])) {install.packages("psych")}
-library(psych) # ver. 2.0.9
-if(!is.element("effectsize",installed.packages()[,1])) {install.packages("effectsize")}
-library(effectsize) # ver. 2.0.9
-if(!is.element("ez",installed.packages()[,1])) {install.packages("ez")}
+# loading required packages
+library(tidyr) # ver. 1.3.0
+library(psych) # ver. 2.3.9
+library(effectsize) # ver. 0.8.6
 library(ez) # ver. 4.4-0
-if(!is.element("BayesFactor",installed.packages()[,1])) {install.packages("BayesFactor")}
-library(BayesFactor) # ver. 2.0.9
-if(!is.element("bayestestR",installed.packages()[,1])) {install.packages("BayesFactor")}
-library(bayestestR) #
-if(!is.element("ggplot2",installed.packages()[,1])) {install.packages("ggplot2")}
-library(ggplot2) # ver. 3.3.2
-if(!is.element("scico",installed.packages()[,1])) {install.packages("scico")}
-library(scico) # ver. 1.2.0
-if(!is.element("scales",installed.packages()[,1])) {install.packages("scales")}
-library(scales) # 
-if(!is.element("ggpubr",installed.packages()[,1])) {install.packages("ggpubr")}
-library(ggpubr) # 
-if(!is.element("flextable",installed.packages()[,1])) {install.packages("flextable")}
-library(flextable) # 
-if(!is.element("stringr",installed.packages()[,1])) {install.packages("stringr")}
-library(stringr) # 
-if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
-library(here) # 
-if(!is.element("eegUtils",installed.packages()[,1])) {install.packages("eegUtils")}
-library(eegUtils) # 
-if(!is.element("OneR",installed.packages()[,1])) {install.packages("OneR")}
-library(OneR) # 
-if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
-library(here) # 
-library(ggbeeswarm)
+library(BayesFactor) # ver. 0.9.12-4.5
+library(bayestestR) # ver. 0.13.1
+library(ggplot2) # ver. 3.4.2
+library(scico) # ver. 1.5.0
+library(scales) #  ver. 1.2.1
+library(ggpubr) #  ver. 0.6.0
+library(flextable) # ver. 0.9.4
+library(stringr) #  ver. 1.5.0
+library(here) # ver. 1.0.1
+library(ggbeeswarm) # ver. 0.7.2
+library(eegUtils) # ver. 0.7.0
+library(OneR) # ver. 2.2
+
+
 
 ###################################
 ### Setting time window for LPP ###
@@ -70,7 +54,6 @@ SWOI <- c(round(TWOI[1]-startSeg*sRate/1000),round(TWOI[2]-startSeg*sRate/1000))
 ########################
 
 # Rating data contains group membership
-# (see imaCond3_demographicsAndRatings_readme.txt for more details)
 pathname <- here()
 importRatings <- read.csv(paste0(pathname, "/experimentData/imaCond3_demographicsAndRatings.txt"), sep=",")
 
@@ -410,15 +393,15 @@ save_as_docx(tableLPP, path = paste0(pathname, "/supplement/04s_tableLPP_aware_r
 
 csLabels = c(expression(paste("CS+"[av])), expression(paste("CS+"[neu])), "CS-")
 lppAv4GA <- erpMatAV
-  lppAv4GAima <- erpMatAV[importRatings$group == "ima",]
-  lppAv4GAreal <- erpMatAV[importRatings$group == "real",]
+lppAv4GAima <- erpMatAV[importRatings$group == "ima",]
+lppAv4GAreal <- erpMatAV[importRatings$group == "real",]
 lppNeu4GA <- erpMatNEU
-  lppNeu4GAima <- erpMatNEU[importRatings$group == "ima",]
-  lppNeu4GAreal <- erpMatNEU[importRatings$group == "real",]
+lppNeu4GAima <- erpMatNEU[importRatings$group == "ima",]
+lppNeu4GAreal <- erpMatNEU[importRatings$group == "real",]
 lppMin4GA <- erpMatMIN
-  lppMin4GAima <- erpMatMIN[importRatings$group == "ima",]
-  lppMin4GAreal <- erpMatMIN[importRatings$group == "real",]
-  
+lppMin4GAima <- erpMatMIN[importRatings$group == "ima",]
+lppMin4GAreal <- erpMatMIN[importRatings$group == "real",]
+
 lppGA <- data.frame(
   csType = factor(c(rep(1,dim(lppAv4GA)[2]), rep(2,dim(lppAv4GA)[2]), rep(3,dim(lppAv4GA)[2])), labels = csLabels),
   time = rep(seq(startSeg,startSeg+(dim(lppAv4GA)[2]-1)*1000/sRate,1000/sRate),3),
@@ -442,30 +425,30 @@ lppGAreal <- data.frame(
   row.names = NULL)
 
 
-dataLPPWithin <- dataLPP[,c("partInd","usGroup","Av_allTr","Neu_allTr","Min_allTr")]
-# remove each participant's average from each single value
-dataLPPWithin[,3:5] <- as.matrix(dataLPPWithin[,3:5]) -
-  rowMeans(as.matrix(dataLPPWithin[,3:5])) 
-# prepare data frame for bar plot with means from standard dataset and SE from
-# dataset without between-subject variance
-meanLPP <- data.frame(
-  usGroup = factor(c(rep(1,3),rep(2,3)),
-                   labels = c("Imagery-Based","Classical")),
-  CS = factor(c(1,2,3,1,2,3),
-              labels = c("CS+\nav","CS+\nneu","CS-\n")),
-  mean = c(describe(dataLPP[dataLPP$usGroup == "ima", c(4,5,6)])$mean,
-           describe(dataLPP[dataLPP$usGroup == "real", c(4,5,6)])$mean),
-  se = c(describe(dataLPPWithin[dataLPPWithin$usGroup == "ima", 3:5])$se,
-         describe(dataLPPWithin[dataLPPWithin$usGroup == "real", 3:5])$se)
-)
 
+
+# compute difference values
+dataLPPdiff <- dataLPPLong
+dataLPPdiffAvNeu <- aggregate(LPP ~ partCode + partInd + usGroup, data = dataLPPLong[dataLPPLong$CS == "Av" | dataLPPLong$CS == "Neu",], FUN = "diff")
+dataLPPdiffAvMin <- aggregate(LPP ~ partCode + partInd + usGroup, data = dataLPPLong[dataLPPLong$CS == "Av" | dataLPPLong$CS == "Min",], FUN = "diff")
+#dataLPPdiffNeuMin <- aggregate(LPP ~ partCode + partInd + usGroup, data = dataLPPLong[dataLPPLong$CS == "Neu" | dataLPPLong$CS == "Min",], FUN = "diff")
+
+#dataLPPdiff <- rbind(dataLPPdiffAvNeu, dataLPPdiffAvMin, dataLPPdiffNeuMin)
+dataLPPdiff <- rbind(dataLPPdiffAvNeu, dataLPPdiffAvMin)
+dataLPPdiff$LPP <- -dataLPPdiff$LPP
+
+#dataLPPdiff$comp <- factor(c(rep("AVvsNEU", 44), rep("AVvsMIN", 44), rep("NeuvsMIN", 44)), levels = c("AVvsNEU", "AVvsMIN", "NEUvsMIN"))
+dataLPPdiff$comp <- factor(c(rep("AVvsNEU", 44), rep("AVvsMIN", 44)), levels = c("AVvsNEU", "AVvsMIN"))
+
+#compLabels = c(expression(paste("CS+"[av], " - CS+"[neu])), expression(paste("\n","CS+"[av], " - CS-")), expression(paste("CS+"[neu], " - CS-")))
+compLabels = c(expression(paste("CS+"[av], " - CS+"[neu])), expression(paste("\n","CS+"[av], " - CS-")))
 
 
 # settings for plotting
 lineSize = 1
 yMin = -5
 yMax = 12
-plotFS <- 9
+plotFS <- 8
 showSig <- TRUE
 
 
@@ -475,17 +458,20 @@ graphLPPima <- ggplot(data = lppGAima, aes(x = time, y = LPP, colour = csType)) 
   geom_rect(xmin = TWOI[1], xmax = TWOI[2], ymin = yMin, ymax = yMax, fill = "gray90", colour = NA) +
   geom_line(aes(colour = csType), linewidth = lineSize) + 
   scale_x_continuous(breaks = seq(-200,1000,200)) +
-  scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7), labels = csLabels) +
   lims(y = c(yMin, yMax)) +
   labs(title = "Imagery-Based Conditioning", x = "Time (ms)", y = expression(paste("ERP amplitude at Pz ", (µV))), fill = "", colour = "") +
-  guides(colour = guide_legend(order = 1), fill = FALSE) +
-  theme(
-    legend.position = "none",
-    plot.title = element_blank(),
-    axis.title.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
-    axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
-    axis.title.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
-    axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"))
+  guides(colour = guide_legend(order = 1), fill = "none") +
+  theme(legend.position = c(.85,.2),
+        legend.direction = "vertical",
+        legend.text.align = 0,
+        legend.text = element_text(size = plotFS-2),
+        legend.key.size = unit(.5, "lines"),
+        plot.title = element_blank(),
+        axis.title.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        axis.title.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
+        axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"))
 
 # ERP at PZ for classical conditioning group
 graphLPPreal <- ggplot(data = lppGAreal, aes(x = time, y = LPP, colour = csType)) + 
@@ -493,64 +479,66 @@ graphLPPreal <- ggplot(data = lppGAreal, aes(x = time, y = LPP, colour = csType)
   geom_rect(xmin = TWOI[1], xmax = TWOI[2], ymin = yMin, ymax = yMax, fill = "gray90", colour = NA) +
   geom_line(aes(colour = csType), linewidth = lineSize) + 
   scale_x_continuous(breaks = seq(-200,1000,200)) +
-  scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
+  scale_colour_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7), labels = csLabels) +
   lims(y = c(yMin, yMax)) +
   labs(title = "Classical Conditioning", x = "Time (ms)", y = expression(paste("ERP amplitude at Pz ", (µV))), fill = "", colour = "") +
-  guides(colour = guide_legend(order = 1), fill = FALSE) +
-  theme(
-    legend.position = "none",
-    plot.title = element_blank(),
-    axis.title.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
-    axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
-    axis.title.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
-    axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"))
+  guides(colour = guide_legend(order = 1), fill = "none") +
+  theme(legend.position = c(.85,.2),
+        legend.direction = "vertical",
+        legend.text.align = 0,
+        legend.text = element_text(size = plotFS-2),
+        legend.key.size = unit(.5, "lines"),
+        plot.title = element_blank(),
+        axis.title.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        axis.title.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
+        axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"))
 
-# bar plot for imagery-based conditioning group
-graphLPPmeansIma <- ggplot(data = meanLPP[meanLPP$usGroup == "Imagery-Based",], aes(x = CS, y = mean, fill = CS)) +
+# difference plots for imagery-based conditioning group
+graphLPPdiffIma <- ggplot(data = dataLPPdiff[dataLPPdiff$usGroup == "ima",], aes(x = comp, y = LPP)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
-  scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_x_discrete(name = " ", labels = csLabels, position = "bottom") +
-  scale_y_continuous(name = "Mean LPP amplitude (300-700 ms)", limits = c(0,14), breaks = c(0,5,10), expand = c(0,0)) +
-  coord_cartesian(ylim = c(0,12), clip = 'off') +
+  geom_violin(alpha = .2, color = NA, fill = "gray50", bw = 1, width = 0.75) +
+  geom_quasirandom(size = .5, width = .10, color = "gray70") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .10) +
+  stat_summary(aes(x = comp, y = LPP), fun = "mean", geom = "crossbar", linewidth = .3, width = .25, color = "black") +
+  geom_hline(yintercept = 0) +
+  scale_x_discrete(name = " ", labels = compLabels, position = "bottom") +
+  scale_y_continuous(name = "Difference in mean LPP amplitude (300-700 ms)", limits = c(-10.5,14), breaks = seq(-10,10,5), expand = c(0,0)) +
   theme(legend.position = "none",
         plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
-        axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        axis.text.x = element_text(margin = margin(t = 5), size = plotFS-2, color = "black"),
         axis.ticks.x = element_blank(),
+        axis.line.x = element_blank(),
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
-        axis.ticks.y = element_line(colour = "black")); 
+        axis.ticks.y = element_line(colour = "black"))
 
-# bar plot for classical conditioning group
-graphLPPmeansReal <- ggplot(data = meanLPP[meanLPP$usGroup == "Classical",], aes(x = CS, y = mean, fill = CS)) +
+# difference plots for classical conditioning group
+graphLPPdiffReal <- ggplot(data = dataLPPdiff[dataLPPdiff$usGroup == "real",], aes(x = comp, y = LPP)) +
   theme_classic() +
-  geom_col(aes(fill = CS), position = position_dodge(width = .9)) +
-  scale_fill_discrete(type = scico(n = 3, palette = "davos", begin = .1, end = .7)) +
-  geom_errorbar(aes(ymin = mean-se, ymax = mean+se, width = .1), position = position_dodge(width = .9)) +
-  scale_x_discrete(name = " ", labels = csLabels, position = "bottom") +
-  scale_y_continuous(name = "Mean LPP amplitude (300-700 ms)", limits = c(0,14), breaks = c(0,5,10), expand = c(0,0)) +
-  coord_cartesian(ylim = c(0,12), clip = 'off') +
+  geom_violin(alpha = .2, color = NA, fill = "gray50", bw = 1, width = 0.75) +
+  geom_quasirandom(size = .5, width = .10, color = "gray70") +
+  stat_summary(fun.data = mean_se, geom = "errorbar", width = .10) +
+  stat_summary(aes(x = comp, y = LPP), fun = "mean", geom = "crossbar", linewidth = .3, width = .25, color = "black") +
+  geom_hline(yintercept = 0) +
+  scale_x_discrete(name = " ", labels = compLabels, position = "bottom") +
+  scale_y_continuous(name = "Difference in mean LPP amplitude (300-700 ms)", limits = c(-10.5,14), breaks = seq(-10,10,5), expand = c(0,0)) +
   theme(legend.position = "none",
-        plot.title = element_blank(),
-        axis.text.x = element_text(margin = margin(t = 5), size = plotFS, color = "black"),
+        plot.title = element_text(size = plotFS, color = "black", face = "bold", hjust = .5),
+        axis.text.x = element_text(margin = margin(t = 5), size = plotFS-2, color = "black"),
         axis.ticks.x = element_blank(),
+        axis.line.x = element_blank(),
         axis.title.y = element_text(margin = margin(r = 5), size = plotFS),
         axis.text.y = element_text(margin = margin(r = 5), size = plotFS, color = "black"),
-        axis.ticks.y = element_line(colour = "black")); 
+        axis.ticks.y = element_line(colour = "black"))
 
 if (showSig == TRUE){
-  graphLPPmeansIma <- graphLPPmeansIma +
-    geom_segment(aes(x = 1, y = mean+se+.5, xend = 2, yend = mean+se+.5), data = meanLPP[1,]) +
-    geom_text(aes(label = "†", x = 1.5, y = mean+se+1), size = plotFS/4, data = meanLPP[1,], family = "Helvetica") +
-    geom_segment(aes(x = 1, y = mean+se+1.5, xend = 3, yend = mean+se+1.5), data = meanLPP[1,]) +
-    geom_text(aes(label = "*", x = 2, y = mean+se+1.6), size = plotFS/2, data = meanLPP[1,])
-  graphLPPmeansReal <- graphLPPmeansReal +  
-    geom_segment(aes(x = 1, y = mean+se+.5, xend = 2, yend = mean+se+.5), data = meanLPP[4,]) +
-    geom_text(aes(label = "*", x = 1.5, y = mean+se+.6), size = plotFS/2, data = meanLPP[4,])
+  graphLPPdiffIma <- graphLPPdiffIma +
+    geom_text(aes(label = "†", x = 1, y = 13.5), size = plotFS/2, color = "darkred", family = "Helvetica") +
+    geom_text(aes(label = "*", x = 2, y = 12.75), size = plotFS/1.5, color = "darkred")
+  graphLPPdiffReal <- graphLPPdiffReal +  
+    geom_text(aes(label = "*", x = 1, y = 12.75), size = plotFS/1.5, color = "darkred")
 }
-
-
 
 
 
@@ -687,22 +675,22 @@ topoReal$data$fill <- topoFillVec[(length(topoFillVec)/2+1) : length(topoFillVec
 # add margins
 graphLPPima <- graphLPPima + theme(plot.margin = unit(c(10,5,5,5), "mm"))
 graphLPPreal <- graphLPPreal + theme(plot.margin = unit(c(10,5,5,5), "mm"))
-graphLPPmeansIma <- graphLPPmeansIma + theme(plot.margin = unit(c(10,2.5,5,7.5), "mm"))
-graphLPPmeansReal <- graphLPPmeansReal + theme(plot.margin = unit(c(10,2.5,5,7.5), "mm"))
+graphLPPdiffIma <- graphLPPdiffIma + theme(plot.margin = unit(c(10,2.5,5,7.5), "mm"))
+graphLPPdiffReal <- graphLPPdiffReal + theme(plot.margin = unit(c(10,2.5,5,7.5), "mm"))
 topoIma <- topoIma + theme(plot.margin = unit(c(10,5,2.6,5), "mm"))
 topoReal <- topoReal + theme(plot.margin = unit(c(10,5,2.6,5), "mm"))
 
 # create panels and merge them
-graphLPProw1 <- ggarrange(graphLPPima, graphLPPmeansIma, topoIma,
+graphLPProw1 <- ggarrange(graphLPPima, graphLPPdiffIma, topoIma,
                           ncol = 3, nrow = 1, 
                           widths = c(3,2,2))
-graphLPProw2 <- ggarrange(graphLPPreal, graphLPPmeansReal, topoReal,
+graphLPProw2 <- ggarrange(graphLPPreal, graphLPPdiffReal, topoReal,
                           ncol = 3, nrow = 1, 
                           widths = c(3,2,2))
 graphLPP <- ggarrange(graphLPProw1,graphLPProw2,
                       ncol = 1, nrow = 2,
                       labels = c("A) Imagery-Based Conditioning", "B) Classical Conditioning"),
                       hjust = -.05
-                      )
+)
 # plot
 graphLPP

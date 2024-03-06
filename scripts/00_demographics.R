@@ -1,20 +1,17 @@
 # --- author: Christian Panitz
 # --- encoding: en_US.UTF-8
-# --- R version: 4.0.3 (2020-10-10) -- "Bunny-Wunnies Freak Out"
-# --- RStudio version: 1.3.1093
-# --- script version: Jan 2023
-# --- content: demographics (age, gender, & handedness)
+# --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
+# --- RStudio version: 2023.06.0
+# --- script version: Mar 2024
+# --- content: demographics (age, gender, handedness, BIS sensitivity)
 
 ################
 ### packages ###
 ################
 
-# (installing and) loading required packages
-# will install newest package version, not necessarily the version originally used!
-if(!is.element("psych",installed.packages()[,1])) {install.packages("psych")}
-library(psych)
-if(!is.element("here",installed.packages()[,1])) {install.packages("here")}
-library(here)
+# loading required packages
+library(psych) # ver. 2.3.9
+library(here) # ver. 1.0.1
 
 
 
