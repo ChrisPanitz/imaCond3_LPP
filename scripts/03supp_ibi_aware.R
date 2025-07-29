@@ -2,7 +2,7 @@
 # --- encoding: en_US.UTF-8
 # --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
 # --- RStudio version: 2023.06.0
-# --- script version: Mar 2024
+# --- script version: Jul 2025
 # --- content: Supplementary analyses on IBI: repeat main analyses in contingency-aware participants
 
 ###################
@@ -67,6 +67,139 @@ dataIBILong <- gather(data = dataIBI, key = "cond", value = "IBI", Av_allTr:Min_
 dataIBILong <- separate(data = dataIBILong, col = cond, into = c("CS","time"), sep = "_")
 dataIBILong$CS <- factor(dataIBILong$CS)
 dataIBILong$time <- factor(dataIBILong$time)
+
+
+
+########################################
+### Across groups - primary analyses ###
+########################################
+
+# descriptive statistics for IBI across conditioning groups
+describe(dataIBI)
+
+# frequentist ANOVA on IBI across conditioning groups
+anovaIBI <- ezANOVA(
+  data = dataIBILong[dataIBILong$time == "allTr",],
+  dv = IBI,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  type = 3,
+  detailed = TRUE
+); anovaIBI$ANOVA$pEtaSq <- c(anovaIBI$ANOVA$SSn[1] /
+                                (anovaIBI$ANOVA$SSd[1]+anovaIBI$ANOVA$SSn[1]),
+                              anovaIBI$ANOVA$SSn[2] /
+                                (anovaIBI$ANOVA$SSd[2]+anovaIBI$ANOVA$SSn[2]),
+                              anovaIBI$ANOVA$SSn[3] /
+                                (anovaIBI$ANOVA$SSd[3]+anovaIBI$ANOVA$SSn[3]),
+                              anovaIBI$ANOVA$SSn[4] /
+                                (anovaIBI$ANOVA$SSd[4]+anovaIBI$ANOVA$SSn[4])
+); print(anovaIBI)
+
+# bayesian ANOVA on IBI across conditioning groups
+set.seed(rngSeed); anovaBFIBI <- anovaBF(
+  formula = IBI ~ usGroup*CS + partInd,
+  data = dataIBILong[dataIBILong$time == "allTr",],
+  whichRandom = "partInd",
+  whichModels = "all",
+  iterations = 100000
+); print(anovaBFIBI)
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFIBI)
+
+# quick graph of group x CS ANOVA on IBI
+ezPlot(
+  data = dataIBILong[dataIBILong$time == "allTr",],
+  dv = IBI,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  x = CS,
+  split = usGroup
+)  
+
+# frequentist & bayesian t-tests on IBI across conditioning groups
+# CS+av vs CS+neu
+ibiAcrossAvNeu_t <- t.test(x = dataIBI$Av_allTr,
+                           y = dataIBI$Neu_allTr,
+                           alternative = "greater", paired = TRUE) # one-sided
+ibiAcrossAvNeu_d <- cohens_d(x = dataIBI$Av_allTr,
+                             y = dataIBI$Neu_allTr,
+                             paired = TRUE)
+ibiAcrossAvNeu_BF <- ttestBF(x = dataIBI$Av_allTr,
+                             y = dataIBI$Neu_allTr,
+                             nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+ibiAcrossAvMin_t <- t.test(x = dataIBI$Av_allTr,
+                           y = dataIBI$Min_allTr,
+                           alternative = "greater", paired = TRUE) # one-sided
+ibiAcrossAvMin_d <- cohens_d(x = dataIBI$Av_allTr,
+                             y = dataIBI$Min_allTr,
+                             paired = TRUE)
+ibiAcrossAvMin_BF <- ttestBF(x = dataIBI$Av_allTr,
+                             y = dataIBI$Min_allTr,
+                             nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+ibiAcrossNeuMin_t <- t.test(x = dataIBI$Neu_allTr,
+                            y = dataIBI$Min_allTr,
+                            alternative = "two.sided", paired = TRUE) # two-sided
+ibiAcrossNeuMin_d <- cohens_d(x = dataIBI$Neu_allTr,
+                              y = dataIBI$Min_allTr,
+                              paired = TRUE)
+ibiAcrossNeuMin_BF <- ttestBF(x = dataIBI$Neu_allTr,
+                              y = dataIBI$Min_allTr,
+                              nullInterval = NULL, paired = TRUE) # two-sided
+
+# frequentist & bayesian t-tests on IBI (difference scores) between groups
+# delta [CS+av - CS+neu]
+ibiBetweenAvNeu_t <- t.test(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
+                              dataIBI$Neu_allTr[dataIBI$usGroup == "real"],
+                            y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
+                              dataIBI$Neu_allTr[dataIBI$usGroup == "ima"],
+                            alternative = "two.sided", paired = FALSE) # two-sided
+ibiBetweenAvNeu_d <- cohens_d(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
+                                dataIBI$Neu_allTr[dataIBI$usGroup == "real"],
+                              y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
+                                dataIBI$Neu_allTr[dataIBI$usGroup == "ima"],
+                              paired = FALSE)
+ibiBetweenAvNeu_BF <- ttestBF(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
+                                dataIBI$Neu_allTr[dataIBI$usGroup == "real"],
+                              y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
+                                dataIBI$Neu_allTr[dataIBI$usGroup == "ima"],
+                              nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+ibiBetweenAvMin_t <- t.test(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
+                              dataIBI$Min_allTr[dataIBI$usGroup == "real"],
+                            y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
+                              dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
+                            alternative = "two.sided", paired = FALSE) # two-sided
+ibiBetweenAvMin_d <- cohens_d(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
+                                dataIBI$Min_allTr[dataIBI$usGroup == "real"],
+                              y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
+                                dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
+                              paired = FALSE)
+ibiBetweenAvMin_BF <- ttestBF(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
+                                dataIBI$Min_allTr[dataIBI$usGroup == "real"],
+                              y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
+                                dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
+                              nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+ibiBetweenNeuMin_t <- t.test(x = dataIBI$Neu_allTr[dataIBI$usGroup == "real"] -
+                               dataIBI$Min_allTr[dataIBI$usGroup == "real"],
+                             y = dataIBI$Neu_allTr[dataIBI$usGroup == "ima"] -
+                               dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
+                             alternative = "two.sided", paired = FALSE) # two-sided
+ibiBetweenNeuMin_d <- cohens_d(x = dataIBI$Neu_allTr[dataIBI$usGroup == "real"] -
+                                 dataIBI$Min_allTr[dataIBI$usGroup == "real"],
+                               y = dataIBI$Neu_allTr[dataIBI$usGroup == "ima"] -
+                                 dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
+                               paired = FALSE)
+ibiBetweenNeuMin_BF <- ttestBF(x = dataIBI$Neu_allTr[dataIBI$usGroup == "real"] -
+                                 dataIBI$Min_allTr[dataIBI$usGroup == "real"],
+                               y = dataIBI$Neu_allTr[dataIBI$usGroup == "ima"] -
+                                 dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
+                               nullInterval = NULL, paired = FALSE) # two-sided
 
 
 
@@ -196,130 +329,35 @@ ibiRealNeuMin_BF <- ttestBF(x = dataIBI$Neu_allTr[dataIBI$usGroup == "real"],
 
 
 
-########################################
-### Across groups - primary analyses ###
-########################################
-
-# descriptive statistics for IBI ratings across conditioning groups
-describe(dataIBI)
-
-# frequentist ANOVA on IBI across conditioning groups
-anovaIBI <- ezANOVA(
-  data = dataIBILong[dataIBILong$time == "allTr",],
-  dv = IBI,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  type = 3,
-  detailed = TRUE
-); anovaIBI$ANOVA$pEtaSq <- c(anovaIBI$ANOVA$SSn[1] /
-                                (anovaIBI$ANOVA$SSd[1]+anovaIBI$ANOVA$SSn[1]),
-                              anovaIBI$ANOVA$SSn[2] /
-                                (anovaIBI$ANOVA$SSd[2]+anovaIBI$ANOVA$SSn[2]),
-                              anovaIBI$ANOVA$SSn[3] /
-                                (anovaIBI$ANOVA$SSd[3]+anovaIBI$ANOVA$SSn[3]),
-                              anovaIBI$ANOVA$SSn[4] /
-                                (anovaIBI$ANOVA$SSd[4]+anovaIBI$ANOVA$SSn[4])
-); print(anovaIBI)
-
-# bayesian ANOVA on IBI across conditioning groups
-set.seed(rngSeed); anovaBFIBI <- anovaBF(
-  formula = IBI ~ usGroup*CS + partInd,
-  data = dataIBILong[dataIBILong$time == "allTr",],
-  whichRandom = "partInd",
-  whichModels = "all",
-  iterations = 100000
-); print(anovaBFIBI)
-
-# inclusion factors for bayesian ANOVA effects
-bf_inclusion(anovaBFIBI)
-
-# quick graph of group x CS ANOVA on IBI
-ezPlot(
-  data = dataIBILong[dataIBILong$time == "allTr",],
-  dv = IBI,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  x = CS,
-  split = usGroup
-)  
-
-# frequentist & bayesian t-tests on IBI (difference scores) across groups
-# delta [CS+av - CS+neu]
-ibiBothAvNeu_t <- t.test(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
-                             dataIBI$Neu_allTr[dataIBI$usGroup == "real"],
-                         y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
-                             dataIBI$Neu_allTr[dataIBI$usGroup == "ima"],
-                             alternative = "two.sided", paired = FALSE) # two-sided
-ibiBothAvNeu_d <- cohens_d(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
-                               dataIBI$Neu_allTr[dataIBI$usGroup == "real"],
-                           y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
-                               dataIBI$Neu_allTr[dataIBI$usGroup == "ima"],
-                               paired = FALSE)
-ibiBothAvNeu_BF <- ttestBF(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
-                               dataIBI$Neu_allTr[dataIBI$usGroup == "real"],
-                           y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
-                               dataIBI$Neu_allTr[dataIBI$usGroup == "ima"],
-                               nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+av - CS-]
-ibiBothAvMin_t <- t.test(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
-                             dataIBI$Min_allTr[dataIBI$usGroup == "real"],
-                         y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
-                             dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
-                             alternative = "two.sided", paired = FALSE) # two-sided
-ibiBothAvMin_d <- cohens_d(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
-                               dataIBI$Min_allTr[dataIBI$usGroup == "real"],
-                           y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
-                               dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
-                               paired = FALSE)
-ibiBothAvMin_BF <- ttestBF(x = dataIBI$Av_allTr[dataIBI$usGroup == "real"] -
-                               dataIBI$Min_allTr[dataIBI$usGroup == "real"],
-                           y = dataIBI$Av_allTr[dataIBI$usGroup == "ima"] -
-                               dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
-                               nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+neu - CS-]
-ibiBothNeuMin_t <- t.test(x = dataIBI$Neu_allTr[dataIBI$usGroup == "real"] -
-                              dataIBI$Min_allTr[dataIBI$usGroup == "real"],
-                          y = dataIBI$Neu_allTr[dataIBI$usGroup == "ima"] -
-                              dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
-                              alternative = "two.sided", paired = FALSE) # two-sided
-ibiBothNeuMin_d <- cohens_d(x = dataIBI$Neu_allTr[dataIBI$usGroup == "real"] -
-                                dataIBI$Min_allTr[dataIBI$usGroup == "real"],
-                            y = dataIBI$Neu_allTr[dataIBI$usGroup == "ima"] -
-                                dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
-                                paired = FALSE)
-ibiBothNeuMin_BF <- ttestBF(x = dataIBI$Neu_allTr[dataIBI$usGroup == "real"] -
-                                dataIBI$Min_allTr[dataIBI$usGroup == "real"],
-                            y = dataIBI$Neu_allTr[dataIBI$usGroup == "ima"] -
-                                dataIBI$Min_allTr[dataIBI$usGroup == "ima"],
-                                nullInterval = NULL, paired = FALSE) # two-sided
-
-
-
 #########################
 ### Table for t-tests ###
 #########################
 
 tableData <- data.frame(
-  comparison = rep(c("imagery: CS+av vs CS+neu", "imagery: CS+av vs CS-", "imagery: CSneu vs CS-",
+  comparison = rep(c("across groups: CS+av vs CS+neu", "across groups: CS+av vs CS-", "across groups: CSneu vs CS-",
+                     "imagery: CS+av vs CS+neu", "imagery: CS+av vs CS-", "imagery: CSneu vs CS-",
                      "classical: CS+av vs CS+neu", "classical: CS+av vs CS-", "classical: CSneu vs CS-",
-                     "groups: delta CS+av / CS+neu", "groups: delta CS+av / CS-", "groups: delta CSneu / CS-"), 3),
-  t = c(ibiImaAvNeu_t$statistic, ibiImaAvMin_t$statistic, ibiImaNeuMin_t$statistic,
+                     "between groups: delta CS+av / CS+neu", "between groups: delta CS+av / CS-", "between groups: delta CSneu / CS-"), 3),
+  t = c(ibiAcrossAvNeu_t$statistic, ibiAcrossAvMin_t$statistic, ibiAcrossNeuMin_t$statistic,
+        ibiImaAvNeu_t$statistic, ibiImaAvMin_t$statistic, ibiImaNeuMin_t$statistic,
         ibiRealAvNeu_t$statistic, ibiRealAvMin_t$statistic, ibiRealNeuMin_t$statistic,
-        ibiBothAvNeu_t$statistic, ibiBothAvMin_t$statistic, ibiBothNeuMin_t$statistic),
-  df = c(ibiImaAvNeu_t$parameter, ibiImaAvMin_t$parameter, ibiImaNeuMin_t$parameter,
+        ibiBetweenAvNeu_t$statistic, ibiBetweenAvMin_t$statistic, ibiBetweenNeuMin_t$statistic),
+  df = c(ibiAcrossAvNeu_t$parameter, ibiAcrossAvMin_t$parameter, ibiAcrossNeuMin_t$parameter,
+         ibiImaAvNeu_t$parameter, ibiImaAvMin_t$parameter, ibiImaNeuMin_t$parameter,
          ibiRealAvNeu_t$parameter, ibiRealAvMin_t$parameter, ibiRealNeuMin_t$parameter,
-         ibiBothAvNeu_t$parameter, ibiBothAvMin_t$parameter, ibiBothNeuMin_t$parameter), 
-  p = c(ibiImaAvNeu_t$p.value, ibiImaAvMin_t$p.value, ibiImaNeuMin_t$p.value,
+         ibiBetweenAvNeu_t$parameter, ibiBetweenAvMin_t$parameter, ibiBetweenNeuMin_t$parameter), 
+  p = c(ibiAcrossAvNeu_t$p.value, ibiAcrossAvMin_t$p.value, ibiAcrossNeuMin_t$p.value,
+        ibiImaAvNeu_t$p.value, ibiImaAvMin_t$p.value, ibiImaNeuMin_t$p.value,
         ibiRealAvNeu_t$p.value, ibiRealAvMin_t$p.value, ibiRealNeuMin_t$p.value,
-        ibiBothAvNeu_t$p.value*3, ibiBothAvMin_t$p.value*3, ibiBothNeuMin_t$p.value*3),  # Bonferroni
-  d = c(ibiImaAvNeu_d$Cohens_d, ibiImaAvMin_d$Cohens_d, ibiImaNeuMin_d$Cohens_d,
+        ibiBetweenAvNeu_t$p.value*3, ibiBetweenAvMin_t$p.value*3, ibiBetweenNeuMin_t$p.value*3),  # Bonferroni
+  d = c(ibiAcrossAvNeu_d$Cohens_d, ibiAcrossAvMin_d$Cohens_d, ibiAcrossNeuMin_d$Cohens_d,
+        ibiImaAvNeu_d$Cohens_d, ibiImaAvMin_d$Cohens_d, ibiImaNeuMin_d$Cohens_d,
         ibiRealAvNeu_d$Cohens_d, ibiRealAvMin_d$Cohens_d, ibiRealNeuMin_d$Cohens_d,
-        ibiBothAvNeu_d$Cohens_d, ibiBothAvMin_d$Cohens_d, ibiBothNeuMin_d$Cohens_d),
-  BF = c(exp(ibiImaAvNeu_BF@bayesFactor[["bf"]][1]), exp(ibiImaAvMin_BF@bayesFactor[["bf"]][1]), exp(ibiImaNeuMin_BF@bayesFactor[["bf"]][1]),
+        ibiBetweenAvNeu_d$Cohens_d, ibiBetweenAvMin_d$Cohens_d, ibiBetweenNeuMin_d$Cohens_d),
+  BF = c(exp(ibiAcrossAvNeu_BF@bayesFactor[["bf"]][1]), exp(ibiAcrossAvMin_BF@bayesFactor[["bf"]][1]), exp(ibiAcrossNeuMin_BF@bayesFactor[["bf"]][1]),
+         exp(ibiImaAvNeu_BF@bayesFactor[["bf"]][1]), exp(ibiImaAvMin_BF@bayesFactor[["bf"]][1]), exp(ibiImaNeuMin_BF@bayesFactor[["bf"]][1]),
          exp(ibiRealAvNeu_BF@bayesFactor[["bf"]][1]), exp(ibiRealAvMin_BF@bayesFactor[["bf"]][1]), exp(ibiRealNeuMin_BF@bayesFactor[["bf"]][1]),
-         exp(ibiBothAvNeu_BF@bayesFactor[["bf"]][1]), exp(ibiBothAvMin_BF@bayesFactor[["bf"]][1]), exp(ibiBothNeuMin_BF@bayesFactor[["bf"]][1]))
+         exp(ibiBetweenAvNeu_BF@bayesFactor[["bf"]][1]), exp(ibiBetweenAvMin_BF@bayesFactor[["bf"]][1]), exp(ibiBetweenNeuMin_BF@bayesFactor[["bf"]][1]))
 )
 # round the numbers
 tableData$t <-round(tableData$t, 2)
@@ -331,9 +369,9 @@ tableData$p <- as.character(tableData$p)
 tableData$p[tableData$p == "0"] <- "< .001"
 tableData$p <- str_replace(tableData$p, "0\\.", "\\.")
 tableData$d <-round(tableData$d, 2)
-tableData$BF <- format(tableData$BF, digits = 2)
+tableData$BF <- format(tableData$BF, digits = 3)
 
-tableIBI <- flextable(tableData[1:9,])
+tableIBI <- flextable(tableData[1:12,])
 tableIBI <- add_header_lines(tableIBI, top = TRUE, values = "IBI")
 tableIBI <- align(tableIBI, align = "center")
 

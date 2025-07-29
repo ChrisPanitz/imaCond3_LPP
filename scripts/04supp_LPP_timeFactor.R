@@ -2,7 +2,7 @@
 # --- encoding: en_US.UTF-8
 # --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
 # --- RStudio version: 2023.06.0
-# --- script version: Mar 2024
+# --- script version: Jul 2025
 # --- content: Supplementary analyses on LPP: adding factor "Time"
 
 ###################
@@ -102,6 +102,275 @@ dataLPPLong <- gather(data = dataLPP, key = "cond", value = "LPP", Av_1stBl:Min_
 dataLPPLong <- separate(data = dataLPPLong, col = cond, into = c("CS","time"), sep = "_")
 dataLPPLong$CS <- factor(dataLPPLong$CS)
 dataLPPLong$time <- factor(dataLPPLong$time)
+
+
+
+###############################################################
+### Across groups - supplementary analyses with time factor ###
+###############################################################
+
+# descriptive statistics for LPP ratings across conditioning groups
+describe(dataLPP)
+
+# frequentist Group x CS x Time ANOVA on LPP across conditioning groups
+anovaLPP <- ezANOVA(
+  data = dataLPPLong,
+  dv = LPP,
+  wid = partInd,
+  within = .(CS,time),
+  between = .(usGroup),
+  type = 3,
+  detailed = TRUE
+); anovaLPP$ANOVA$pEtaSq <- c(
+  anovaLPP$ANOVA$SSn[1] / (anovaLPP$ANOVA$SSd[1]+anovaLPP$ANOVA$SSn[1]),
+  anovaLPP$ANOVA$SSn[2] / (anovaLPP$ANOVA$SSd[2]+anovaLPP$ANOVA$SSn[2]),
+  anovaLPP$ANOVA$SSn[3] / (anovaLPP$ANOVA$SSd[3]+anovaLPP$ANOVA$SSn[3]),
+  anovaLPP$ANOVA$SSn[4] / (anovaLPP$ANOVA$SSd[4]+anovaLPP$ANOVA$SSn[4]),
+  anovaLPP$ANOVA$SSn[5] / (anovaLPP$ANOVA$SSd[5]+anovaLPP$ANOVA$SSn[5]),
+  anovaLPP$ANOVA$SSn[6] / (anovaLPP$ANOVA$SSd[6]+anovaLPP$ANOVA$SSn[6]),
+  anovaLPP$ANOVA$SSn[7] / (anovaLPP$ANOVA$SSd[7]+anovaLPP$ANOVA$SSn[7]),
+  anovaLPP$ANOVA$SSn[8] / (anovaLPP$ANOVA$SSd[8]+anovaLPP$ANOVA$SSn[8])
+); print(anovaLPP)
+capture.output(print(anovaLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_anovaFreq.doc"))
+
+# bayesian ANOVA on LPP across conditioning groups
+set.seed(rngSeed); anovaBFLPP <- generalTestBF(
+  formula = LPP ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
+  data = dataLPPLong,
+  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
+  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
+  whichModels = "all",
+  iterations = 10000 # only 10,000 iterations because it has to compute 128 models
+)
+
+# compute Bayes factor relative to null model including random slopes instead
+# of intercept-only null model
+anovaBFLPP@bayesFactor$bf <- log(exp(anovaBFLPP@bayesFactor$bf) / 
+                                   exp(anovaBFLPP@bayesFactor$bf[length(anovaBFLPP@bayesFactor$bf)]))
+anovaBFLPP@denominator@longName <- "Intercept and random slopes only"
+
+# show and save results
+print(anovaBFLPP)
+capture.output(print(anovaBFLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_anovaBayes.doc"))
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFLPP)
+capture.output(bf_inclusion(anovaBFLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_BFinclusion.doc"))
+
+# quick graph of US Group x CS Type x Time ANOVA for LPP across groups
+plotLPP <- ezPlot(
+  data = dataLPPLong,
+  dv = LPP,
+  wid = partInd,
+  within = .(CS,time),
+  between = .(usGroup),
+  x = time,
+  split = CS,
+  col = usGroup
+) ; plotLPP
+ggsave(plot = plotLPP, filename = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_plot.jpg"),
+       width = 20, height = 10, units = "cm")
+
+# frequentist & bayesian t-tests on LPP (difference scores) between groups
+### 1st Block
+# delta [CS+av - CS+neu]
+lppBetweenAvNeu1stBl_t <- t.test(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
+                                dataLPP$Neu_1stBl[dataLPP$usGroup == "real"],
+                              y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
+                                dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"],
+                              alternative = "two.sided", paired = FALSE) # two-sided
+lppBetweenAvNeu1stBl_d <- cohens_d(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
+                                  dataLPP$Neu_1stBl[dataLPP$usGroup == "real"],
+                                y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
+                                  dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"],
+                                paired = FALSE)
+lppBetweenAvNeu1stBl_BF <- ttestBF(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
+                                  dataLPP$Neu_1stBl[dataLPP$usGroup == "real"],
+                                y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
+                                  dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"],
+                                nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+lppBetweenAvMin1stBl_t <- t.test(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
+                                dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
+                              y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
+                                dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
+                              alternative = "two.sided", paired = FALSE) # two-sided
+lppBetweenAvMin1stBl_d <- cohens_d(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
+                                  dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
+                                y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
+                                  dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
+                                paired = FALSE)
+lppBetweenAvMin1stBl_BF <- ttestBF(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
+                                  dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
+                                y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
+                                  dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
+                                nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+lppBetweenNeuMin1stBl_t <- t.test(x = dataLPP$Neu_1stBl[dataLPP$usGroup == "real"] -
+                                 dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
+                               y = dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"] - 
+                                 dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
+                               alternative = "two.sided", paired = FALSE) # two-sided
+lppBetweenNeuMin1stBl_d <- cohens_d(x = dataLPP$Neu_1stBl[dataLPP$usGroup == "real"] -
+                                   dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
+                                 y = dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"] -
+                                   dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
+                                 paired = FALSE)
+lppBetweenNeuMin1stBl_BF <- ttestBF(x = dataLPP$Neu_1stBl[dataLPP$usGroup == "real"] -
+                                   dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
+                                 y = dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"] - 
+                                   dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
+                                 nullInterval = NULL, paired = FALSE) # two-sided
+### 2nd Block
+# delta [CS+av - CS+neu]
+lppBetweenAvNeu2ndBl_t <- t.test(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
+                                dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"],
+                              y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
+                                dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"],
+                              alternative = "two.sided", paired = FALSE) # two-sided
+lppBetweenAvNeu2ndBl_d <- cohens_d(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
+                                  dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"],
+                                y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
+                                  dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"],
+                                paired = FALSE)
+lppBetweenAvNeu2ndBl_BF <- ttestBF(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
+                                  dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"],
+                                y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
+                                  dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"],
+                                nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+lppBetweenAvMin2ndBl_t <- t.test(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
+                                dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
+                              y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
+                                dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
+                              alternative = "two.sided", paired = FALSE) # two-sided
+lppBetweenAvMin2ndBl_d <- cohens_d(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
+                                  dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
+                                y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
+                                  dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
+                                paired = FALSE)
+lppBetweenAvMin2ndBl_BF <- ttestBF(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
+                                  dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
+                                y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
+                                  dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
+                                nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+lppBetweenNeuMin2ndBl_t <- t.test(x = dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"] -
+                                 dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
+                               y = dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"] - 
+                                 dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
+                               alternative = "two.sided", paired = FALSE) # two-sided
+lppBetweenNeuMin2ndBl_d <- cohens_d(x = dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"] -
+                                   dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
+                                 y = dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"] -
+                                   dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
+                                 paired = FALSE)
+lppBetweenNeuMin2ndBl_BF <- ttestBF(x = dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"] -
+                                   dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
+                                 y = dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"] - 
+                                   dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
+                                 nullInterval = NULL, paired = FALSE) # two-sided
+
+tableLPPBetween <- data.frame(
+  time = c(rep("1stBl",3), rep("2ndBl",3)),
+  comparison = rep(c("CS+av vs CS+neu", "CS+av vs CS-", "CSneu vs CS-"), 2),
+  t = c(lppBetweenAvNeu1stBl_t$statistic, lppBetweenAvMin1stBl_t$statistic, lppBetweenNeuMin1stBl_t$statistic,
+        lppBetweenAvNeu2ndBl_t$statistic, lppBetweenAvMin2ndBl_t$statistic, lppBetweenNeuMin2ndBl_t$statistic),
+  df = c(lppBetweenAvNeu1stBl_t$parameter, lppBetweenAvMin1stBl_t$parameter, lppBetweenNeuMin1stBl_t$parameter,
+         lppBetweenAvNeu2ndBl_t$parameter, lppBetweenAvMin2ndBl_t$parameter, lppBetweenNeuMin2ndBl_t$parameter), 
+  p = c(lppBetweenAvNeu1stBl_t$p.value*3, lppBetweenAvMin1stBl_t$p.value*3, lppBetweenNeuMin1stBl_t$p.value*3, # Bonferroni
+        lppBetweenAvNeu2ndBl_t$p.value*3, lppBetweenAvMin2ndBl_t$p.value*3, lppBetweenNeuMin2ndBl_t$p.value*3), # Bonferroni
+  d = c(lppBetweenAvNeu1stBl_d$Cohens_d, lppBetweenAvMin1stBl_d$Cohens_d, lppBetweenNeuMin1stBl_d$Cohens_d,
+        lppBetweenAvNeu2ndBl_d$Cohens_d, lppBetweenAvMin2ndBl_d$Cohens_d, lppBetweenNeuMin2ndBl_d$Cohens_d),
+  BF = c(exp(lppBetweenAvNeu1stBl_BF@bayesFactor[["bf"]][1]), exp(lppBetweenAvMin1stBl_BF@bayesFactor[["bf"]][1]), exp(lppBetweenNeuMin1stBl_BF@bayesFactor[["bf"]][1]),
+         exp(lppBetweenAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(lppBetweenAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(lppBetweenNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
+  testDir = rep("two.sided",6)
+)
+tableLPPBetween$p[tableLPPBetween$p > 1] <- 1
+capture.output(tableLPPBetween, file = paste0(pathname, "/supplement/04s_lpp_timeFactor_betweenGroups_tTable.doc"))
+
+
+# frequentist & bayesian t-tests on LPP across conditioning groups
+### 1stBl
+# CS+av vs CS+neu
+lppAcrossAvNeu1stBl_t <- t.test(x = dataLPP$Av_1stBl,
+                             y = dataLPP$Neu_1stBl,
+                             alternative = "greater", paired = TRUE) # one-sided
+lppAcrossAvNeu1stBl_d <- cohens_d(x = dataLPP$Av_1stBl,
+                               y = dataLPP$Neu_1stBl,
+                               paired = TRUE)
+lppAcrossAvNeu1stBl_BF <- ttestBF(x = dataLPP$Av_1stBl,
+                               y = dataLPP$Neu_1stBl,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+lppAcrossAvMin1stBl_t <- t.test(x = dataLPP$Av_1stBl,
+                             y = dataLPP$Min_1stBl,
+                             alternative = "greater", paired = TRUE) # one-sided
+lppAcrossAvMin1stBl_d <- cohens_d(x = dataLPP$Av_1stBl,
+                               y = dataLPP$Min_1stBl,
+                               paired = TRUE)
+lppAcrossAvMin1stBl_BF <- ttestBF(x = dataLPP$Av_1stBl,
+                               y = dataLPP$Min_1stBl,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+lppAcrossNeuMin1stBl_t <- t.test(x = dataLPP$Neu_1stBl,
+                              y = dataLPP$Min_1stBl,
+                              alternative = "two.sided", paired = TRUE) # two-sided
+lppAcrossNeuMin1stBl_d <- cohens_d(x = dataLPP$Neu_1stBl,
+                                y = dataLPP$Min_1stBl,
+                                paired = TRUE)
+lppAcrossNeuMin1stBl_BF <- ttestBF(x = dataLPP$Neu_1stBl,
+                                y = dataLPP$Min_1stBl,
+                                nullInterval = NULL, paired = TRUE) # two-sided
+
+### 2ndBl
+# CS+av vs CS+neu
+lppAcrossAvNeu2ndBl_t <- t.test(x = dataLPP$Av_2ndBl,
+                             y = dataLPP$Neu_2ndBl,
+                             alternative = "greater", paired = TRUE) # one-sided
+lppAcrossAvNeu2ndBl_d <- cohens_d(x = dataLPP$Av_2ndBl,
+                               y = dataLPP$Neu_2ndBl,
+                               paired = TRUE)
+lppAcrossAvNeu2ndBl_BF <- ttestBF(x = dataLPP$Av_2ndBl,
+                               y = dataLPP$Neu_2ndBl,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+lppAcrossAvMin2ndBl_t <- t.test(x = dataLPP$Av_2ndBl,
+                             y = dataLPP$Min_2ndBl,
+                             alternative = "greater", paired = TRUE) # one-sided
+lppAcrossAvMin2ndBl_d <- cohens_d(x = dataLPP$Av_2ndBl,
+                               y = dataLPP$Min_2ndBl,
+                               paired = TRUE)
+lppAcrossAvMin2ndBl_BF <- ttestBF(x = dataLPP$Av_2ndBl,
+                               y = dataLPP$Min_2ndBl,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+lppAcrossNeuMin2ndBl_t <- t.test(x = dataLPP$Neu_2ndBl,
+                              y = dataLPP$Min_2ndBl,
+                              alternative = "two.sided", paired = TRUE) # two-sided
+lppAcrossNeuMin2ndBl_d <- cohens_d(x = dataLPP$Neu_2ndBl,
+                                y = dataLPP$Min_2ndBl,
+                                paired = TRUE)
+lppAcrossNeuMin2ndBl_BF <- ttestBF(x = dataLPP$Neu_2ndBl,
+                                y = dataLPP$Min_2ndBl,
+                                nullInterval = NULL, paired = TRUE) # two-sided
+
+tableLPPAcross <- data.frame(
+  time = c(rep("1stBl",3), rep("2ndBl",3)),
+  comparison = rep(c("CS+av vs CS+neu", "CS+av vs CS-", "CSneu vs CS-"), 2),
+  t = c(lppAcrossAvNeu1stBl_t$statistic, lppAcrossAvMin1stBl_t$statistic, lppAcrossNeuMin1stBl_t$statistic,
+        lppAcrossAvNeu2ndBl_t$statistic, lppAcrossAvMin2ndBl_t$statistic, lppAcrossNeuMin2ndBl_t$statistic),
+  df = c(lppAcrossAvNeu1stBl_t$parameter, lppAcrossAvMin1stBl_t$parameter, lppAcrossNeuMin1stBl_t$parameter,
+         lppAcrossAvNeu2ndBl_t$parameter, lppAcrossAvMin2ndBl_t$parameter, lppAcrossNeuMin2ndBl_t$parameter), 
+  p = c(lppAcrossAvNeu1stBl_t$p.value, lppAcrossAvMin1stBl_t$p.value, lppAcrossNeuMin1stBl_t$p.value,
+        lppAcrossAvNeu2ndBl_t$p.value, lppAcrossAvMin2ndBl_t$p.value, lppAcrossNeuMin2ndBl_t$p.value),
+  d = c(lppAcrossAvNeu1stBl_d$Cohens_d, lppAcrossAvMin1stBl_d$Cohens_d, lppAcrossNeuMin1stBl_d$Cohens_d,
+        lppAcrossAvNeu2ndBl_d$Cohens_d, lppAcrossAvMin2ndBl_d$Cohens_d, lppAcrossNeuMin2ndBl_d$Cohens_d),
+  BF = c(exp(lppAcrossAvNeu1stBl_BF@bayesFactor[["bf"]][1]), exp(lppAcrossAvMin1stBl_BF@bayesFactor[["bf"]][1]), exp(lppAcrossNeuMin1stBl_BF@bayesFactor[["bf"]][1]),
+         exp(lppAcrossAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(lppAcrossAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(lppAcrossNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
+  testDir = rep(c("one.sided","one.sided","two.sided"),2)
+)
+capture.output(tableLPPAcross, file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_tTable.doc"))
 
 
 
@@ -391,188 +660,3 @@ tableLPPReal <- data.frame(
 )
 capture.output(tableLPPReal, file = paste0(pathname, "/supplement/04s_lpp_timeFactor_real_tTable.doc"))
 
-
-
-###############################################################
-### Across groups - supplementary analyses with time factor ###
-###############################################################
-
-# descriptive statistics for LPP ratings across conditioning groups
-describe(dataLPP)
-
-# frequentist Group x CS x Time ANOVA on LPP across conditioning groups
-anovaLPP <- ezANOVA(
-  data = dataLPPLong,
-  dv = LPP,
-  wid = partInd,
-  within = .(CS,time),
-  between = .(usGroup),
-  type = 3,
-  detailed = TRUE
-); anovaLPP$ANOVA$pEtaSq <- c(
-  anovaLPP$ANOVA$SSn[1] / (anovaLPP$ANOVA$SSd[1]+anovaLPP$ANOVA$SSn[1]),
-  anovaLPP$ANOVA$SSn[2] / (anovaLPP$ANOVA$SSd[2]+anovaLPP$ANOVA$SSn[2]),
-  anovaLPP$ANOVA$SSn[3] / (anovaLPP$ANOVA$SSd[3]+anovaLPP$ANOVA$SSn[3]),
-  anovaLPP$ANOVA$SSn[4] / (anovaLPP$ANOVA$SSd[4]+anovaLPP$ANOVA$SSn[4]),
-  anovaLPP$ANOVA$SSn[5] / (anovaLPP$ANOVA$SSd[5]+anovaLPP$ANOVA$SSn[5]),
-  anovaLPP$ANOVA$SSn[6] / (anovaLPP$ANOVA$SSd[6]+anovaLPP$ANOVA$SSn[6]),
-  anovaLPP$ANOVA$SSn[7] / (anovaLPP$ANOVA$SSd[7]+anovaLPP$ANOVA$SSn[7]),
-  anovaLPP$ANOVA$SSn[8] / (anovaLPP$ANOVA$SSd[8]+anovaLPP$ANOVA$SSn[8])
-); print(anovaLPP)
-capture.output(print(anovaLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_anovaFreq.doc"))
-
-# bayesian ANOVA on LPP across conditioning groups
-set.seed(rngSeed); anovaBFLPP <- generalTestBF(
-  formula = LPP ~ usGroup*CS*time + partInd + partInd:CS + partInd:time,
-  data = dataLPPLong,
-  whichRandom = c("partInd", "partInd:CS", "partInd:time"),
-  neverExclude = c("partInd", "partInd:CS", "partInd:time"),
-  whichModels = "all",
-  iterations = 10000 # only 10,000 iterations because it has to compute 128 models
-)
-
-# compute Bayes factor relative to null model including random slopes instead
-# of intercept-only null model
-anovaBFLPP@bayesFactor$bf <- log(exp(anovaBFLPP@bayesFactor$bf) / 
-                                 exp(anovaBFLPP@bayesFactor$bf[length(anovaBFLPP@bayesFactor$bf)]))
-anovaBFLPP@denominator@longName <- "Intercept and random slopes only"
-
-# show and save results
-print(anovaBFLPP)
-capture.output(print(anovaBFLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_anovaBayes.doc"))
-
-# inclusion factors for bayesian ANOVA effects
-bf_inclusion(anovaBFLPP)
-capture.output(bf_inclusion(anovaBFLPP), file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_BFinclusion.doc"))
-
-# quick graph of US Group x CS Type x Time ANOVA for LPP across groups
-plotLPP <- ezPlot(
-  data = dataLPPLong,
-  dv = LPP,
-  wid = partInd,
-  within = .(CS,time),
-  between = .(usGroup),
-  x = time,
-  split = CS,
-  col = usGroup
-) ; plotLPP
-ggsave(plot = plotLPP, filename = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_plot.jpg"),
-       width = 20, height = 10, units = "cm")
-
-# frequentist & bayesian t-tests on LPP (difference scores) across groups
-### 1st Block
-# delta [CS+av - CS+neu]
-lppBothAvNeu1stBl_t <- t.test(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
-                                dataLPP$Neu_1stBl[dataLPP$usGroup == "real"],
-                              y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
-                                dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"],
-                              alternative = "two.sided", paired = FALSE) # two-sided
-lppBothAvNeu1stBl_d <- cohens_d(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
-                                  dataLPP$Neu_1stBl[dataLPP$usGroup == "real"],
-                                y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
-                                  dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"],
-                                paired = FALSE)
-lppBothAvNeu1stBl_BF <- ttestBF(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
-                                  dataLPP$Neu_1stBl[dataLPP$usGroup == "real"],
-                                y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
-                                  dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"],
-                                nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+av - CS-]
-lppBothAvMin1stBl_t <- t.test(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
-                                dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
-                              y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
-                                dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
-                              alternative = "two.sided", paired = FALSE) # two-sided
-lppBothAvMin1stBl_d <- cohens_d(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
-                                  dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
-                                y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
-                                  dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
-                                paired = FALSE)
-lppBothAvMin1stBl_BF <- ttestBF(x = dataLPP$Av_1stBl[dataLPP$usGroup == "real"] -
-                                  dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
-                                y = dataLPP$Av_1stBl[dataLPP$usGroup == "ima"] -
-                                  dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
-                                nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+neu - CS-]
-lppBothNeuMin1stBl_t <- t.test(x = dataLPP$Neu_1stBl[dataLPP$usGroup == "real"] -
-                                 dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
-                               y = dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"] - 
-                                 dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
-                               alternative = "two.sided", paired = FALSE) # two-sided
-lppBothNeuMin1stBl_d <- cohens_d(x = dataLPP$Neu_1stBl[dataLPP$usGroup == "real"] -
-                                   dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
-                                 y = dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"] -
-                                   dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
-                                 paired = FALSE)
-lppBothNeuMin1stBl_BF <- ttestBF(x = dataLPP$Neu_1stBl[dataLPP$usGroup == "real"] -
-                                   dataLPP$Min_1stBl[dataLPP$usGroup == "real"],
-                                 y = dataLPP$Neu_1stBl[dataLPP$usGroup == "ima"] - 
-                                   dataLPP$Min_1stBl[dataLPP$usGroup == "ima"],
-                                 nullInterval = NULL, paired = FALSE) # two-sided
-### 2nd Block
-# delta [CS+av - CS+neu]
-lppBothAvNeu2ndBl_t <- t.test(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
-                                dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"],
-                              y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
-                                dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"],
-                              alternative = "two.sided", paired = FALSE) # two-sided
-lppBothAvNeu2ndBl_d <- cohens_d(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
-                                  dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"],
-                                y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
-                                  dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"],
-                                paired = FALSE)
-lppBothAvNeu2ndBl_BF <- ttestBF(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
-                                  dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"],
-                                y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
-                                  dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"],
-                                nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+av - CS-]
-lppBothAvMin2ndBl_t <- t.test(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
-                                dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
-                              y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
-                                dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
-                              alternative = "two.sided", paired = FALSE) # two-sided
-lppBothAvMin2ndBl_d <- cohens_d(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
-                                  dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
-                                y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
-                                  dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
-                                paired = FALSE)
-lppBothAvMin2ndBl_BF <- ttestBF(x = dataLPP$Av_2ndBl[dataLPP$usGroup == "real"] -
-                                  dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
-                                y = dataLPP$Av_2ndBl[dataLPP$usGroup == "ima"] -
-                                  dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
-                                nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+neu - CS-]
-lppBothNeuMin2ndBl_t <- t.test(x = dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"] -
-                                 dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
-                               y = dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"] - 
-                                 dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
-                               alternative = "two.sided", paired = FALSE) # two-sided
-lppBothNeuMin2ndBl_d <- cohens_d(x = dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"] -
-                                   dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
-                                 y = dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"] -
-                                   dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
-                                 paired = FALSE)
-lppBothNeuMin2ndBl_BF <- ttestBF(x = dataLPP$Neu_2ndBl[dataLPP$usGroup == "real"] -
-                                   dataLPP$Min_2ndBl[dataLPP$usGroup == "real"],
-                                 y = dataLPP$Neu_2ndBl[dataLPP$usGroup == "ima"] - 
-                                   dataLPP$Min_2ndBl[dataLPP$usGroup == "ima"],
-                                 nullInterval = NULL, paired = FALSE) # two-sided
-
-tableLPPBoth <- data.frame(
-  time = c(rep("1stBl",3), rep("2ndBl",3)),
-  comparison = rep(c("CS+av vs CS+neu", "CS+av vs CS-", "CSneu vs CS-"), 2),
-  t = c(lppBothAvNeu1stBl_t$statistic, lppBothAvMin1stBl_t$statistic, lppBothNeuMin1stBl_t$statistic,
-        lppBothAvNeu2ndBl_t$statistic, lppBothAvMin2ndBl_t$statistic, lppBothNeuMin2ndBl_t$statistic),
-  df = c(lppBothAvNeu1stBl_t$parameter, lppBothAvMin1stBl_t$parameter, lppBothNeuMin1stBl_t$parameter,
-         lppBothAvNeu2ndBl_t$parameter, lppBothAvMin2ndBl_t$parameter, lppBothNeuMin2ndBl_t$parameter), 
-  p = c(lppBothAvNeu1stBl_t$p.value*3, lppBothAvMin1stBl_t$p.value*3, lppBothNeuMin1stBl_t$p.value*3, # Bonferroni
-        lppBothAvNeu2ndBl_t$p.value*3, lppBothAvMin2ndBl_t$p.value*3, lppBothNeuMin2ndBl_t$p.value*3), # Bonferroni
-  d = c(lppBothAvNeu1stBl_d$Cohens_d, lppBothAvMin1stBl_d$Cohens_d, lppBothNeuMin1stBl_d$Cohens_d,
-        lppBothAvNeu2ndBl_d$Cohens_d, lppBothAvMin2ndBl_d$Cohens_d, lppBothNeuMin2ndBl_d$Cohens_d),
-  BF = c(exp(lppBothAvNeu1stBl_BF@bayesFactor[["bf"]][1]), exp(lppBothAvMin1stBl_BF@bayesFactor[["bf"]][1]), exp(lppBothNeuMin1stBl_BF@bayesFactor[["bf"]][1]),
-         exp(lppBothAvNeu2ndBl_BF@bayesFactor[["bf"]][1]), exp(lppBothAvMin2ndBl_BF@bayesFactor[["bf"]][1]), exp(lppBothNeuMin2ndBl_BF@bayesFactor[["bf"]][1])),
-  testDir = rep("two.sided",6)
-)
-tableLPPBoth$p[tableLPPBoth$p > 1] <- 1
-capture.output(tableLPPBoth, file = paste0(pathname, "/supplement/04s_lpp_timeFactor_acrossGroups_tTable.doc"))

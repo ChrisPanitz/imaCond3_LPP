@@ -2,7 +2,7 @@
 # --- encoding: en_US.UTF-8
 # --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
 # --- RStudio version: 2023.06.0
-# --- script version: Mar 2024
+# --- script version: Jul 2025
 # --- content: Supplementary analyses on fear ratings: repeat main analyses in contingency-aware participants
 
 ###################
@@ -63,6 +63,139 @@ dataFearLong <- separate(data = dataFearLong, col = cond, into = c("CS","time"),
                          sep = "_")
 dataFearLong$CS <- factor(dataFearLong$CS, levels = c("Av", "Neu", "Min"))
 dataFearLong$time <- factor(dataFearLong$time, levels = c("Pre", "Mid", "Post"))
+
+
+
+#######################################################
+### Across groups - fear ratings - primary analyses ###
+#######################################################
+
+# descriptive statistics  for fear ratings across conditioning groups
+describe(dataFear)
+
+# frequentist ANOVA on fear ratings across conditioning groups
+anovaFear <- ezANOVA(
+  data = dataFearLong[dataFearLong$time == "Post",],
+  dv = fear,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  type = 3,
+  detailed = TRUE
+); anovaFear$ANOVA$pEtaSq <- c(anovaFear$ANOVA$SSn[1] /
+                                 (anovaFear$ANOVA$SSd[1]+anovaFear$ANOVA$SSn[1]),
+                               anovaFear$ANOVA$SSn[2] /
+                                 (anovaFear$ANOVA$SSd[2]+anovaFear$ANOVA$SSn[2]),
+                               anovaFear$ANOVA$SSn[3] /
+                                 (anovaFear$ANOVA$SSd[3]+anovaFear$ANOVA$SSn[3]),
+                               anovaFear$ANOVA$SSn[4] /
+                                 (anovaFear$ANOVA$SSd[4]+anovaFear$ANOVA$SSn[4])
+); print(anovaFear)
+
+# bayesian ANOVA on fear ratings across conditioning groups
+set.seed(rngSeed); anovaBFFear <- anovaBF(
+  formula = fear ~ usGroup*CS + partInd,
+  data = dataFearLong[dataFearLong$time == "Post",],
+  whichRandom = "partInd",
+  whichModels = "all",
+  iterations = 100000
+); print(anovaBFFear)
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFFear)
+
+# quick graph of group x CS ANOVA on fear ratings
+ezPlot(
+  data = dataFearLong[dataFearLong$time == "Post",],
+  dv = fear,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  x = CS,
+  split = usGroup
+)  
+
+# frequentist & bayesian t-tests on fear ratings across groups
+# CS+av vs CS+neu
+fearAcrossAvNeu_t <- t.test(x = dataFear$Av_Post,
+                            y = dataFear$Neu_Post,
+                            alternative = "greater", paired = TRUE) # one-sided
+fearAcrossAvNeu_d <- cohens_d(x = dataFear$Av_Post,
+                              y = dataFear$Neu_Post,
+                              paired = TRUE)
+fearAcrossAvNeu_BF <- ttestBF(x = dataFear$Av_Post,
+                              y = dataFear$Neu_Post,
+                              nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+fearAcrossAvMin_t <- t.test(x = dataFear$Av_Post,
+                            y = dataFear$Min_Post,
+                            alternative = "greater", paired = TRUE) # one-sided
+fearAcrossAvMin_d <- cohens_d(x = dataFear$Av_Post,
+                              y = dataFear$Min_Post,
+                              paired = TRUE)
+fearAcrossAvMin_BF <- ttestBF(x = dataFear$Av_Post,
+                              y = dataFear$Min_Post,
+                              nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+fearAcrossNeuMin_t <- t.test(x = dataFear$Neu_Post,
+                             y = dataFear$Min_Post,
+                             alternative = "two.sided", paired = TRUE) # two-sided
+fearAcrossNeuMin_d <- cohens_d(x = dataFear$Neu_Post,
+                               y = dataFear$Min_Post,
+                               paired = TRUE)
+fearAcrossNeuMin_BF <- ttestBF(x = dataFear$Neu_Post,
+                               y = dataFear$Min_Post,
+                               nullIntervall = NULL, paired = TRUE) # two-sided
+
+# frequentist & bayesian t-tests on fear ratings (difference scores) across groups
+# delta [CS+av - CS+neu]
+fearBetweenAvNeu_t <- t.test(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
+                               dataFear$Neu_Post[dataFear$usGroup == "real"],
+                             y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
+                               dataFear$Neu_Post[dataFear$usGroup == "ima"],
+                             alternative = "two.sided", paired = FALSE) # two-sided
+fearBetweenAvNeu_d <- cohens_d(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
+                                 dataFear$Neu_Post[dataFear$usGroup == "real"],
+                               y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
+                                 dataFear$Neu_Post[dataFear$usGroup == "ima"],
+                               paired = FALSE)
+fearBetweenAvNeu_BF <- ttestBF(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
+                                 dataFear$Neu_Post[dataFear$usGroup == "real"],
+                               y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
+                                 dataFear$Neu_Post[dataFear$usGroup == "ima"],
+                               nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+fearBetweenAvMin_t <- t.test(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
+                               dataFear$Min_Post[dataFear$usGroup == "real"],
+                             y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
+                               dataFear$Min_Post[dataFear$usGroup == "ima"],
+                             alternative = "two.sided", paired = FALSE) # two-sided
+fearBetweenAvMin_d <- cohens_d(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
+                                 dataFear$Min_Post[dataFear$usGroup == "real"],
+                               y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
+                                 dataFear$Min_Post[dataFear$usGroup == "ima"],
+                               paired = FALSE)
+fearBetweenAvMin_BF <- ttestBF(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
+                                 dataFear$Min_Post[dataFear$usGroup == "real"],
+                               y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
+                                 dataFear$Min_Post[dataFear$usGroup == "ima"],
+                               nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+fearBetweenNeuMin_t <- t.test(x = dataFear$Neu_Post[dataFear$usGroup == "real"] -
+                                dataFear$Min_Post[dataFear$usGroup == "real"],
+                              y = dataFear$Neu_Post[dataFear$usGroup == "ima"] - 
+                                dataFear$Min_Post[dataFear$usGroup == "ima"],
+                              alternative = "two.sided", paired = FALSE) # two-sided
+fearBetweenNeuMin_d <- cohens_d(x = dataFear$Neu_Post[dataFear$usGroup == "real"] -
+                                  dataFear$Min_Post[dataFear$usGroup == "real"],
+                                y = dataFear$Neu_Post[dataFear$usGroup == "ima"] -
+                                  dataFear$Min_Post[dataFear$usGroup == "ima"],
+                                paired = FALSE)
+fearBetweenNeuMin_BF <- ttestBF(x = dataFear$Neu_Post[dataFear$usGroup == "real"] -
+                                  dataFear$Min_Post[dataFear$usGroup == "real"],
+                                y = dataFear$Neu_Post[dataFear$usGroup == "ima"] - 
+                                  dataFear$Min_Post[dataFear$usGroup == "ima"],
+                                nullInterval = NULL, paired = FALSE) # two-sided
 
 
 
@@ -192,130 +325,35 @@ fearRealNeuMin_BF <- ttestBF(x = dataFear$Neu_Post[dataFear$usGroup == "real"],
 
 
 
-#######################################################
-### Across groups - fear ratings - primary analyses ###
-#######################################################
-
-# descriptive statistics  for fear ratings across conditioning groups
-describe(dataFear)
-
-# frequentist ANOVA on fear ratings across conditioning groups
-anovaFear <- ezANOVA(
-  data = dataFearLong[dataFearLong$time == "Post",],
-  dv = fear,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  type = 3,
-  detailed = TRUE
-); anovaFear$ANOVA$pEtaSq <- c(anovaFear$ANOVA$SSn[1] /
-                                 (anovaFear$ANOVA$SSd[1]+anovaFear$ANOVA$SSn[1]),
-                               anovaFear$ANOVA$SSn[2] /
-                                 (anovaFear$ANOVA$SSd[2]+anovaFear$ANOVA$SSn[2]),
-                               anovaFear$ANOVA$SSn[3] /
-                                 (anovaFear$ANOVA$SSd[3]+anovaFear$ANOVA$SSn[3]),
-                               anovaFear$ANOVA$SSn[4] /
-                                 (anovaFear$ANOVA$SSd[4]+anovaFear$ANOVA$SSn[4])
-); print(anovaFear)
-
-# bayesian ANOVA on fear ratings across conditioning groups
-set.seed(rngSeed); anovaBFFear <- anovaBF(
-  formula = fear ~ usGroup*CS + partInd,
-  data = dataFearLong[dataFearLong$time == "Post",],
-  whichRandom = "partInd",
-  whichModels = "all",
-  iterations = 100000
-); print(anovaBFFear)
-
-# inclusion factors for bayesian ANOVA effects
-bf_inclusion(anovaBFFear)
-
-# quick graph of group x CS ANOVA on fear ratings
-ezPlot(
-  data = dataFearLong[dataFearLong$time == "Post",],
-  dv = fear,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  x = CS,
-  split = usGroup
-)  
-
-# frequentist & bayesian t-tests on fear ratings (difference scores) across groups
-# delta [CS+av - CS+neu]
-fearBothAvNeu_t <- t.test(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
-                            dataFear$Neu_Post[dataFear$usGroup == "real"],
-                          y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
-                            dataFear$Neu_Post[dataFear$usGroup == "ima"],
-                          alternative = "two.sided", paired = FALSE) # two-sided
-fearBothAvNeu_d <- cohens_d(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
-                              dataFear$Neu_Post[dataFear$usGroup == "real"],
-                            y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
-                              dataFear$Neu_Post[dataFear$usGroup == "ima"],
-                            paired = FALSE)
-fearBothAvNeu_BF <- ttestBF(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
-                              dataFear$Neu_Post[dataFear$usGroup == "real"],
-                            y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
-                              dataFear$Neu_Post[dataFear$usGroup == "ima"],
-                            nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+av - CS-]
-fearBothAvMin_t <- t.test(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
-                            dataFear$Min_Post[dataFear$usGroup == "real"],
-                          y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
-                            dataFear$Min_Post[dataFear$usGroup == "ima"],
-                          alternative = "two.sided", paired = FALSE) # two-sided
-fearBothAvMin_d <- cohens_d(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
-                              dataFear$Min_Post[dataFear$usGroup == "real"],
-                            y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
-                              dataFear$Min_Post[dataFear$usGroup == "ima"],
-                            paired = FALSE)
-fearBothAvMin_BF <- ttestBF(x = dataFear$Av_Post[dataFear$usGroup == "real"] -
-                              dataFear$Min_Post[dataFear$usGroup == "real"],
-                            y = dataFear$Av_Post[dataFear$usGroup == "ima"] -
-                              dataFear$Min_Post[dataFear$usGroup == "ima"],
-                            nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+neu - CS-]
-fearBothNeuMin_t <- t.test(x = dataFear$Neu_Post[dataFear$usGroup == "real"] -
-                             dataFear$Min_Post[dataFear$usGroup == "real"],
-                           y = dataFear$Neu_Post[dataFear$usGroup == "ima"] - 
-                             dataFear$Min_Post[dataFear$usGroup == "ima"],
-                           alternative = "two.sided", paired = FALSE) # two-sided
-fearBothNeuMin_d <- cohens_d(x = dataFear$Neu_Post[dataFear$usGroup == "real"] -
-                               dataFear$Min_Post[dataFear$usGroup == "real"],
-                             y = dataFear$Neu_Post[dataFear$usGroup == "ima"] -
-                               dataFear$Min_Post[dataFear$usGroup == "ima"],
-                             paired = FALSE)
-fearBothNeuMin_BF <- ttestBF(x = dataFear$Neu_Post[dataFear$usGroup == "real"] -
-                               dataFear$Min_Post[dataFear$usGroup == "real"],
-                             y = dataFear$Neu_Post[dataFear$usGroup == "ima"] - 
-                               dataFear$Min_Post[dataFear$usGroup == "ima"],
-                             nullInterval = NULL, paired = FALSE) # two-sided
-
-
-
 #########################
 ### Table for t-tests ###
 #########################
 
 tableData <- data.frame(
-  comparison = rep(c("imagery: CS+av vs CS+neu", "imagery: CS+av vs CS-", "imagery: CSneu vs CS-",
-                     "classical: CS+av vs CS+neu", "classical: CS+av vs CS-", "classical: CSneu vs CS-",
-                     "groups: delta CS+av / CS+neu", "groups: delta CS+av / CS-", "groups: delta CSneu / CS-"), 5),
-  t = c(fearImaAvNeu_t$statistic, fearImaAvMin_t$statistic, fearImaNeuMin_t$statistic,
-        fearRealAvNeu_t$statistic, fearRealAvMin_t$statistic, fearRealNeuMin_t$statistic,
-        fearBothAvNeu_t$statistic, fearBothAvMin_t$statistic, fearBothNeuMin_t$statistic), 
-  df = c(fearImaAvNeu_t$parameter, fearImaAvMin_t$parameter, fearImaNeuMin_t$parameter,
-         fearRealAvNeu_t$parameter, fearRealAvMin_t$parameter, fearRealNeuMin_t$parameter,
-         fearBothAvNeu_t$parameter, fearBothAvMin_t$parameter, fearBothNeuMin_t$parameter), 
-  p = c(fearImaAvNeu_t$p.value, fearImaAvMin_t$p.value, fearImaNeuMin_t$p.value,
+  comparison = rep(c("total sample: CS+av vs CS+neu", "total sample: CS+av vs CS-", "total sample: CSneu vs CS-",
+                     "between groups: delta CS+av / CS+neu", "between groups: delta CS+av / CS-", "between groups: delta CSneu / CS-",
+                     "imagery: CS+av vs CS+neu", "imagery: CS+av vs CS-", "imagery: CSneu vs CS-",
+                     "classical: CS+av vs CS+neu", "classical: CS+av vs CS-", "classical: CSneu vs CS-"), 5),
+  t = c(fearAcrossAvNeu_t$statistic, fearAcrossAvMin_t$statistic, fearAcrossNeuMin_t$statistic,
+        fearImaAvNeu_t$statistic, fearImaAvMin_t$statistic, fearImaNeuMin_t$statistic,
+        fearRealAvNeu_t$statistic, fearRealAvMin_t$statistic, fearRealNeuMin_t$statistic, 
+        fearBetweenAvNeu_t$statistic, fearBetweenAvMin_t$statistic, fearBetweenNeuMin_t$statistic),
+  df = c(fearAcrossAvNeu_t$parameter, fearAcrossAvMin_t$parameter, fearAcrossNeuMin_t$parameter,
+         fearImaAvNeu_t$parameter, fearImaAvMin_t$parameter, fearImaNeuMin_t$parameter,
+         fearRealAvNeu_t$parameter, fearRealAvMin_t$parameter, fearRealNeuMin_t$parameter, 
+         fearBetweenAvNeu_t$parameter, fearBetweenAvMin_t$parameter, fearBetweenNeuMin_t$parameter),
+  p = c(fearAcrossAvNeu_t$p.value, fearAcrossAvMin_t$p.value, fearAcrossNeuMin_t$p.value,
+        fearImaAvNeu_t$p.value, fearImaAvMin_t$p.value, fearImaNeuMin_t$p.value,
         fearRealAvNeu_t$p.value, fearRealAvMin_t$p.value, fearRealNeuMin_t$p.value,
-        fearBothAvNeu_t$p.value*3, fearBothAvMin_t$p.value*3, fearBothNeuMin_t$p.value*3),  # Bonferroni
-  d = c(fearImaAvNeu_d$Cohens_d, fearImaAvMin_d$Cohens_d, fearImaNeuMin_d$Cohens_d,
-        fearRealAvNeu_d$Cohens_d, fearRealAvMin_d$Cohens_d, fearRealNeuMin_d$Cohens_d,
-        fearBothAvNeu_d$Cohens_d, fearBothAvMin_d$Cohens_d, fearBothNeuMin_d$Cohens_d), 
-  BF = c(exp(fearImaAvNeu_BF@bayesFactor[["bf"]][1]), exp(fearImaAvMin_BF@bayesFactor[["bf"]][1]), exp(fearImaNeuMin_BF@bayesFactor[["bf"]][1]),
+        fearBetweenAvNeu_t$p.value*3, fearBetweenAvMin_t$p.value*3, fearBetweenNeuMin_t$p.value*3), # Bonferroni
+  d = c(fearAcrossAvNeu_d$Cohens_d, fearAcrossAvMin_d$Cohens_d, fearAcrossNeuMin_d$Cohens_d,
+        fearImaAvNeu_d$Cohens_d, fearImaAvMin_d$Cohens_d, fearImaNeuMin_d$Cohens_d,
+        fearRealAvNeu_d$Cohens_d, fearRealAvMin_d$Cohens_d, fearRealNeuMin_d$Cohens_d, 
+        fearBetweenAvNeu_d$Cohens_d, fearBetweenAvMin_d$Cohens_d, fearBetweenNeuMin_d$Cohens_d),
+  BF = c(exp(fearAcrossAvNeu_BF@bayesFactor[["bf"]][1]), exp(fearAcrossAvMin_BF@bayesFactor[["bf"]][1]), exp(fearAcrossNeuMin_BF@bayesFactor[["bf"]][1]),
+         exp(fearImaAvNeu_BF@bayesFactor[["bf"]][1]), exp(fearImaAvMin_BF@bayesFactor[["bf"]][1]), exp(fearImaNeuMin_BF@bayesFactor[["bf"]][1]),
          exp(fearRealAvNeu_BF@bayesFactor[["bf"]][1]), exp(fearRealAvMin_BF@bayesFactor[["bf"]][1]), exp(fearRealNeuMin_BF@bayesFactor[["bf"]][1]),
-         exp(fearBothAvNeu_BF@bayesFactor[["bf"]][1]), exp(fearBothAvMin_BF@bayesFactor[["bf"]][1]), exp(fearBothNeuMin_BF@bayesFactor[["bf"]][1]))
+         exp(fearBetweenAvNeu_BF@bayesFactor[["bf"]][1]), exp(fearBetweenAvMin_BF@bayesFactor[["bf"]][1]), exp(fearBetweenNeuMin_BF@bayesFactor[["bf"]][1]))
 )
 
 # round the numbers
@@ -328,9 +366,9 @@ tableData$p <- as.character(tableData$p)
 tableData$p[tableData$p == "0"] <- "< .001"
 tableData$p <- str_replace(tableData$p, "0\\.", "\\.")
 tableData$d <-round(tableData$d, 2)
-tableData$BF <- format(tableData$BF, digits = 2)
+tableData$BF <- format(tableData$BF, digits = 3)
 
-tableFear <- flextable(tableData[1:9,])
+tableFear <- flextable(tableData[1:12,])
 tableFear <- add_header_lines(tableFear, top = TRUE, values = "fear")
 
 save_as_docx(tableFear, path = paste0(pathname, "/supplement/01s_tableFear_aware_raw.docx"))

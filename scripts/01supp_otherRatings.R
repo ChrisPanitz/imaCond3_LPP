@@ -2,7 +2,7 @@
 # --- encoding: en_US.UTF-8
 # --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
 # --- RStudio version: 2023.06.0
-# --- script version: Mar 2024
+# --- script version: Jul 2025
 # --- content: Main analyses on unpleasantness, arousal, anger, & disgust ratings (ANOVAs, pairwise comparisons, plotting)
 
 ###################
@@ -128,6 +128,564 @@ dataDisgustLong <- separate(data = dataDisgustLong, col = cond, into = c("CS","t
                           sep = "_")
 dataDisgustLong$CS <- factor(dataDisgustLong$CS, levels = c("Av", "Neu", "Min"))
 dataDisgustLong$time <- factor(dataDisgustLong$time, levels = c("Pre", "Mid", "Post"))
+
+
+
+#################################################################
+### Across groups - unpleasantness ratings - primary analyses ###
+#################################################################
+
+# descriptive statistics  for unpleasantess ratings across conditioning groups
+describe(dataUnpleas)
+
+# frequentist ANOVA on unpleasantness ratings across conditioning groups
+anovaUnpleas <- ezANOVA(
+  data = dataUnpleasLong[dataUnpleasLong$time == "Post",],
+  dv = unpleasantness,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  type = 3,
+  detailed = TRUE
+); anovaUnpleas$ANOVA$pEtaSq <- c(anovaUnpleas$ANOVA$SSn[1] /
+                                    (anovaUnpleas$ANOVA$SSd[1]+anovaUnpleas$ANOVA$SSn[1]),
+                                  anovaUnpleas$ANOVA$SSn[2] /
+                                    (anovaUnpleas$ANOVA$SSd[2]+anovaUnpleas$ANOVA$SSn[2]),
+                                  anovaUnpleas$ANOVA$SSn[3] /
+                                    (anovaUnpleas$ANOVA$SSd[3]+anovaUnpleas$ANOVA$SSn[3]),
+                                  anovaUnpleas$ANOVA$SSn[4] /
+                                    (anovaUnpleas$ANOVA$SSd[4]+anovaUnpleas$ANOVA$SSn[4])
+); print(anovaUnpleas)
+
+# bayesian ANOVA on unpleasantness ratings across conditioning groups
+set.seed(rngSeed); anovaBFUnpleas <- anovaBF(
+  formula = unpleasantness ~ usGroup*CS + partInd,
+  data = dataUnpleasLong[dataUnpleasLong$time == "Post",],
+  whichRandom = "partInd",
+  whichModels = "all",
+  iterations = 100000
+); print(anovaBFUnpleas)
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFUnpleas)
+
+# quick graph of group x CS ANOVA on unpleasantness ratings
+ezPlot(
+  data = dataUnpleasLong[dataUnpleasLong$time == "Post",],
+  dv = unpleasantness,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  x = CS,
+  split = usGroup
+)  
+
+# frequentist & bayesian t-tests on unpleasantness ratings across conditioning groups
+# CS+av vs CS+neu
+unpleasAcrossAvNeu_t <- t.test(x = dataUnpleas$Av_Post,
+                             y = dataUnpleas$Neu_Post,
+                             alternative = "greater", paired = TRUE) # one-sided
+unpleasAcrossAvNeu_d <- cohens_d(x = dataUnpleas$Av_Post,
+                               y = dataUnpleas$Neu_Post,
+                               paired = TRUE)
+unpleasAcrossAvNeu_BF <- ttestBF(x = dataUnpleas$Av_Post,
+                               y = dataUnpleas$Neu_Post,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+unpleasAcrossAvMin_t <- t.test(x = dataUnpleas$Av_Post,
+                             y = dataUnpleas$Min_Post,
+                             alternative = "greater", paired = TRUE) # one-sided
+unpleasAcrossAvMin_d <- cohens_d(x = dataUnpleas$Av_Post,
+                               y = dataUnpleas$Min_Post,
+                               paired = TRUE)
+unpleasAcrossAvMin_BF <- ttestBF(x = dataUnpleas$Av_Post,
+                               y = dataUnpleas$Min_Post,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+unpleasAcrossNeuMin_t <- t.test(x = dataUnpleas$Neu_Post,
+                              y = dataUnpleas$Min_Post,
+                              alternative = "two.sided", paired = TRUE) # two-sided
+unpleasAcrossNeuMin_d <- cohens_d(x = dataUnpleas$Neu_Post,
+                                y = dataUnpleas$Min_Post,
+                                paired = TRUE)
+unpleasAcrossNeuMin_BF <- ttestBF(x = dataUnpleas$Neu_Post,
+                                y = dataUnpleas$Min_Post,
+                                nullIntervall = NULL, paired = TRUE) # two-sided
+
+
+
+##########################################################
+### Across groups - arousal ratings - primary analyses ###
+##########################################################
+
+# descriptive statistics for arousal ratings across conditioning groups
+describe(dataArousal)
+
+# frequentist ANOVA on arousal ratings across conditioning groups
+anovaArousal <- ezANOVA(
+  data = dataArousalLong[dataArousalLong$time == "Post",],
+  dv = arousal,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  type = 3,
+  detailed = TRUE
+); anovaArousal$ANOVA$pEtaSq <- c(anovaArousal$ANOVA$SSn[1] /
+                                    (anovaArousal$ANOVA$SSd[1]+anovaArousal$ANOVA$SSn[1]),
+                                  anovaArousal$ANOVA$SSn[2] /
+                                    (anovaArousal$ANOVA$SSd[2]+anovaArousal$ANOVA$SSn[2]),
+                                  anovaArousal$ANOVA$SSn[3] /
+                                    (anovaArousal$ANOVA$SSd[3]+anovaArousal$ANOVA$SSn[3]),
+                                  anovaArousal$ANOVA$SSn[4] /
+                                    (anovaArousal$ANOVA$SSd[4]+anovaArousal$ANOVA$SSn[4])
+); print(anovaArousal)
+
+# bayesian ANOVA on arousal ratings across conditioning groups
+set.seed(rngSeed); anovaBFArousal <- anovaBF(
+  formula = arousal ~ usGroup*CS + partInd,
+  data = dataArousalLong[dataArousalLong$time == "Post",],
+  whichRandom = "partInd",
+  whichModels = "all",
+  iterations = 100000
+); print(anovaBFArousal)
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFArousal)
+
+# quick graph of group x CS ANOVA on arousal ratings
+ezPlot(
+  data = dataArousalLong[dataArousalLong$time == "Post",],
+  dv = arousal,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  x = CS,
+  split = usGroup
+)  
+
+# frequentist & bayesian t-tests on arousal ratings across conditioning groups
+# CS+av vs CS+neu
+arousalAcrossAvNeu_t <- t.test(x = dataArousal$Av_Post,
+                             y = dataArousal$Neu_Post,
+                             alternative = "greater", paired = TRUE) # one-sided
+arousalAcrossAvNeu_d <- cohens_d(x = dataArousal$Av_Post,
+                               y = dataArousal$Neu_Post,
+                               paired = TRUE)
+arousalAcrossAvNeu_BF <- ttestBF(x = dataArousal$Av_Post,
+                               y = dataArousal$Neu_Post,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+arousalAcrossAvMin_t <- t.test(x = dataArousal$Av_Post,
+                             y = dataArousal$Min_Post,
+                             alternative = "greater", paired = TRUE) # one-sided
+arousalAcrossAvMin_d <- cohens_d(x = dataArousal$Av_Post,
+                               y = dataArousal$Min_Post,
+                               paired = TRUE)
+arousalAcrossAvMin_BF <- ttestBF(x = dataArousal$Av_Post,
+                               y = dataArousal$Min_Post,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+neu vs CS-
+arousalAcrossNeuMin_t <- t.test(x = dataArousal$Neu_Post,
+                              y = dataArousal$Min_Post,
+                              alternative = "two.sided", paired = TRUE) # two-sided
+arousalAcrossNeuMin_d <- cohens_d(x = dataArousal$Neu_Post,
+                                y = dataArousal$Min_Post, 
+                                paired = TRUE)
+arousalAcrossNeuMin_BF <- ttestBF(x = dataArousal$Neu_Post,
+                                y = dataArousal$Min_Post,
+                                nullIntervall = NULL, paired = TRUE) # two-sided
+
+
+
+########################################################
+### Across groups - anger ratings - primary analyses ###
+########################################################
+
+# descriptive statistics  for anger ratings across conditioning groups
+describe(dataAnger)
+
+# frequentist ANOVA on anger ratings across conditioning groups
+anovaAnger <- ezANOVA(
+  data = dataAngerLong[dataAngerLong$time == "Post",],
+  dv = anger,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  type = 3,
+  detailed = TRUE
+); anovaAnger$ANOVA$pEtaSq <- c(anovaAnger$ANOVA$SSn[1] /
+                                  (anovaAnger$ANOVA$SSd[1]+anovaAnger$ANOVA$SSn[1]),
+                                anovaAnger$ANOVA$SSn[2] /
+                                  (anovaAnger$ANOVA$SSd[2]+anovaAnger$ANOVA$SSn[2]),
+                                anovaAnger$ANOVA$SSn[3] /
+                                  (anovaAnger$ANOVA$SSd[3]+anovaAnger$ANOVA$SSn[3]),
+                                anovaAnger$ANOVA$SSn[4] /
+                                  (anovaAnger$ANOVA$SSd[4]+anovaAnger$ANOVA$SSn[4])
+); print(anovaAnger)
+
+# bayesian ANOVA on anger ratings across conditioning groups
+set.seed(rngSeed); anovaBFAnger <- anovaBF(
+  formula = anger ~ usGroup*CS + partInd,
+  data = dataAngerLong[dataAngerLong$time == "Post",],
+  whichRandom = "partInd",
+  whichModels = "all",
+  iterations = 100000
+); print(anovaBFAnger)
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFAnger)
+
+# quick graph of group x CS ANOVA on anger ratings
+ezPlot(
+  data = dataAngerLong[dataAngerLong$time == "Post",],
+  dv = anger,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  x = CS,
+  split = usGroup
+)  
+
+# frequentist & bayesian t-tests on anger ratings in across conditioning groups
+# CS+av vs CS+neu
+angerAcrossAvNeu_t <- t.test(x = dataAnger$Av_Post,
+                           y = dataAnger$Neu_Post,
+                           alternative = "greater", paired = TRUE) # one-sided
+angerAcrossAvNeu_d <- cohens_d(x = dataAnger$Av_Post,
+                             y = dataAnger$Neu_Post,
+                             paired = TRUE)
+angerAcrossAvNeu_BF <- ttestBF(x = dataAnger$Av_Post,
+                             y = dataAnger$Neu_Post,
+                             nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+angerAcrossAvMin_t <- t.test(x = dataAnger$Av_Post,
+                           y = dataAnger$Min_Post,
+                           alternative = "greater", paired = TRUE) # one-sided
+angerAcrossAvMin_d <- cohens_d(x = dataAnger$Av_Post,
+                             y = dataAnger$Min_Post,
+                             paired = TRUE)
+angerAcrossAvMin_BF <- ttestBF(x = dataAnger$Av_Post,
+                             y = dataAnger$Min_Post,
+                             nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+
+# CS+neu vs CS-
+angerAcrossNeuMin_t <- t.test(x = dataAnger$Neu_Post,
+                            y = dataAnger$Min_Post, 
+                            alternative = "two.sided", paired = TRUE) # two-sided
+angerAcrossNeuMin_d <- cohens_d(x = dataAnger$Neu_Post,
+                              y = dataAnger$Min_Post,
+                              paired = TRUE)
+angerAcrossNeuMin_BF <- ttestBF(x = dataAnger$Neu_Post,
+                              y = dataAnger$Min_Post,
+                              nullIntervall = NULL, paired = TRUE) # two-sided
+
+
+
+##########################################################
+### Across groups - disgust ratings - primary analyses ###
+##########################################################
+
+# descriptive statistics  for disgust ratings across conditioning groups
+describe(dataDisgust)
+
+# frequentist ANOVA on disgust ratings across conditioning groups
+anovaDisgust <- ezANOVA(
+  data = dataDisgustLong[dataDisgustLong$time == "Post",],
+  dv = disgust,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  type = 3,
+  detailed = TRUE
+); anovaDisgust$ANOVA$pEtaSq <- c(anovaDisgust$ANOVA$SSn[1] /
+                                    (anovaDisgust$ANOVA$SSd[1]+anovaDisgust$ANOVA$SSn[1]),
+                                  anovaDisgust$ANOVA$SSn[2] /
+                                    (anovaDisgust$ANOVA$SSd[2]+anovaDisgust$ANOVA$SSn[2]),
+                                  anovaDisgust$ANOVA$SSn[3] /
+                                    (anovaDisgust$ANOVA$SSd[3]+anovaDisgust$ANOVA$SSn[3]),
+                                  anovaDisgust$ANOVA$SSn[4] /
+                                    (anovaDisgust$ANOVA$SSd[4]+anovaDisgust$ANOVA$SSn[4])
+); print(anovaDisgust)
+
+# bayesian ANOVA on disgust ratings across conditioning groups
+set.seed(rngSeed); anovaBFDisgust <- anovaBF(
+  formula = disgust ~ usGroup*CS + partInd,
+  data = dataDisgustLong[dataDisgustLong$time == "Post",],
+  whichRandom = "partInd",
+  whichModels = "all",
+  iterations = 100000
+); print(anovaBFDisgust)
+
+# inclusion factors for bayesian ANOVA effects
+bf_inclusion(anovaBFDisgust)
+
+# quick graph of group x CS ANOVA on disgust ratings
+ezPlot(
+  data = dataDisgustLong[dataDisgustLong$time == "Post",],
+  dv = disgust,
+  wid = partInd,
+  within = .(CS),
+  between = .(usGroup),
+  x = CS,
+  split = usGroup
+)  
+
+# frequentist & bayesian t-tests on disgust ratings across conditioning groups
+# CS+av vs CS+neu
+disgustAcrossAvNeu_t <- t.test(x = dataDisgust$Av_Post,
+                             y = dataDisgust$Neu_Post,
+                             alternative = "greater", paired = TRUE) # one-sided
+disgustAcrossAvNeu_d <- cohens_d(x = dataDisgust$Av_Post,
+                               y = dataDisgust$Neu_Post,
+                               paired = TRUE)
+disgustAcrossAvNeu_BF <- ttestBF(x = dataDisgust$Av_Post,
+                               y = dataDisgust$Neu_Post,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+# CS+av vs CS-
+disgustAcrossAvMin_t <- t.test(x = dataDisgust$Av_Post,
+                             y = dataDisgust$Min_Post,
+                             alternative = "greater", paired = TRUE) # one-sided
+disgustAcrossAvMin_d <- cohens_d(x = dataDisgust$Av_Post,
+                               y = dataDisgust$Min_Post,
+                               paired = TRUE)
+disgustAcrossAvMin_BF <- ttestBF(x = dataDisgust$Av_Post,
+                               y = dataDisgust$Min_Post,
+                               nullInterval = c(0, Inf), paired = TRUE) # one-sided x > y
+
+# CS+neu vs CS-
+disgustAcrossNeuMin_t <- t.test(x = dataDisgust$Neu_Post,
+                              y = dataDisgust$Min_Post, 
+                              alternative = "two.sided", paired = TRUE) # two-sided
+disgustAcrossNeuMin_d <- cohens_d(x = dataDisgust$Neu_Post,
+                                y = dataDisgust$Min_Post,
+                                paired = TRUE)
+disgustAcrossNeuMin_BF <- ttestBF(x = dataDisgust$Neu_Post,
+                                y = dataDisgust$Min_Post,
+                                nullIntervall = NULL, paired = TRUE) # two-sided
+
+
+
+##################################################################
+### Between groups - unpleasantness ratings - primary analyses ###
+##################################################################
+
+# frequentist & bayesian t-tests on unpleasantness ratings (difference scores) across groups
+# delta [CS+av - CS+neu]
+unpleasBetweenAvNeu_t <- t.test(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
+                               dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"],
+                             y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
+                               dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"],
+                             alternative = "two.sided", paired = FALSE) # two-sided
+unpleasBetweenAvNeu_d <- cohens_d(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
+                                 dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"],
+                               y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
+                                 dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"],
+                               paired = FALSE)
+unpleasBetweenAvNeu_BF <- ttestBF(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
+                                 dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"],
+                               y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
+                                 dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"],
+                               nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+unpleasBetweenAvMin_t <- t.test(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
+                               dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
+                             y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
+                               dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
+                             alternative = "two.sided", paired = FALSE) # two-sided
+unpleasBetweenAvMin_d <- cohens_d(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
+                                 dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
+                               y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
+                                 dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
+                               paired = FALSE)
+unpleasBetweenAvMin_BF <- ttestBF(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
+                                 dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
+                               y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
+                                 dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
+                               nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+unpleasBetweenNeuMin_t <- t.test(x = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"] -
+                                dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
+                              y = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"] -
+                                dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
+                              alternative = "two.sided", paired = FALSE) # two-sided
+unpleasBetweenNeuMin_d <- cohens_d(x = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"] -
+                                  dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
+                                y = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"] -
+                                  dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
+                                paired = FALSE)
+unpleasBetweenNeuMin_BF <- ttestBF(x = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"] -
+                                  dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
+                                y = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"] -
+                                  dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
+                                nullInterval = NULL, paired = FALSE) # two-sided
+
+
+
+###########################################################
+### Between groups - arousal ratings - primary analyses ###
+###########################################################
+
+# frequentist & bayesian t-tests on arousal ratings (difference scores) across groups
+# delta [CS+av - CS+neu]
+arousalBetweenAvNeu_t <- t.test(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
+                               dataArousal$Neu_Post[dataArousal$usGroup == "real"],
+                             y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
+                               dataArousal$Neu_Post[dataArousal$usGroup == "ima"],
+                             alternative = "two.sided", paired = FALSE) # two-sided
+arousalBetweenAvNeu_d <- cohens_d(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
+                                 dataArousal$Neu_Post[dataArousal$usGroup == "real"],
+                               y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
+                                 dataArousal$Neu_Post[dataArousal$usGroup == "ima"],
+                               paired = FALSE)
+arousalBetweenAvNeu_BF <- ttestBF(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
+                                 dataArousal$Neu_Post[dataArousal$usGroup == "real"],
+                               y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
+                                 dataArousal$Neu_Post[dataArousal$usGroup == "ima"],
+                               nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+arousalBetweenAvMin_t <- t.test(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
+                               dataArousal$Min_Post[dataArousal$usGroup == "real"],
+                             y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
+                               dataArousal$Min_Post[dataArousal$usGroup == "ima"],
+                             alternative = "two.sided", paired = FALSE) # two-sided
+arousalBetweenAvMin_d <- cohens_d(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
+                                 dataArousal$Min_Post[dataArousal$usGroup == "real"],
+                               y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
+                                 dataArousal$Min_Post[dataArousal$usGroup == "ima"],
+                               paired = FALSE)
+arousalBetweenAvMin_BF <- ttestBF(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
+                                 dataArousal$Min_Post[dataArousal$usGroup == "real"],
+                               y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
+                                 dataArousal$Min_Post[dataArousal$usGroup == "ima"],
+                               nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+arousalBetweenNeuMin_t <- t.test(x = dataArousal$Neu_Post[dataArousal$usGroup == "real"] -
+                                dataArousal$Min_Post[dataArousal$usGroup == "real"],
+                              y = dataArousal$Neu_Post[dataArousal$usGroup == "ima"] -
+                                dataArousal$Min_Post[dataArousal$usGroup == "ima"],
+                              alternative = "two.sided", paired = FALSE) # two-sided
+arousalBetweenNeuMin_d <- cohens_d(x = dataArousal$Neu_Post[dataArousal$usGroup == "real"] -
+                                  dataArousal$Min_Post[dataArousal$usGroup == "real"],
+                                y = dataArousal$Neu_Post[dataArousal$usGroup == "ima"] -
+                                  dataArousal$Min_Post[dataArousal$usGroup == "ima"],
+                                paired = FALSE)
+arousalBetweenNeuMin_BF <- ttestBF(x = dataArousal$Neu_Post[dataArousal$usGroup == "real"] -
+                                  dataArousal$Min_Post[dataArousal$usGroup == "real"],
+                                y = dataArousal$Neu_Post[dataArousal$usGroup == "ima"] -
+                                  dataArousal$Min_Post[dataArousal$usGroup == "ima"],
+                                nullInterval = NULL, paired = FALSE) # two-sided
+
+
+
+#########################################################
+### Between groups - anger ratings - primary analyses ###
+#########################################################
+
+# frequentist & bayesian t-tests on anger ratings (difference scores) across groups
+# delta [CS+av - CS+neu]
+angerBetweenAvNeu_t <- t.test(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
+                             dataAnger$Neu_Post[dataAnger$usGroup == "real"],
+                           y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
+                             dataAnger$Neu_Post[dataAnger$usGroup == "ima"],
+                           alternative = "two.sided", paired = FALSE) # two-sided
+angerBetweenAvNeu_d <- cohens_d(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
+                               dataAnger$Neu_Post[dataAnger$usGroup == "real"],
+                             y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
+                               dataAnger$Neu_Post[dataAnger$usGroup == "ima"],
+                             paired = FALSE)
+angerBetweenAvNeu_BF <- ttestBF(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
+                               dataAnger$Neu_Post[dataAnger$usGroup == "real"],
+                             y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
+                               dataAnger$Neu_Post[dataAnger$usGroup == "ima"],
+                             nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+angerBetweenAvMin_t <- t.test(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
+                             dataAnger$Min_Post[dataAnger$usGroup == "real"],
+                           y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
+                             dataAnger$Min_Post[dataAnger$usGroup == "ima"],
+                           alternative = "two.sided", paired = FALSE) # two-sided
+angerBetweenAvMin_d <- cohens_d(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
+                               dataAnger$Min_Post[dataAnger$usGroup == "real"],
+                             y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
+                               dataAnger$Min_Post[dataAnger$usGroup == "ima"],
+                             paired = FALSE)
+angerBetweenAvMin_BF <- ttestBF(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
+                               dataAnger$Min_Post[dataAnger$usGroup == "real"],
+                             y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
+                               dataAnger$Min_Post[dataAnger$usGroup == "ima"],
+                             nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+angerBetweenNeuMin_t <- t.test(x = dataAnger$Neu_Post[dataAnger$usGroup == "real"] -
+                              dataAnger$Min_Post[dataAnger$usGroup == "real"],
+                            y = dataAnger$Neu_Post[dataAnger$usGroup == "ima"] - 
+                              dataAnger$Min_Post[dataAnger$usGroup == "ima"],
+                            alternative = "two.sided", paired = FALSE) # two-sided
+angerBetweenNeuMin_d <- cohens_d(x = dataAnger$Neu_Post[dataAnger$usGroup == "real"] -
+                                dataAnger$Min_Post[dataAnger$usGroup == "real"],
+                              y = dataAnger$Neu_Post[dataAnger$usGroup == "ima"] -
+                                dataAnger$Min_Post[dataAnger$usGroup == "ima"],
+                              paired = FALSE)
+angerBetweenNeuMin_BF <- ttestBF(x = dataAnger$Neu_Post[dataAnger$usGroup == "real"] -
+                                dataAnger$Min_Post[dataAnger$usGroup == "real"],
+                              y = dataAnger$Neu_Post[dataAnger$usGroup == "ima"] - 
+                                dataAnger$Min_Post[dataAnger$usGroup == "ima"],
+                              nullInterval = NULL, paired = FALSE) # two-sided
+
+
+
+###########################################################
+### Between groups - disgust ratings - primary analyses ###
+###########################################################
+
+# frequentist & bayesian t-tests on disgust ratings (difference scores) across groups
+# delta [CS+av - CS+neu]
+disgustBetweenAvNeu_t <- t.test(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
+                               dataDisgust$Neu_Post[dataDisgust$usGroup == "real"],
+                             y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
+                               dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"],
+                             alternative = "two.sided", paired = FALSE) # two-sided
+disgustBetweenAvNeu_d <- cohens_d(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
+                                 dataDisgust$Neu_Post[dataDisgust$usGroup == "real"],
+                               y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
+                                 dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"],
+                               paired = FALSE)
+disgustBetweenAvNeu_BF <- ttestBF(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
+                                 dataDisgust$Neu_Post[dataDisgust$usGroup == "real"],
+                               y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
+                                 dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"],
+                               nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+av - CS-]
+disgustBetweenAvMin_t <- t.test(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
+                               dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
+                             y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
+                               dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
+                             alternative = "two.sided", paired = FALSE) # two-sided
+disgustBetweenAvMin_d <- cohens_d(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
+                                 dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
+                               y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
+                                 dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
+                               paired = FALSE)
+disgustBetweenAvMin_BF <- ttestBF(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
+                                 dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
+                               y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
+                                 dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
+                               nullInterval = NULL, paired = FALSE) # two-sided
+# delta [CS+neu - CS-]
+disgustBetweenNeuMin_t <- t.test(x = dataDisgust$Neu_Post[dataDisgust$usGroup == "real"] -
+                                dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
+                              y = dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"] - 
+                                dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
+                              alternative = "two.sided", paired = FALSE) # two-sided
+disgustBetweenNeuMin_d <- cohens_d(x = dataDisgust$Neu_Post[dataDisgust$usGroup == "real"] -
+                                  dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
+                                y = dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"] -
+                                  dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
+                                paired = FALSE)
+disgustBetweenNeuMin_BF <- ttestBF(x = dataDisgust$Neu_Post[dataDisgust$usGroup == "real"] -
+                                  dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
+                                y = dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"] - 
+                                  dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
+                                nullInterval = NULL, paired = FALSE) # two-sided
 
 
 
@@ -640,477 +1198,95 @@ disgustRealNeuMin_BF <- ttestBF(x = dataDisgust$Neu_Post[dataDisgust$usGroup == 
 
 
 
-#################################################################
-### Across groups - unpleasantness ratings - primary analyses ###
-#################################################################
-
-# descriptive statistics  for unpleasantess ratings across conditioning groups
-describe(dataUnpleas)
-
-# frequentist ANOVA on unpleasantness ratings across conditioning groups
-anovaUnpleas <- ezANOVA(
-  data = dataUnpleasLong[dataUnpleasLong$time == "Post",],
-  dv = unpleasantness,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  type = 3,
-  detailed = TRUE
-); anovaUnpleas$ANOVA$pEtaSq <- c(anovaUnpleas$ANOVA$SSn[1] /
-                                    (anovaUnpleas$ANOVA$SSd[1]+anovaUnpleas$ANOVA$SSn[1]),
-                                  anovaUnpleas$ANOVA$SSn[2] /
-                                    (anovaUnpleas$ANOVA$SSd[2]+anovaUnpleas$ANOVA$SSn[2]),
-                                  anovaUnpleas$ANOVA$SSn[3] /
-                                    (anovaUnpleas$ANOVA$SSd[3]+anovaUnpleas$ANOVA$SSn[3]),
-                                  anovaUnpleas$ANOVA$SSn[4] /
-                                    (anovaUnpleas$ANOVA$SSd[4]+anovaUnpleas$ANOVA$SSn[4])
-); print(anovaUnpleas)
-
-# bayesian ANOVA on unpleasantness ratings across conditioning groups
-set.seed(rngSeed); anovaBFUnpleas <- anovaBF(
-  formula = unpleasantness ~ usGroup*CS + partInd,
-  data = dataUnpleasLong[dataUnpleasLong$time == "Post",],
-  whichRandom = "partInd",
-  whichModels = "all",
-  iterations = 100000
-); print(anovaBFUnpleas)
-
-# inclusion factors for bayesian ANOVA effects
-bf_inclusion(anovaBFUnpleas)
-
-# quick graph of group x CS ANOVA on unpleasantness ratings
-ezPlot(
-  data = dataUnpleasLong[dataUnpleasLong$time == "Post",],
-  dv = unpleasantness,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  x = CS,
-  split = usGroup
-)  
-
-# frequentist & bayesian t-tests on unpleasantness ratings (difference scores) across groups
-# delta [CS+av - CS+neu]
-unpleasBothAvNeu_t <- t.test(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
-                                 dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"],
-                             y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
-                                 dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"],
-                             alternative = "two.sided", paired = FALSE) # two-sided
-unpleasBothAvNeu_d <- cohens_d(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
-                                   dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"],
-                               y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
-                                   dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"],
-                               paired = FALSE)
-unpleasBothAvNeu_BF <- ttestBF(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
-                                   dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"],
-                               y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
-                                   dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"],
-                               nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+av - CS-]
-unpleasBothAvMin_t <- t.test(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
-                                 dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
-                             y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
-                                 dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
-                             alternative = "two.sided", paired = FALSE) # two-sided
-unpleasBothAvMin_d <- cohens_d(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
-                                   dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
-                               y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
-                                   dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
-                               paired = FALSE)
-unpleasBothAvMin_BF <- ttestBF(x = dataUnpleas$Av_Post[dataUnpleas$usGroup == "real"] -
-                                   dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
-                               y = dataUnpleas$Av_Post[dataUnpleas$usGroup == "ima"] -
-                                   dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
-                               nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+neu - CS-]
-unpleasBothNeuMin_t <- t.test(x = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"] -
-                                  dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
-                              y = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"] -
-                                  dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
-                              alternative = "two.sided", paired = FALSE) # two-sided
-unpleasBothNeuMin_d <- cohens_d(x = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"] -
-                                    dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
-                                y = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"] -
-                                    dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
-                                paired = FALSE)
-unpleasBothNeuMin_BF <- ttestBF(x = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "real"] -
-                                    dataUnpleas$Min_Post[dataUnpleas$usGroup == "real"],
-                                y = dataUnpleas$Neu_Post[dataUnpleas$usGroup == "ima"] -
-                                    dataUnpleas$Min_Post[dataUnpleas$usGroup == "ima"],
-                                nullInterval = NULL, paired = FALSE) # two-sided
-
-
-
-##########################################################
-### Across groups - arousal ratings - primary analyses ###
-##########################################################
-
-# descriptive statistics for arousal ratings across conditioning groups
-describe(dataArousal)
-
-# frequentist ANOVA on arousal ratings across conditioning groups
-anovaArousal <- ezANOVA(
-  data = dataArousalLong[dataArousalLong$time == "Post",],
-  dv = arousal,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  type = 3,
-  detailed = TRUE
-); anovaArousal$ANOVA$pEtaSq <- c(anovaArousal$ANOVA$SSn[1] /
-                                    (anovaArousal$ANOVA$SSd[1]+anovaArousal$ANOVA$SSn[1]),
-                                  anovaArousal$ANOVA$SSn[2] /
-                                    (anovaArousal$ANOVA$SSd[2]+anovaArousal$ANOVA$SSn[2]),
-                                  anovaArousal$ANOVA$SSn[3] /
-                                    (anovaArousal$ANOVA$SSd[3]+anovaArousal$ANOVA$SSn[3]),
-                                  anovaArousal$ANOVA$SSn[4] /
-                                    (anovaArousal$ANOVA$SSd[4]+anovaArousal$ANOVA$SSn[4])
-); print(anovaArousal)
-
-# bayesian ANOVA on arousal ratings across conditioning groups
-set.seed(rngSeed); anovaBFArousal <- anovaBF(
-  formula = arousal ~ usGroup*CS + partInd,
-  data = dataArousalLong[dataArousalLong$time == "Post",],
-  whichRandom = "partInd",
-  whichModels = "all",
-  iterations = 100000
-); print(anovaBFArousal)
-
-# inclusion factors for bayesian ANOVA effects
-bf_inclusion(anovaBFArousal)
-
-# quick graph of group x CS ANOVA on arousal ratings
-ezPlot(
-  data = dataArousalLong[dataArousalLong$time == "Post",],
-  dv = arousal,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  x = CS,
-  split = usGroup
-)  
-
-# frequentist & bayesian t-tests on arousal ratings (difference scores) across groups
-# delta [CS+av - CS+neu]
-arousalBothAvNeu_t <- t.test(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
-                                 dataArousal$Neu_Post[dataArousal$usGroup == "real"],
-                             y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
-                                 dataArousal$Neu_Post[dataArousal$usGroup == "ima"],
-                             alternative = "two.sided", paired = FALSE) # two-sided
-arousalBothAvNeu_d <- cohens_d(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
-                                   dataArousal$Neu_Post[dataArousal$usGroup == "real"],
-                               y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
-                                   dataArousal$Neu_Post[dataArousal$usGroup == "ima"],
-                               paired = FALSE)
-arousalBothAvNeu_BF <- ttestBF(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
-                                   dataArousal$Neu_Post[dataArousal$usGroup == "real"],
-                               y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
-                                   dataArousal$Neu_Post[dataArousal$usGroup == "ima"],
-                               nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+av - CS-]
-arousalBothAvMin_t <- t.test(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
-                                 dataArousal$Min_Post[dataArousal$usGroup == "real"],
-                             y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
-                                 dataArousal$Min_Post[dataArousal$usGroup == "ima"],
-                             alternative = "two.sided", paired = FALSE) # two-sided
-arousalBothAvMin_d <- cohens_d(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
-                                   dataArousal$Min_Post[dataArousal$usGroup == "real"],
-                               y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
-                                   dataArousal$Min_Post[dataArousal$usGroup == "ima"],
-                               paired = FALSE)
-arousalBothAvMin_BF <- ttestBF(x = dataArousal$Av_Post[dataArousal$usGroup == "real"] -
-                                   dataArousal$Min_Post[dataArousal$usGroup == "real"],
-                               y = dataArousal$Av_Post[dataArousal$usGroup == "ima"] -
-                                   dataArousal$Min_Post[dataArousal$usGroup == "ima"],
-                               nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+neu - CS-]
-arousalBothNeuMin_t <- t.test(x = dataArousal$Neu_Post[dataArousal$usGroup == "real"] -
-                                  dataArousal$Min_Post[dataArousal$usGroup == "real"],
-                              y = dataArousal$Neu_Post[dataArousal$usGroup == "ima"] -
-                                  dataArousal$Min_Post[dataArousal$usGroup == "ima"],
-                              alternative = "two.sided", paired = FALSE) # two-sided
-arousalBothNeuMin_d <- cohens_d(x = dataArousal$Neu_Post[dataArousal$usGroup == "real"] -
-                                    dataArousal$Min_Post[dataArousal$usGroup == "real"],
-                                y = dataArousal$Neu_Post[dataArousal$usGroup == "ima"] -
-                                    dataArousal$Min_Post[dataArousal$usGroup == "ima"],
-                                paired = FALSE)
-arousalBothNeuMin_BF <- ttestBF(x = dataArousal$Neu_Post[dataArousal$usGroup == "real"] -
-                                    dataArousal$Min_Post[dataArousal$usGroup == "real"],
-                                y = dataArousal$Neu_Post[dataArousal$usGroup == "ima"] -
-                                    dataArousal$Min_Post[dataArousal$usGroup == "ima"],
-                                nullInterval = NULL, paired = FALSE) # two-sided
-
-
-
-#######################################################
-### Across groups - anger ratings - primary analyses ###
-#######################################################
-
-# descriptive statistics  for anger ratings across conditioning groups
-describe(dataAnger)
-
-# frequentist ANOVA on anger ratings across conditioning groups
-anovaAnger <- ezANOVA(
-  data = dataAngerLong[dataAngerLong$time == "Post",],
-  dv = anger,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  type = 3,
-  detailed = TRUE
-); anovaAnger$ANOVA$pEtaSq <- c(anovaAnger$ANOVA$SSn[1] /
-                                 (anovaAnger$ANOVA$SSd[1]+anovaAnger$ANOVA$SSn[1]),
-                               anovaAnger$ANOVA$SSn[2] /
-                                 (anovaAnger$ANOVA$SSd[2]+anovaAnger$ANOVA$SSn[2]),
-                               anovaAnger$ANOVA$SSn[3] /
-                                 (anovaAnger$ANOVA$SSd[3]+anovaAnger$ANOVA$SSn[3]),
-                               anovaAnger$ANOVA$SSn[4] /
-                                 (anovaAnger$ANOVA$SSd[4]+anovaAnger$ANOVA$SSn[4])
-); print(anovaAnger)
-
-# bayesian ANOVA on anger ratings across conditioning groups
-set.seed(rngSeed); anovaBFAnger <- anovaBF(
-  formula = anger ~ usGroup*CS + partInd,
-  data = dataAngerLong[dataAngerLong$time == "Post",],
-  whichRandom = "partInd",
-  whichModels = "all",
-  iterations = 100000
-); print(anovaBFAnger)
-
-# inclusion factors for bayesian ANOVA effects
-bf_inclusion(anovaBFAnger)
-
-# quick graph of group x CS ANOVA on anger ratings
-ezPlot(
-  data = dataAngerLong[dataAngerLong$time == "Post",],
-  dv = anger,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  x = CS,
-  split = usGroup
-)  
-
-# frequentist & bayesian t-tests on anger ratings (difference scores) across groups
-# delta [CS+av - CS+neu]
-angerBothAvNeu_t <- t.test(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
-                            dataAnger$Neu_Post[dataAnger$usGroup == "real"],
-                          y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
-                            dataAnger$Neu_Post[dataAnger$usGroup == "ima"],
-                          alternative = "two.sided", paired = FALSE) # two-sided
-angerBothAvNeu_d <- cohens_d(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
-                              dataAnger$Neu_Post[dataAnger$usGroup == "real"],
-                            y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
-                              dataAnger$Neu_Post[dataAnger$usGroup == "ima"],
-                            paired = FALSE)
-angerBothAvNeu_BF <- ttestBF(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
-                              dataAnger$Neu_Post[dataAnger$usGroup == "real"],
-                            y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
-                              dataAnger$Neu_Post[dataAnger$usGroup == "ima"],
-                            nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+av - CS-]
-angerBothAvMin_t <- t.test(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
-                            dataAnger$Min_Post[dataAnger$usGroup == "real"],
-                          y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
-                            dataAnger$Min_Post[dataAnger$usGroup == "ima"],
-                          alternative = "two.sided", paired = FALSE) # two-sided
-angerBothAvMin_d <- cohens_d(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
-                              dataAnger$Min_Post[dataAnger$usGroup == "real"],
-                            y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
-                              dataAnger$Min_Post[dataAnger$usGroup == "ima"],
-                            paired = FALSE)
-angerBothAvMin_BF <- ttestBF(x = dataAnger$Av_Post[dataAnger$usGroup == "real"] -
-                              dataAnger$Min_Post[dataAnger$usGroup == "real"],
-                            y = dataAnger$Av_Post[dataAnger$usGroup == "ima"] -
-                              dataAnger$Min_Post[dataAnger$usGroup == "ima"],
-                            nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+neu - CS-]
-angerBothNeuMin_t <- t.test(x = dataAnger$Neu_Post[dataAnger$usGroup == "real"] -
-                             dataAnger$Min_Post[dataAnger$usGroup == "real"],
-                           y = dataAnger$Neu_Post[dataAnger$usGroup == "ima"] - 
-                             dataAnger$Min_Post[dataAnger$usGroup == "ima"],
-                           alternative = "two.sided", paired = FALSE) # two-sided
-angerBothNeuMin_d <- cohens_d(x = dataAnger$Neu_Post[dataAnger$usGroup == "real"] -
-                               dataAnger$Min_Post[dataAnger$usGroup == "real"],
-                             y = dataAnger$Neu_Post[dataAnger$usGroup == "ima"] -
-                               dataAnger$Min_Post[dataAnger$usGroup == "ima"],
-                             paired = FALSE)
-angerBothNeuMin_BF <- ttestBF(x = dataAnger$Neu_Post[dataAnger$usGroup == "real"] -
-                               dataAnger$Min_Post[dataAnger$usGroup == "real"],
-                             y = dataAnger$Neu_Post[dataAnger$usGroup == "ima"] - 
-                               dataAnger$Min_Post[dataAnger$usGroup == "ima"],
-                             nullInterval = NULL, paired = FALSE) # two-sided
-
-
-
-##########################################################
-### Across groups - disgust ratings - primary analyses ###
-##########################################################
-
-# descriptive statistics  for disgust ratings across conditioning groups
-describe(dataDisgust)
-
-# frequentist ANOVA on disgust ratings across conditioning groups
-anovaDisgust <- ezANOVA(
-  data = dataDisgustLong[dataDisgustLong$time == "Post",],
-  dv = disgust,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  type = 3,
-  detailed = TRUE
-); anovaDisgust$ANOVA$pEtaSq <- c(anovaDisgust$ANOVA$SSn[1] /
-                                 (anovaDisgust$ANOVA$SSd[1]+anovaDisgust$ANOVA$SSn[1]),
-                               anovaDisgust$ANOVA$SSn[2] /
-                                 (anovaDisgust$ANOVA$SSd[2]+anovaDisgust$ANOVA$SSn[2]),
-                               anovaDisgust$ANOVA$SSn[3] /
-                                 (anovaDisgust$ANOVA$SSd[3]+anovaDisgust$ANOVA$SSn[3]),
-                               anovaDisgust$ANOVA$SSn[4] /
-                                 (anovaDisgust$ANOVA$SSd[4]+anovaDisgust$ANOVA$SSn[4])
-); print(anovaDisgust)
-
-# bayesian ANOVA on disgust ratings across conditioning groups
-set.seed(rngSeed); anovaBFDisgust <- anovaBF(
-  formula = disgust ~ usGroup*CS + partInd,
-  data = dataDisgustLong[dataDisgustLong$time == "Post",],
-  whichRandom = "partInd",
-  whichModels = "all",
-  iterations = 100000
-); print(anovaBFDisgust)
-
-# inclusion factors for bayesian ANOVA effects
-bf_inclusion(anovaBFDisgust)
-
-# quick graph of group x CS ANOVA on disgust ratings
-ezPlot(
-  data = dataDisgustLong[dataDisgustLong$time == "Post",],
-  dv = disgust,
-  wid = partInd,
-  within = .(CS),
-  between = .(usGroup),
-  x = CS,
-  split = usGroup
-)  
-
-# frequentist & bayesian t-tests on disgust ratings (difference scores) across groups
-# delta [CS+av - CS+neu]
-disgustBothAvNeu_t <- t.test(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
-                            dataDisgust$Neu_Post[dataDisgust$usGroup == "real"],
-                          y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
-                            dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"],
-                          alternative = "two.sided", paired = FALSE) # two-sided
-disgustBothAvNeu_d <- cohens_d(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
-                              dataDisgust$Neu_Post[dataDisgust$usGroup == "real"],
-                            y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
-                              dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"],
-                            paired = FALSE)
-disgustBothAvNeu_BF <- ttestBF(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
-                              dataDisgust$Neu_Post[dataDisgust$usGroup == "real"],
-                            y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
-                              dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"],
-                            nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+av - CS-]
-disgustBothAvMin_t <- t.test(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
-                            dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
-                          y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
-                            dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
-                          alternative = "two.sided", paired = FALSE) # two-sided
-disgustBothAvMin_d <- cohens_d(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
-                              dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
-                            y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
-                              dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
-                            paired = FALSE)
-disgustBothAvMin_BF <- ttestBF(x = dataDisgust$Av_Post[dataDisgust$usGroup == "real"] -
-                              dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
-                            y = dataDisgust$Av_Post[dataDisgust$usGroup == "ima"] -
-                              dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
-                            nullInterval = NULL, paired = FALSE) # two-sided
-# delta [CS+neu - CS-]
-disgustBothNeuMin_t <- t.test(x = dataDisgust$Neu_Post[dataDisgust$usGroup == "real"] -
-                             dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
-                           y = dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"] - 
-                             dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
-                           alternative = "two.sided", paired = FALSE) # two-sided
-disgustBothNeuMin_d <- cohens_d(x = dataDisgust$Neu_Post[dataDisgust$usGroup == "real"] -
-                               dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
-                             y = dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"] -
-                               dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
-                             paired = FALSE)
-disgustBothNeuMin_BF <- ttestBF(x = dataDisgust$Neu_Post[dataDisgust$usGroup == "real"] -
-                               dataDisgust$Min_Post[dataDisgust$usGroup == "real"],
-                             y = dataDisgust$Neu_Post[dataDisgust$usGroup == "ima"] - 
-                               dataDisgust$Min_Post[dataDisgust$usGroup == "ima"],
-                             nullInterval = NULL, paired = FALSE) # two-sided
-
-
 #########################
 ### Table for t-tests ###
 #########################
 
 tableData <- data.frame(
-  comparison = rep(c("imagery: CS+av vs CS+neu", "imagery: CS+av vs CS-", "imagery: CSneu vs CS-",
+  comparison = rep(c("across groups: CS+av vs CS+neu", "across groups: CS+av vs CS-", "across groups: CSneu vs CS-",
+                     "imagery: CS+av vs CS+neu", "imagery: CS+av vs CS-", "imagery: CSneu vs CS-",
                      "classical: CS+av vs CS+neu", "classical: CS+av vs CS-", "classical: CSneu vs CS-",
-                     "groups: delta CS+av / CS+neu", "groups: delta CS+av / CS-", "groups: delta CSneu / CS-"), 4),
-  t = c(unpleasImaAvNeu_t$statistic, unpleasImaAvMin_t$statistic, unpleasImaNeuMin_t$statistic,
+                     "between groups: delta CS+av / CS+neu", "groups: delta CS+av / CS-", "groups: delta CSneu / CS-"), 4),
+  t = c(unpleasAcrossAvNeu_t$statistic, unpleasAcrossAvMin_t$statistic, unpleasAcrossNeuMin_t$statistic,
+        unpleasImaAvNeu_t$statistic, unpleasImaAvMin_t$statistic, unpleasImaNeuMin_t$statistic,
         unpleasRealAvNeu_t$statistic, unpleasRealAvMin_t$statistic, unpleasRealNeuMin_t$statistic,
-        unpleasBothAvNeu_t$statistic, unpleasBothAvMin_t$statistic, unpleasBothNeuMin_t$statistic,
+        unpleasBetweenAvNeu_t$statistic, unpleasBetweenAvMin_t$statistic, unpleasBetweenNeuMin_t$statistic,
+        arousalAcrossAvNeu_t$statistic, arousalAcrossAvMin_t$statistic, arousalAcrossNeuMin_t$statistic,
         arousalImaAvNeu_t$statistic, arousalImaAvMin_t$statistic, arousalImaNeuMin_t$statistic,
         arousalRealAvNeu_t$statistic, arousalRealAvMin_t$statistic, arousalRealNeuMin_t$statistic,
-        arousalBothAvNeu_t$statistic, arousalBothAvMin_t$statistic, arousalBothNeuMin_t$statistic,
+        arousalBetweenAvNeu_t$statistic, arousalBetweenAvMin_t$statistic, arousalBetweenNeuMin_t$statistic,
+        angerAcrossAvNeu_t$statistic, angerAcrossAvMin_t$statistic, angerAcrossNeuMin_t$statistic,
         angerImaAvNeu_t$statistic, angerImaAvMin_t$statistic, angerImaNeuMin_t$statistic,
         angerRealAvNeu_t$statistic, angerRealAvMin_t$statistic, angerRealNeuMin_t$statistic,
-        angerBothAvNeu_t$statistic, angerBothAvMin_t$statistic, angerBothNeuMin_t$statistic,
+        angerBetweenAvNeu_t$statistic, angerBetweenAvMin_t$statistic, angerBetweenNeuMin_t$statistic,
+        disgustAcrossAvNeu_t$statistic, disgustAcrossAvMin_t$statistic, disgustAcrossNeuMin_t$statistic,
         disgustImaAvNeu_t$statistic, disgustImaAvMin_t$statistic, disgustImaNeuMin_t$statistic,
         disgustRealAvNeu_t$statistic, disgustRealAvMin_t$statistic, disgustRealNeuMin_t$statistic,
-        disgustBothAvNeu_t$statistic, disgustBothAvMin_t$statistic, disgustBothNeuMin_t$statistic), 
-  df = c(unpleasImaAvNeu_t$parameter, unpleasImaAvMin_t$parameter, unpleasImaNeuMin_t$parameter,
+        disgustBetweenAvNeu_t$statistic, disgustBetweenAvMin_t$statistic, disgustBetweenNeuMin_t$statistic), 
+  df = c(unpleasAcrossAvNeu_t$parameter, unpleasAcrossAvMin_t$parameter, unpleasAcrossNeuMin_t$parameter,
+         unpleasImaAvNeu_t$parameter, unpleasImaAvMin_t$parameter, unpleasImaNeuMin_t$parameter,
          unpleasRealAvNeu_t$parameter, unpleasRealAvMin_t$parameter, unpleasRealNeuMin_t$parameter,
-         unpleasBothAvNeu_t$parameter, unpleasBothAvMin_t$parameter, unpleasBothNeuMin_t$parameter,
+         unpleasBetweenAvNeu_t$parameter, unpleasBetweenAvMin_t$parameter, unpleasBetweenNeuMin_t$parameter,
+         arousalAcrossAvNeu_t$parameter, arousalAcrossAvMin_t$parameter, arousalAcrossNeuMin_t$parameter,
          arousalImaAvNeu_t$parameter, arousalImaAvMin_t$parameter, arousalImaNeuMin_t$parameter,
          arousalRealAvNeu_t$parameter, arousalRealAvMin_t$parameter, arousalRealNeuMin_t$parameter,
-         arousalBothAvNeu_t$parameter, arousalBothAvMin_t$parameter, arousalBothNeuMin_t$parameter,
+         arousalBetweenAvNeu_t$parameter, arousalBetweenAvMin_t$parameter, arousalBetweenNeuMin_t$parameter,
+         angerAcrossAvNeu_t$parameter, angerAcrossAvMin_t$parameter, angerAcrossNeuMin_t$parameter,
          angerImaAvNeu_t$parameter, angerImaAvMin_t$parameter, angerImaNeuMin_t$parameter,
          angerRealAvNeu_t$parameter, angerRealAvMin_t$parameter, angerRealNeuMin_t$parameter,
-         angerBothAvNeu_t$parameter, angerBothAvMin_t$parameter, angerBothNeuMin_t$parameter,
+         angerBetweenAvNeu_t$parameter, angerBetweenAvMin_t$parameter, angerBetweenNeuMin_t$parameter,
+         disgustAcrossAvNeu_t$parameter, disgustAcrossAvMin_t$parameter, disgustAcrossNeuMin_t$parameter,
          disgustImaAvNeu_t$parameter, disgustImaAvMin_t$parameter, disgustImaNeuMin_t$parameter,
          disgustRealAvNeu_t$parameter, disgustRealAvMin_t$parameter, disgustRealNeuMin_t$parameter,
-         disgustBothAvNeu_t$parameter, disgustBothAvMin_t$parameter, disgustBothNeuMin_t$parameter), 
-  p = c(unpleasImaAvNeu_t$p.value, unpleasImaAvMin_t$p.value, unpleasImaNeuMin_t$p.value,
+         disgustBetweenAvNeu_t$parameter, disgustBetweenAvMin_t$parameter, disgustBetweenNeuMin_t$parameter), 
+  p = c(unpleasAcrossAvNeu_t$p.value, unpleasAcrossAvMin_t$p.value, unpleasAcrossNeuMin_t$p.value,
+        unpleasImaAvNeu_t$p.value, unpleasImaAvMin_t$p.value, unpleasImaNeuMin_t$p.value,
         unpleasRealAvNeu_t$p.value, unpleasRealAvMin_t$p.value, unpleasRealNeuMin_t$p.value,
-        unpleasBothAvNeu_t$p.value*3, unpleasBothAvMin_t$p.value*3, unpleasBothNeuMin_t$p.value*3, # Bonferroni
+        unpleasBetweenAvNeu_t$p.value*3, unpleasBetweenAvMin_t$p.value*3, unpleasBetweenNeuMin_t$p.value*3, # Bonferroni
+        arousalAcrossAvNeu_t$p.value, arousalAcrossAvMin_t$p.value, arousalAcrossNeuMin_t$p.value,
         arousalImaAvNeu_t$p.value, arousalImaAvMin_t$p.value, arousalImaNeuMin_t$p.value,
         arousalRealAvNeu_t$p.value, arousalRealAvMin_t$p.value, arousalRealNeuMin_t$p.value,
-        arousalBothAvNeu_t$p.value*3, arousalBothAvMin_t$p.value*3, arousalBothNeuMin_t$p.value*3,  # Bonferroni
+        arousalBetweenAvNeu_t$p.value*3, arousalBetweenAvMin_t$p.value*3, arousalBetweenNeuMin_t$p.value*3,  # Bonferroni
+        angerAcrossAvNeu_t$p.value, angerAcrossAvMin_t$p.value, angerAcrossNeuMin_t$p.value,
         angerImaAvNeu_t$p.value, angerImaAvMin_t$p.value, angerImaNeuMin_t$p.value,
         angerRealAvNeu_t$p.value, angerRealAvMin_t$p.value, angerRealNeuMin_t$p.value,
-        angerBothAvNeu_t$p.value*3, angerBothAvMin_t$p.value*3, angerBothNeuMin_t$p.value*3,  # Bonferroni
+        angerBetweenAvNeu_t$p.value*3, angerBetweenAvMin_t$p.value*3, angerBetweenNeuMin_t$p.value*3,  # Bonferroni
+        disgustAcrossAvNeu_t$p.value, disgustAcrossAvMin_t$p.value, disgustAcrossNeuMin_t$p.value,
         disgustImaAvNeu_t$p.value, disgustImaAvMin_t$p.value, disgustImaNeuMin_t$p.value,
         disgustRealAvNeu_t$p.value, disgustRealAvMin_t$p.value, disgustRealNeuMin_t$p.value,
-        disgustBothAvNeu_t$p.value*3, disgustBothAvMin_t$p.value*3, disgustBothNeuMin_t$p.value*3),  # Bonferroni
-  d = c(unpleasImaAvNeu_d$Cohens_d, unpleasImaAvMin_d$Cohens_d, unpleasImaNeuMin_d$Cohens_d,
+        disgustBetweenAvNeu_t$p.value*3, disgustBetweenAvMin_t$p.value*3, disgustBetweenNeuMin_t$p.value*3),  # Bonferroni
+  d = c(unpleasAcrossAvNeu_d$Cohens_d, unpleasAcrossAvMin_d$Cohens_d, unpleasAcrossNeuMin_d$Cohens_d,
+        unpleasImaAvNeu_d$Cohens_d, unpleasImaAvMin_d$Cohens_d, unpleasImaNeuMin_d$Cohens_d,
         unpleasRealAvNeu_d$Cohens_d, unpleasRealAvMin_d$Cohens_d, unpleasRealNeuMin_d$Cohens_d,
-        unpleasBothAvNeu_d$Cohens_d, unpleasBothAvMin_d$Cohens_d, unpleasBothNeuMin_d$Cohens_d,
+        unpleasBetweenAvNeu_d$Cohens_d, unpleasBetweenAvMin_d$Cohens_d, unpleasBetweenNeuMin_d$Cohens_d,
+        arousalAcrossAvNeu_d$Cohens_d, arousalAcrossAvMin_d$Cohens_d, arousalAcrossNeuMin_d$Cohens_d,
         arousalImaAvNeu_d$Cohens_d, arousalImaAvMin_d$Cohens_d, arousalImaNeuMin_d$Cohens_d,
         arousalRealAvNeu_d$Cohens_d, arousalRealAvMin_d$Cohens_d, arousalRealNeuMin_d$Cohens_d,
-        arousalBothAvNeu_d$Cohens_d, arousalBothAvMin_d$Cohens_d, arousalBothNeuMin_d$Cohens_d,
+        arousalBetweenAvNeu_d$Cohens_d, arousalBetweenAvMin_d$Cohens_d, arousalBetweenNeuMin_d$Cohens_d,
+        angerAcrossAvNeu_d$Cohens_d, angerAcrossAvMin_d$Cohens_d, angerAcrossNeuMin_d$Cohens_d,
         angerImaAvNeu_d$Cohens_d, angerImaAvMin_d$Cohens_d, angerImaNeuMin_d$Cohens_d,
         angerRealAvNeu_d$Cohens_d, angerRealAvMin_d$Cohens_d, angerRealNeuMin_d$Cohens_d,
-        angerBothAvNeu_d$Cohens_d, angerBothAvMin_d$Cohens_d, angerBothNeuMin_d$Cohens_d,
+        angerBetweenAvNeu_d$Cohens_d, angerBetweenAvMin_d$Cohens_d, angerBetweenNeuMin_d$Cohens_d,
+        disgustAcrossAvNeu_d$Cohens_d, disgustAcrossAvMin_d$Cohens_d, disgustAcrossNeuMin_d$Cohens_d,
         disgustImaAvNeu_d$Cohens_d, disgustImaAvMin_d$Cohens_d, disgustImaNeuMin_d$Cohens_d,
         disgustRealAvNeu_d$Cohens_d, disgustRealAvMin_d$Cohens_d, disgustRealNeuMin_d$Cohens_d,
-        disgustBothAvNeu_d$Cohens_d, disgustBothAvMin_d$Cohens_d, disgustBothNeuMin_d$Cohens_d), 
-  BF = c(exp(unpleasImaAvNeu_BF@bayesFactor[["bf"]][1]), exp(unpleasImaAvMin_BF@bayesFactor[["bf"]][1]), exp(unpleasImaNeuMin_BF@bayesFactor[["bf"]][1]),
+        disgustBetweenAvNeu_d$Cohens_d, disgustBetweenAvMin_d$Cohens_d, disgustBetweenNeuMin_d$Cohens_d), 
+  BF = c(exp(unpleasAcrossAvNeu_BF@bayesFactor[["bf"]][1]), exp(unpleasAcrossAvMin_BF@bayesFactor[["bf"]][1]), exp(unpleasAcrossNeuMin_BF@bayesFactor[["bf"]][1]),
+         exp(unpleasImaAvNeu_BF@bayesFactor[["bf"]][1]), exp(unpleasImaAvMin_BF@bayesFactor[["bf"]][1]), exp(unpleasImaNeuMin_BF@bayesFactor[["bf"]][1]),
          exp(unpleasRealAvNeu_BF@bayesFactor[["bf"]][1]), exp(unpleasRealAvMin_BF@bayesFactor[["bf"]][1]), exp(unpleasRealNeuMin_BF@bayesFactor[["bf"]][1]),
-         exp(unpleasBothAvNeu_BF@bayesFactor[["bf"]][1]), exp(unpleasBothAvMin_BF@bayesFactor[["bf"]][1]), exp(unpleasBothNeuMin_BF@bayesFactor[["bf"]][1]),
+         exp(unpleasBetweenAvNeu_BF@bayesFactor[["bf"]][1]), exp(unpleasBetweenAvMin_BF@bayesFactor[["bf"]][1]), exp(unpleasBetweenNeuMin_BF@bayesFactor[["bf"]][1]),
+         exp(arousalAcrossAvNeu_BF@bayesFactor[["bf"]][1]), exp(arousalAcrossAvMin_BF@bayesFactor[["bf"]][1]), exp(arousalAcrossNeuMin_BF@bayesFactor[["bf"]][1]),
          exp(arousalImaAvNeu_BF@bayesFactor[["bf"]][1]), exp(arousalImaAvMin_BF@bayesFactor[["bf"]][1]), exp(arousalImaNeuMin_BF@bayesFactor[["bf"]][1]),
          exp(arousalRealAvNeu_BF@bayesFactor[["bf"]][1]), exp(arousalRealAvMin_BF@bayesFactor[["bf"]][1]), exp(arousalRealNeuMin_BF@bayesFactor[["bf"]][1]),
-         exp(arousalBothAvNeu_BF@bayesFactor[["bf"]][1]), exp(arousalBothAvMin_BF@bayesFactor[["bf"]][1]), exp(arousalBothNeuMin_BF@bayesFactor[["bf"]][1]),
+         exp(arousalBetweenAvNeu_BF@bayesFactor[["bf"]][1]), exp(arousalBetweenAvMin_BF@bayesFactor[["bf"]][1]), exp(arousalBetweenNeuMin_BF@bayesFactor[["bf"]][1]),
+         exp(angerAcrossAvNeu_BF@bayesFactor[["bf"]][1]), exp(angerAcrossAvMin_BF@bayesFactor[["bf"]][1]), exp(angerAcrossNeuMin_BF@bayesFactor[["bf"]][1]),
          exp(angerImaAvNeu_BF@bayesFactor[["bf"]][1]), exp(angerImaAvMin_BF@bayesFactor[["bf"]][1]), exp(angerImaNeuMin_BF@bayesFactor[["bf"]][1]),
          exp(angerRealAvNeu_BF@bayesFactor[["bf"]][1]), exp(angerRealAvMin_BF@bayesFactor[["bf"]][1]), exp(angerRealNeuMin_BF@bayesFactor[["bf"]][1]),
-         exp(angerBothAvNeu_BF@bayesFactor[["bf"]][1]), exp(angerBothAvMin_BF@bayesFactor[["bf"]][1]), exp(angerBothNeuMin_BF@bayesFactor[["bf"]][1]),
+         exp(angerBetweenAvNeu_BF@bayesFactor[["bf"]][1]), exp(angerBetweenAvMin_BF@bayesFactor[["bf"]][1]), exp(angerBetweenNeuMin_BF@bayesFactor[["bf"]][1]),
+         exp(disgustAcrossAvNeu_BF@bayesFactor[["bf"]][1]), exp(disgustAcrossAvMin_BF@bayesFactor[["bf"]][1]), exp(disgustAcrossNeuMin_BF@bayesFactor[["bf"]][1]),
          exp(disgustImaAvNeu_BF@bayesFactor[["bf"]][1]), exp(disgustImaAvMin_BF@bayesFactor[["bf"]][1]), exp(disgustImaNeuMin_BF@bayesFactor[["bf"]][1]),
          exp(disgustRealAvNeu_BF@bayesFactor[["bf"]][1]), exp(disgustRealAvMin_BF@bayesFactor[["bf"]][1]), exp(disgustRealNeuMin_BF@bayesFactor[["bf"]][1]),
-         exp(disgustBothAvNeu_BF@bayesFactor[["bf"]][1]), exp(disgustBothAvMin_BF@bayesFactor[["bf"]][1]), exp(disgustBothNeuMin_BF@bayesFactor[["bf"]][1]))
+         exp(disgustBetweenAvNeu_BF@bayesFactor[["bf"]][1]), exp(disgustBetweenAvMin_BF@bayesFactor[["bf"]][1]), exp(disgustBetweenNeuMin_BF@bayesFactor[["bf"]][1]))
 )
 
 # round the numbers
@@ -1123,16 +1299,16 @@ tableData$p <- as.character(tableData$p)
 tableData$p[tableData$p == "0"] <- "< .001"
 tableData$p <- str_replace(tableData$p, "0\\.", "\\.")
 tableData$d <-round(tableData$d, 2)
-tableData$BF <- format(tableData$BF, digits = 2)
+tableData$BF <- format(tableData$BF, digits = 3)
 
-tableUnpleas <- flextable(tableData[1:9,])
+tableUnpleas <- flextable(tableData[1:12,])
 tableUnpleas <- add_header_lines(tableUnpleas, top = TRUE, values = "unpleasantness")
 tableUnpleas <- align(tableUnpleas, align = "center")
-tableArousal <- flextable(tableData[10:18,])
+tableArousal <- flextable(tableData[13:24,])
 tableArousal <- add_header_lines(tableArousal, top = TRUE, values = "arousal")
-tableAnger <- flextable(tableData[19:27,])
+tableAnger <- flextable(tableData[25:36,])
 tableAnger <- add_header_lines(tableAnger, top = TRUE, values = "anger")
-tableDisgust <- flextable(tableData[28:36,])
+tableDisgust <- flextable(tableData[37:48,])
 tableDisgust <- add_header_lines(tableDisgust, top = TRUE, values = "disgust")
 
 save_as_docx(tableUnpleas, path = paste0(pathname, "/supplement/t_table_Unpleasant.docx"))
