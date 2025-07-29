@@ -2,7 +2,7 @@
 # --- encoding: en_US.UTF-8
 # --- R version: 4.3.1 (2023-06-16) -- "Beagle Scouts"
 # --- RStudio version: 2023.06.0
-# --- script version: Mar 2024
+# --- script version: Jul 2025
 # --- content: demographics (age, gender, handedness, BIS sensitivity)
 
 ################
@@ -12,7 +12,8 @@
 # loading required packages
 library(psych) # ver. 2.3.9
 library(here) # ver. 1.0.1
-
+library(effectsize)
+library(BayesFactor)
 
 
 ##################################
@@ -35,5 +36,11 @@ table(dfRatings$gender, dfRatings$group)
 table(dfRatings$handedness)
 table(dfRatings$handedness, dfRatings$group)
 
-# Average BIS sensitivity scores, separate for gender
+# Average ZKPQ Neuroticism-Anxiety scores, separate for gender
 describeBy(dfRatings$bis, group = dfRatings$gender)
+
+t.test(age ~ group, data = sosciData)
+cohens_d(age ~ group, data = sosciData)
+
+t.test(zkpq_nanx ~ group, data = sosciData)
+cohens_d(zkpq_nanx ~ group, data = sosciData)
