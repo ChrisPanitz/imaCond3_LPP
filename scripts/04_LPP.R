@@ -730,11 +730,12 @@ graphLPP <- ggarrange(graphLPProw1,graphLPProw2,
 graphLPP
 
 # saving it
-ggsave(filename = paste0(pathname, "/figures/Figure5_timeCourse_diffPlot_LPP.eps"),
+ggsave(filename = paste0(pathname, "/figures/Figure5_timeCourse_diffPlot_LPP.png"),
        plot = graphLPP,
        width = 200,
        height = 150,
-       units = "mm"
+       units = "mm",
+       dpi = 1200
 )
 
 ggsave(filename = paste0(pathname, "/figures/Figure5_timeCourse_diffPlot_LPP.pdf"),

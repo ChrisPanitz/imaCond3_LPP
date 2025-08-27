@@ -446,12 +446,12 @@ graphFear <- graphFear + theme(plot.title = element_blank(),
                                plot.margin = margin(5,5,5,5))
 
 # saving it
-ggsave(filename = paste0(pathname, "/figures/Figure2_plotFear.eps"),
+ggsave(filename = paste0(pathname, "/figures/Figure2_plotFear.png"),
        plot = graphFear,
        width = 100,
        height = 70,
        units = "mm",
-       dpi = 300
+       dpi = 1200
 )
 
 ggsave(filename = paste0(pathname, "/figures/Figure2_plotFear.pdf"),

@@ -554,11 +554,12 @@ graphIBI <- ggarrange(graphIBIrow1,graphIBIrow2,
 graphIBI
 
 # saving it
-ggsave(filename = paste0(pathname, "/figures/Figure4b_timeCourses_diffPlot_IBI_exploratory.eps"),
+ggsave(filename = paste0(pathname, "/figures/Figure4b_timeCourses_diffPlot_IBI_exploratory.png"),
        plot = graphIBI,
        width = 150,
        height = 150,
-       units = "mm"
+       units = "mm",
+       dpi = 1200
 )
 
 ggsave(filename = paste0(pathname, "/figures/Figure4b_timeCourses_diffPlot_IBI_exploratory.pdf"),

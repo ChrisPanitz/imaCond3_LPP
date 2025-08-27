@@ -1580,12 +1580,12 @@ graphRatings <- ggarrange(graphUnpleas, graphArousal,
 
 
 # saving it
-ggsave(filename = paste0(pathname, "/supplement/FigureSupp_plotOtherRatings.eps"),
+ggsave(filename = paste0(pathname, "/supplement/FigureSupp_plotOtherRatings.png"),
        plot = graphRatings,
        width = 210,
        height = 180,
        units = "mm",
-       dpi = 300
+       dpi = 1200
 )
 
 ggsave(filename = paste0(pathname, "/supplement/FigureSupp_plotOtherRatings.pdf"),

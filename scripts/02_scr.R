@@ -443,12 +443,12 @@ if (showSig == TRUE){
 graphSCR
 
 # saving it
-ggsave(filename = "Figures/Figure3_plotSCR.eps",
+ggsave(filename = "Figures/Figure3_plotSCR.png",
        plot = graphSCR,
        width = 100,
        height = 70,
        units = "mm",
-       dpi = 300
+       dpi = 1200
 )
 
 ggsave(filename = "Figures/Figure3_plotSCR.pdf",
