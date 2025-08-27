@@ -38,7 +38,8 @@ TWOI <- c(300,700) # Time Window Of Interest (in ms)
 chanInd <- 31 # 31 = index of Pz in EEG array
 
 # computed
-SWOI <- c(round(TWOI[1]-startSeg*sRate/1000),round(TWOI[2]-startSeg*sRate/1000)) # Sample Window Of Interest
+# Sample Window Of Interest
+SWOI <- c(round((TWOI[1]-startSeg)*sRate/1000),round((TWOI[2]-startSeg)*sRate/1000)) 
 
 
 

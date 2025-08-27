@@ -1,13 +1,13 @@
 Bayes factor analysis
 --------------
-[1] CS + partInd + CS:partInd + time:partInd                  : 0.7111022  ±0.31%
-[2] time + partInd + CS:partInd + time:partInd                : 0.2416107  ±0.37%
-[3] CS:time + partInd + CS:partInd + time:partInd             : 0.3805004  ±0.27%
-[4] CS + time + partInd + CS:partInd + time:partInd           : 0.1734086  ±0.64%
-[5] CS + CS:time + partInd + CS:partInd + time:partInd        : 0.2818471  ±0.75%
-[6] time + CS:time + partInd + CS:partInd + time:partInd      : 0.09462809 ±1.14%
-[7] CS + time + CS:time + partInd + CS:partInd + time:partInd : 0.07033073 ±1.63%
-[8] partInd + CS:partInd + time:partInd                       : 1          ±0.11%
+[1] CS + partInd + CS:partInd + time:partInd                  : 0.7072957  ±0.31%
+[2] time + partInd + CS:partInd + time:partInd                : 0.2418154  ±0.37%
+[3] CS:time + partInd + CS:partInd + time:partInd             : 0.3586309  ±0.27%
+[4] CS + time + partInd + CS:partInd + time:partInd           : 0.1726335  ±0.64%
+[5] CS + CS:time + partInd + CS:partInd + time:partInd        : 0.2637915  ±0.75%
+[6] time + CS:time + partInd + CS:partInd + time:partInd      : 0.08927491 ±1.14%
+[7] CS + time + CS:time + partInd + CS:partInd + time:partInd : 0.06586229 ±1.62%
+[8] partInd + CS:partInd + time:partInd                       : 1          ±0.12%
 
 Against denominator:
   Intercept and random slopes only 

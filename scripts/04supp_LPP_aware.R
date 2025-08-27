@@ -45,7 +45,7 @@ chanNames <- c("Pz")
 
 # computed
 # Sample Window Of Interest
-SWOI <- c(round(TWOI[1]-startSeg*sRate/1000),round(TWOI[2]-startSeg*sRate/1000)) 
+SWOI <- c(round((TWOI[1]-startSeg)*sRate/1000),round((TWOI[2]-startSeg)*sRate/1000)) 
 
 
 

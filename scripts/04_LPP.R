@@ -45,7 +45,7 @@ chanNames <- c("Pz")
 
 # computed
 # Sample Window Of Interest
-SWOI <- c(round(TWOI[1]-startSeg*sRate/1000),round(TWOI[2]-startSeg*sRate/1000)) 
+SWOI <- c(round((TWOI[1]-startSeg)*sRate/1000),round((TWOI[2]-startSeg)*sRate/1000)) 
 
 
 
@@ -568,8 +568,8 @@ graphLPPdiffReal <- ggplot(data = dataLPPdiff[dataLPPdiff$usGroup == "real",], a
 
 if (showSig == TRUE){
   graphLPPdiffIma <- graphLPPdiffIma +
-    geom_text(aes(label = "†", x = 1, y = 13.5), size = plotFS/2, color = "darkred", family = "Helvetica") +
-    geom_text(aes(label = "*", x = 2, y = 12.75), size = plotFS/1.5, color = "darkred")
+    geom_text(aes(label = "†", x = 1, y = 13.0), size = plotFS/2, color = "darkred", family = "Helvetica") +
+    geom_text(aes(label = "*", x = 2, y = 12.25), size = plotFS/1.5, color = "darkred")
   graphLPPdiffReal <- graphLPPdiffReal +  
     geom_text(aes(label = "*", x = 1, y = 12.75), size = plotFS/1.5, color = "darkred")
 }

@@ -45,7 +45,7 @@ chanNames <- c("Pz", "POz", "P1", "P2", "P3", "P4", "PO3", "PO4")
 
 # computed
 # Sample Window Of Interest
-SWOI <- c(round(TWOI[1]-startSeg*sRate/1000),round(TWOI[2]-startSeg*sRate/1000)) 
+SWOI <- c(round((TWOI[1]-startSeg)*sRate/1000),round((TWOI[2]-startSeg)*sRate/1000)) 
 
 
 
@@ -572,11 +572,11 @@ graphLPPdiffReal <- ggplot(data = dataLPPdiff[dataLPPdiff$usGroup == "real",], a
 
 if (showSig == TRUE){
   graphLPPdiffIma <- graphLPPdiffIma +
-    geom_text(aes(label = "†", x = 1, y = 15.5), size = plotFS/2, color = "darkred", family = "Helvetica") +
-    geom_text(aes(label = "***", x = 2, y = 14.75), size = plotFS/1.5, color = "darkred")
+    geom_text(aes(label = "†", x = 1, y = 15.0), size = plotFS/2, color = "darkred", family = "Helvetica") +
+    geom_text(aes(label = "***", x = 2, y = 14.25), size = plotFS/1.5, color = "darkred")
   graphLPPdiffReal <- graphLPPdiffReal +  
-    geom_text(aes(label = "**", x = 1, y = 14.75), size = plotFS/1.5, color = "darkred") +
-    geom_text(aes(label = "†", x = 2, y = 15.5), size = plotFS/2, color = "darkred", family = "Helvetica")
+    geom_text(aes(label = "**", x = 1, y = 14.25), size = plotFS/1.5, color = "darkred") +
+    geom_text(aes(label = "†", x = 2, y = 15.0), size = plotFS/2, color = "darkred", family = "Helvetica")
 }
 
 
@@ -676,15 +676,15 @@ topoIma$guides$fill$title.hjust <- 0.5
 topoIma$guides$fill$nbin <- nrColors
 
 
-# imagery-based conditioning group  
+# classical conditioning group  
 topoReal <- topoplot(data = dfToposReal,
                      contour = FALSE, interp_limit = "head", highlights = chanNames,
                      grid_res = topoRes, quantity = "contrast", scaling = .33,
                      limits = c(-absLim, absLim)) +
   labs(title = expression(paste("CS+"[av], " vs [CS+"[neu], " & CS-]"))) +
   theme(legend.position = "bottom",
-        legend.text = element_text(size = plotFS),
-        plot.title = element_text(hjust = 0.5, size = plotFS))
+        legend.text = element_text(size = plotFS, family = "Arial"),
+        plot.title = element_text(hjust = 0.5, size = plotFS, family = "Helvetica"))
 # format the color bar
 topoReal$guides$fill$barwidth <- unit(6, "lines")
 topoReal$guides$fill$barheight <- unit(.5, "lines")
